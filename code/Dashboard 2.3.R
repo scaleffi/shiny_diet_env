@@ -30,9 +30,9 @@ rm(list = ls())
   
     #Report_TRS Load the csv file from work computer, and make it into a dataframe
     #csv_file_trs <- "/Users/lshsc40/Documents/R files/report_env_trs_053123.csv"
-    #csv_file_trs <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/report_env_trs_053123.csv"
+    csv_file_trs <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/report_env_trs_053123.csv"
     #load from personal laptop
-    csv_file_trs <- "/Users/sebastianoc/Documents/R scripts/report_env_trs_053123.csv"
+    #csv_file_trs <- "/Users/sebastianoc/Documents/R scripts/report_env_trs_053123.csv"
     
 
     data_trs <- read.csv(csv_file_trs)
@@ -78,9 +78,9 @@ rm(list = ls())
         
     #Report_BOX Load the csv file on work laptop
     #csv_file_box <- "/Users/lshsc40/Documents/R files/report_env_box_060123.csv"
-    #csv_file_box <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/report_env_box_060123.csv"
+    csv_file_box <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/report_env_box_060123.csv"
     #Report_BOX Load the csv file on personal laptop
-    csv_file_box <- "/Users/sebastianoc/Documents/R scripts/report_env_box_060123.csv"
+    #csv_file_box <- "/Users/sebastianoc/Documents/R scripts/report_env_box_060123.csv"
     #generate a dataset from the _box file as source for the dashboard
     data_box <- read.csv(csv_file_box)
     data_box$value <- round(data_box$value, 2)
@@ -92,9 +92,9 @@ rm(list = ls())
     
     #Load from work laptop
     #csv_file_cons <- "/Users/lshsc40/Documents/R files/cons_compare_012823.csv"
-    #csv_file_cons <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/cons_compare_012823.csv"
+    csv_file_cons <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/cons_compare_012823.csv"
     #Load from personal laptop
-    csv_file_cons <- "/Users/sebastianoc/Documents/R scripts/cons_compare_012823.csv"
+    #csv_file_cons <- "/Users/sebastianoc/Documents/R scripts/cons_compare_012823.csv"
     
     data_cons <- read.csv(csv_file_cons)
     data_cons$Intake <- round(data_cons$Intake, 2)
@@ -105,9 +105,9 @@ rm(list = ls())
     ########################################
     
     #Load from work laptop
-    #csv_file_FBSintake <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/FBS_intake_socio_all-a_051523.csv"
+    csv_file_FBSintake <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/FBS_intake_socio_all-a_051523.csv"
     #Load from personal laptop
-    csv_file_FBSintake <- "/Users/sebastianoc/Documents/R scripts/FBS_intake_socio_all-a_051523.csv"
+    #csv_file_FBSintake <- "/Users/sebastianoc/Documents/R scripts/FBS_intake_socio_all-a_051523.csv"
     
     data_FBSintake <- read.csv(csv_file_FBSintake)
     data_FBSintake$Value <- round(data_FBSintake$Value, 2)
