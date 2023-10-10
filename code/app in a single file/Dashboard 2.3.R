@@ -1,10 +1,11 @@
-#This file includes all the instructions to launch the dashboard. It only requires loading in the correct data files.
+#This file includes all the instructions to launch the dashboard. It only requires loading in the correct data files, and can be run directly
+#from the Run App button.
 
-library(shiny)
-library(ggplot2)
-library(dplyr)
-library(shinydashboard)
 library(tidyverse)
+library(shiny)
+#library(ggplot2)
+#library(dplyr)
+library(shinydashboard)
 library(ggrepel)
 library(gghighlight)
 library(RColorBrewer)
@@ -12,10 +13,10 @@ library(ggthemes)
 library(patchwork)
 library(thematic)
 library(bbplot)
-library(plotly)
-library(here)
+#library(plotly)
+#library(here)
 library(DT)
-library(tidyr)
+#library(tidyr)
 #clear the environment
 rm(list = ls())
 
@@ -129,7 +130,7 @@ rm(list = ls())
     
     ui <- dashboardPage(
             dashboardHeader(
-              title = "Explore the environmental footprint of global diets",
+              title = "LSHTM - Global diets data explorer",
               titleWidth = 450
               ),
         # titlePanel("The environmental footprints of global diets"),
@@ -170,7 +171,7 @@ rm(list = ls())
                           selectInput("cns_prsp_2", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
                           selectInput("measure_2", "Select Measure:", choices = c("cap-avg_WLD","cap-avg_RGS"), selected = "cap-avg_WLD"),
                           selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "avg"),
-                          selectInput("region_2", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = "WLD"),
+                          selectInput("region_2", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
                           selectInput("age.education_2", "Select age group:", choices = c("0-10", "11-19", "20-39", "40-64", "65+", "all-a"), multiple = TRUE, selected = c("0-10", "11-19", "20-39", "40-64", "65+")),
                           selectInput("sex.urbanisation_2", "Select sex:", choices = c("MLE", "FML", "BTH"), multiple = TRUE, selected = c("MLE", "FML")),
                           downloadButton("download_csv_sexage", "Download table"),
@@ -716,6 +717,7 @@ rm(list = ls())
           scale_color_brewer(palette = "Set1", name = "Sex:", labels = c("Female", "Male")) +
           scale_shape(name = "Sex:", labels = c("Female", "Male")) +
           geom_text_repel(aes(label = value), show.legend = FALSE) +
+          scale_x_discrete(guide = guide_axis(n.dodge=2)) +
           #facet_wrap(~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")),ncol = 4, labeller = labeller(region = region.labs)) +
           facet_wrap(~ region_custom,ncol = 4) +
           geom_hline(yintercept = 1, alpha = 0.3) +
@@ -739,6 +741,7 @@ rm(list = ls())
           scale_color_brewer(palette = "Dark2", name="Urbanisation:", labels=c("Rural", "Urban")) +
           scale_shape(name = "Urbanisation:", labels = c("Rural", "Urban")) +
           geom_text_repel(aes(label = value), show.legend = FALSE) +
+          scale_x_discrete(guide = guide_axis(n.dodge=2)) +
           facet_wrap(~ region_custom,ncol = 4) +
           geom_hline(yintercept = 1, alpha = 0.3) +
           #guides(shape = "none") +
