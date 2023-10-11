@@ -138,12 +138,16 @@ ui <- dashboardPage(
                 selectInput("measure_1", "Select Measure:", choices = c("abs", "cap"), selected = "cap"),
                 selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"),multiple = TRUE, selected = "GHG"),
                 selectInput("food_group_1", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = "total"),
-                selectInput("region_1", "Select Region:", choices = c("LIC", "LMC", "UMC", "HIC", "WLD"), multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC"))
+                selectInput("region_1", "Select Region:", choices = c("LIC", "LMC", "UMC", "HIC", "WLD"), multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
+                downloadButton("download_csv_region", "Download table")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                plotOutput("plot_region"
-                           #, height = 400
+                tabsetPanel(
+                  tabPanel("Plot", plotOutput("plot_region"
+                                              #, height = 400
+                  )),
+                  tabPanel("Table",tableOutput("region_table"))
                 )
               )
             )
@@ -161,8 +165,11 @@ ui <- dashboardPage(
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                plotOutput("plot_regiongeo"
-                           #, height = 400
+                tabsetPanel(
+                  tabPanel("Plot", plotOutput("plot_regiongeo"
+                                              #, height = 400
+                  )),
+                  tabPanel("Table",tableOutput("regiongeo_table"))
                 )
               )  
             )

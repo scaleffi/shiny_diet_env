@@ -57,7 +57,3 @@ csv_file_FBSintake <- "data/FBS_intake_socio_all-a_051523.csv"
     data_FBSintake <- read.csv(csv_file_FBSintake)
     data_FBSintake$Value <- round(data_FBSintake$Value, 2)
     df_FBSintake <- data_FBSintake
-  
-   
-   
-

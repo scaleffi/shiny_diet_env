@@ -16,13 +16,15 @@ library(DT)
 
 server <- function(input, output) {
   
-  ###########
-  #Create filters for tabs in the first menu item, 'compare by sociodemographic'. 
+  #Create filters----
   #NOTE: The filters need to be coherent with the options for data selection given to users in the UI using the command 'selectInput'. If the user is
   #given the freedom to choose specific inputs in the UI, but then the corresponding filters are not set appropriately in the Server, 
   #the app may work but it won't display any plots, or the plots may be empty. So if plots are not showing or not showing correctly, first ensure that
   #the inputs available to the user in the UI correctly match the corresponding filters in the Server function.
-  ###########
+  
+  
+  
+  ##Create filters for tabs in the first menu item, 'compare by sociodemographic'.---- 
   
   #Note on filter notation: 
   #The notation == means that for the variable x, the app will take as input the specific value selected for that variable by the user through the UI interface. It implies that the user can select only one value at a time for that variable.
@@ -70,9 +72,9 @@ server <- function(input, output) {
              region %in% input$region_7)
   })
 
-  #############
-  #Create filters for tabs in the second menu item, 'compare by food groups'
-  #############
+  
+  ##Create filters for tabs in the second menu item, 'compare by region'----
+  
   filtered_data_region <- reactive({
     df %>%
       filter(measure == input$measure_1,
@@ -97,9 +99,9 @@ server <- function(input, output) {
              region %in% input$region_5)
   })
 
-  #############
-  #Create filters for tabs in the third menu item, 'compare by categories'
-  #############
+  
+  ##Create filters for tabs in the third menu item, 'compare by categories'----
+  
   filtered_data_category <- reactive({
     df_trs_macrof %>%
       filter(measure == input$measure_4,
@@ -123,9 +125,9 @@ server <- function(input, output) {
   })
 
 
-  #############
-  #Create filters for tabs in the fourth menu item, 'consumption data'
-  #############
+  
+  ##Create filters for tabs in the fourth menu item, 'consumption data'----
+  
   filtered_data_consumption <- reactive({
     df_cons %>%
       filter(Measure == input$measure_8,
@@ -137,6 +139,8 @@ server <- function(input, output) {
       )
   })
 
+  ##Create filters for tabs in the fifth menu item, 'FBS socio intake data'----
+  
   filtered_data_FBSintake <- reactive({
     df_FBSintake %>%
       filter(Unit == input$unit_9,
@@ -176,13 +180,13 @@ server <- function(input, output) {
       )
   })
   
-  ##################
-  #Draw the plots
-  ##################
   
-  ###############
+  #Prepare graphic elements to draw the plots ----
+  
+  
+ 
   #Prepare graphic objects and labels that will be used to create the plots below.
-  ###############
+  
   
   # #Control shading by setting alpha values through a new vector named alpha_vals; changing the range of shading helps with displaying some images that have several colors.
   # alpha_max <- 1
@@ -224,9 +228,9 @@ server <- function(input, output) {
   region.labs <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "East Asia and Pacific", "Europe & C. Asia", "Latin America & Caribbean", "Middle East and North Africa", "North America", "South Asia", "Sub-Saharan Africa", "World")
   names(region.labs) <- c("LIC", "LMC", "UMC", "HIC", "EAS", "ECS", "LCN", "MEA", "NAC", "SAS", "SSF", "WLD")
   
-  ###########
-  #Draw plots for tabs in the first item
-  ###########
+  
+  ##Draw plots for tabs in the first item (sociodem) ----
+  
   output$plot_sexage <- renderPlot({
     data <- filtered_data_sexage()
 
@@ -299,9 +303,9 @@ server <- function(input, output) {
 
   })
 
-  ###########
-  #Draw plots for tabs in the second item
-  ###########
+  
+  ##Draw plots for tabs in the second item (region) ----
+  
 
 
   output$plot_region <- renderPlot({
@@ -335,9 +339,9 @@ server <- function(input, output) {
   })
 
 
-  ###########
-  #Draw plots for tabs in the third item
-  ###########
+  
+  ##Draw plots for tabs in the third item (category) ----
+  
   output$plot_category <- renderPlot({
     data <- filtered_data_category()
 
@@ -380,9 +384,9 @@ server <- function(input, output) {
 
   })
 
-  ###########
-  #Draw plots for tabs in the fourth item
-  ###########
+  
+  ##Draw plots for tabs in the fourth item (cons proxy) ----
+  
   output$plot_consumption <- renderPlot({
     data <- filtered_data_consumption()
     ggplot(data, aes(x = Food.group, y = Intake, color = Indicator, shape = Indicator)) +
@@ -407,9 +411,9 @@ server <- function(input, output) {
     #
   })
 
-  ###########
-  #Draw plots for tabs in the fifth item
-  ###########
+  
+  ##Draw plots for tabs in the fifth item (FBS socio intake) ----
+  
 
   output$plot_FBSintake <- renderPlot({
     data <- filtered_data_FBSintake()
@@ -440,10 +444,9 @@ server <- function(input, output) {
       labs(x = "Food Group", y = "Daily Intake", color = "Sex:")
   })
 
-  ##################
-  #Generate data tables
-  ##################
-
+  
+  #Generate data tables ----
+  
   #Generating a table from the user's data selection is not straightforward in cases where the plot is faceting using the
   #commands #face_wrap or #facet_grid. For example, in the sexage tab the code offers the user the chance to facet multiple plots
   #in a single image by selecting to display data for several regions at once. The age group is on the x axis, the impact value is on the
@@ -451,207 +454,381 @@ server <- function(input, output) {
   #The code below works around this issue by going through a few steps of data manipulation. The bulk of it was suggested by Chat GPT, but I had to make
   #adjustments to make it work in this context. There may be an easier way to code this, but I have not been able to find it yet.
 
-
-  #Create table for the sexage tab, starting from the subsection of the main dataset identified by the filtered_data_sexage element, that here is called as a function.
-  sexage_table <- reactive({
-    data <- filtered_data_sexage()
-
-    #Add a unique identifier column based on all relevant variables. This is needed because otherwise the datatable command used further down will automatically
-    #group into a single row instances where different combinations of variables in the dataset correspond to the same impact value on the y axis.
-    #If for example FML aged 11-19 have an impact value of 1.19 in both HIC and LIC, the datatable command would display just one row for the value 1.19, and list
-    #both HIC and LIC in the region column. Creating a unique identifier that is formed by the values taken by each variable in each occurrence ensures
-    #that we can generate a table in which duplicate values are presented in distinct rows.
-    data <- data %>%
-      mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
-
-    #Pivot the data to long format including the facet variable 'region'. This basically means expanding the number of
-    #rows in the data selection. The table is a reactive element that follows the inputs
-    #chosen by the user, but datatable needs to have access to the full resolution of the underlying dataset or it won't work.
-    #By using pivot_longer, we are creating a new data frame that includes all occurrences of each variable for all values of
-    #age.education, the variable on the x axis, and the region, the variable that drives the plot faceting.
-    data_long <- data %>%
-      pivot_longer(cols = c(age.education, region),
-                   names_to = "variable",
-                   values_to = "values")
-
-    #Pivot the long data to a wide format, including the facet variable 'region'. This builds on the previous step, expanding on the
-    #columns rather than the rows, ensuring that the resulting dataframe includes all the possible occurrences of the variables
-    #specified in the pivot_longer call.
-    data_wide <- data_long %>%
-      pivot_wider(names_from = variable, values_from = values,
-                  values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
-
-    #Convert the list column to character format, this is to avoid errors when creating the HTML table below.
-    #Converting everything in the dataframe to characters ensures that R won't get confused by variables that are expressed in
-    #different formats
-    data_wide <- data_wide %>%
-      mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
-
-    #generate the dataframe that results from the previous permutations. This concludes the reactive call that results in sexage_table
-    return(data_wide)
-  })
-
-  #Now create the actual table based on the dataframe that results from the previous section
-  output$sexage_table <- renderUI({
-    sexage_data <- sexage_table()
-
-    #Remove the 'unique_id' column from the data. We created this in the previous section to ensure that all occurrences of the value
-    #on the y axis are assigned a distinct row, but we don't need to show that column to the user.
-    sexage_data <- sexage_data[, !colnames(sexage_data) %in% "unique_id"]
-
-    #Convert the list column 'age.education' to a character vector, ensuring there are no errors when R has to read it
-    sexage_data$age.education <- sapply(sexage_data$age.education, paste, collapse = ", ")
-
-    #This is the command that creates the actual table. The pageLength argument tells R to display a table that is as long
-    #as there are rows in the originating dataset - which is defined dynamically by the user's choice of inputs.
-    #The scrollX and scrollY arguments simply make the table scrollable across both axes. I set rownames to TRUE so that
-    #R automatically assigns a number to each rowm to make it easier to count records.
-    table_html <- datatable(sexage_data,
-                            options = list(dom = 't', pageLength = nrow(sexage_data),
-                                           scrollX = TRUE, scrollY = TRUE),
-                            rownames = TRUE)  # Include the default row numbers
-
-    return(table_html)
-  })
-
-  #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
-  output$download_csv_sexage <- downloadHandler(
-    filename = function() {
-      # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
-      paste("sexage_data_", Sys.Date(), ".csv", sep = "")
-    },
-    content = function(file) {
-      # Create a copy of the data to avoid modifying the original data
-      sexage_data_export <- sexage_table()
-
-      # Remove the 'unique_id' column
-      sexage_data_export <- sexage_data_export[, !colnames(sexage_data_export) %in% "unique_id"]
-
-      # Convert all columns to character
-      sexage_data_export[] <- lapply(sexage_data_export, as.character)
-
-      # Write the data to a CSV file
-      write.csv(sexage_data_export, file, row.names = FALSE)
-    }
-  )
-
-
-
-
-  #Create table for the eduurb tab, starting from the subsection of the main dataset identified by the filtered_data_eduurb element, that here is called as a function.
-  eduurb_table <- reactive({
-    data <- filtered_data_eduurb()
-    data <- data %>%
-      mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
-
-    data_long <- data %>%
-      pivot_longer(cols = c(sex.urbanisation, region),
-                   names_to = "variable",
-                   values_to = "values")
-
-    data_wide <- data_long %>%
-      pivot_wider(names_from = variable, values_from = values,
-                  values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
-
-    data_wide <- data_wide %>%
-      mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
-
-    return(data_wide)
-  })
-
-  #Now create the actual table based on the dataframe that results from the previous section
-  output$eduurb_table <- renderUI({
-
-    eduurb_data <- eduurb_table()
-    eduurb_data <- eduurb_data[, !colnames(eduurb_data) %in% "unique_id"]
-    eduurb_data$sex.urbanisation <- sapply(eduurb_data$sex.urbanisation, paste, collapse = ", ")
-    table_html <- datatable(eduurb_data,
-                            options = list(dom = 't', pageLength = nrow(eduurb_data),
-                                           scrollX = TRUE, scrollY = TRUE),
-                            rownames = TRUE)  # Include the default row numbers
-
-    return(table_html)
-  })
-
-  #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
-  output$download_csv_eduurb <- downloadHandler(
-    filename = function() {
-      # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
-      paste("eduurb_data_", Sys.Date(), ".csv", sep = "")
-    },
-    content = function(file) {
-      # Create a copy of the data to avoid modifying the original data
-      eduurb_data_export <- eduurb_table()
-
-      # Remove the 'unique_id' column
-      eduurb_data_export <- eduurb_data_export[, !colnames(eduurb_data_export) %in% "unique_id"]
-
-      # Convert all columns to character
-      eduurb_data_export[] <- lapply(eduurb_data_export, as.character)
-
-      # Write the data to a CSV file
-      write.csv(eduurb_data_export, file, row.names = FALSE)
-    }
-  )
-
-  
-  #Create table for the sociodem tab, starting from the subsection of the main dataset identified by the filtered_data_sociodem element, that here is called as a function.
-  sociodem_table <- reactive({
-    data <- filtered_data_sociodem()
-    data <- data %>%
-      mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, region, age, category, sep = "_"))
+  ##Generate data table for sexage ----
+      #Create table for the sexage tab, starting from the subsection of the main dataset identified by the filtered_data_sexage element, that here is called as a function.
+      sexage_table <- reactive({
+        data <- filtered_data_sexage()
     
-    data_long <- data %>%
-      pivot_longer(cols = c(food_group, region),
-                   names_to = "variable",
-                   values_to = "values")
+        #Add a unique identifier column based on all relevant variables. This is needed because otherwise the datatable command used further down will automatically
+        #group into a single row instances where different combinations of variables in the dataset correspond to the same impact value on the y axis.
+        #If for example FML aged 11-19 have an impact value of 1.19 in both HIC and LIC, the datatable command would display just one row for the value 1.19, and list
+        #both HIC and LIC in the region column. Creating a unique identifier that is formed by the values taken by each variable in each occurrence ensures
+        #that we can generate a table in which duplicate values are presented in distinct rows.
+        data <- data %>%
+          mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
     
-    data_wide <- data_long %>%
-      pivot_wider(names_from = variable, values_from = values,
-                  values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+        #Pivot the data to long format including the facet variable 'region'. This basically means expanding the number of
+        #rows in the data selection. The table is a reactive element that follows the inputs
+        #chosen by the user, but datatable needs to have access to the full resolution of the underlying dataset or it won't work.
+        #By using pivot_longer, we are creating a new data frame that includes all occurrences of each variable for all values of
+        #age.education, the variable on the x axis, and the region, the variable that drives the plot faceting.
+        data_long <- data %>%
+          pivot_longer(cols = c(age.education, region),
+                       names_to = "variable",
+                       values_to = "values")
     
-    data_wide <- data_wide %>%
-      mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
+        #Pivot the long data to a wide format, including the facet variable 'region'. This builds on the previous step, expanding on the
+        #columns rather than the rows, ensuring that the resulting dataframe includes all the possible occurrences of the variables
+        #specified in the pivot_longer call.
+        data_wide <- data_long %>%
+          pivot_wider(names_from = variable, values_from = values,
+                      values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
     
-    return(data_wide)
-  })
-  
-  #Now create the actual table based on the dataframe that results from the previous section
-  output$sociodem_table <- renderUI({
+        #Convert the list column to character format, this is to avoid errors when creating the HTML table below.
+        #Converting everything in the dataframe to characters ensures that R won't get confused by variables that are expressed in
+        #different formats
+        data_wide <- data_wide %>%
+          mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
     
-    sociodem_data <- sociodem_table()
-    sociodem_data <- sociodem_data[, !colnames(sociodem_data) %in% "unique_id"]
-    sociodem_data$food_group <- sapply(sociodem_data$food_group, paste, collapse = ", ")
-    table_html <- datatable(sociodem_data,
-                            options = list(dom = 't', pageLength = nrow(sociodem_data),
-                                           scrollX = TRUE, scrollY = TRUE),
-                            rownames = TRUE)  # Include the default row numbers
+        #generate the dataframe that results from the previous permutations. This concludes the reactive call that results in sexage_table
+        return(data_wide)
+      })
     
-    return(table_html)
-  })
-  
-  #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
-  output$download_csv_sociodem <- downloadHandler(
-    filename = function() {
-      # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
-      paste("sociodem_data_", Sys.Date(), ".csv", sep = "")
-    },
-    content = function(file) {
-      # Create a copy of the data to avoid modifying the original data
-      sociodem_data_export <- sociodem_table()
+      #Now create the actual table based on the dataframe that results from the previous section
+      output$sexage_table <- renderUI({
+        sexage_data <- sexage_table()
+    
+    
+        #Remove the 'unique_id' column from the data. We created this in the previous section to ensure that all occurrences of the value
+        #on the y axis are assigned a distinct row, but we don't need to show that column to the user.
+        sexage_data <- sexage_data[, !colnames(sexage_data) %in% c("unique_id", "box")]
+    
+        #Convert the list column 'age.education' to a character vector, ensuring there are no errors when R has to read it
+        sexage_data$age.education <- sapply(sexage_data$age.education, paste, collapse = ", ")
+        #This is the command that creates the actual table. The pageLength argument tells R to display a table that is as long
+        #as there are rows in the originating dataset - which is defined dynamically by the user's choice of inputs.
+        #The scrollX and scrollY arguments simply make the table scrollable across both axes. I set rownames to TRUE so that
+        #R automatically assigns a number to each rowm to make it easier to count records.
+        table_html <- datatable(sexage_data,
+                                options = list(dom = 't', pageLength = nrow(sexage_data),
+                                               scrollX = TRUE, scrollY = TRUE),
+                                rownames = TRUE)  # Include the default row numbers
+    
+        return(table_html)
+      })
+    
+      #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
+      output$download_csv_sexage <- downloadHandler(
+        filename = function() {
+          # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
+          paste("sexage_data_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          # Create a copy of the data to avoid modifying the original data
+          sexage_data_export <- sexage_table()
+    
+          # Remove the 'unique_id' column
+          sexage_data_export <- sexage_data_export[, !colnames(sexage_data_export) %in% c("unique_id", "box")]
+    
+          # Convert all columns to character
+          sexage_data_export[] <- lapply(sexage_data_export, as.character)
+    
+          # Write the data to a CSV file
+          write.csv(sexage_data_export, file, row.names = FALSE)
+        }
+      )
+
+
+
+  ##Generate data table for eduurb ----
+      #Create table for the eduurb tab, starting from the subsection of the main dataset identified by the filtered_data_eduurb element, that here is called as a function.
+      eduurb_table <- reactive({
+        data <- filtered_data_eduurb()
+        data <- data %>%
+          mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
+    
+        data_long <- data %>%
+          pivot_longer(cols = c(sex.urbanisation, region),
+                       names_to = "variable",
+                       values_to = "values")
+    
+        data_wide <- data_long %>%
+          pivot_wider(names_from = variable, values_from = values,
+                      values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+    
+        data_wide <- data_wide %>%
+          mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
+    
+        return(data_wide)
+      })
+    
+      #Now create the actual table based on the dataframe that results from the previous section
+      output$eduurb_table <- renderUI({
+    
+        eduurb_data <- eduurb_table()
+        eduurb_data <- eduurb_data[, !colnames(eduurb_data) %in% c("unique_id", "box")]
+        eduurb_data$sex.urbanisation <- sapply(eduurb_data$sex.urbanisation, paste, collapse = ", ")
+        table_html <- datatable(eduurb_data,
+                                options = list(dom = 't', pageLength = nrow(eduurb_data),
+                                               scrollX = TRUE, scrollY = TRUE),
+                                rownames = TRUE)  # Include the default row numbers
+    
+        return(table_html)
+      })
+    
+      #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
+      output$download_csv_eduurb <- downloadHandler(
+        filename = function() {
+          # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
+          paste("eduurb_data_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          # Create a copy of the data to avoid modifying the original data
+          eduurb_data_export <- eduurb_table()
+    
+          # Remove the 'unique_id' column
+          eduurb_data_export <- eduurb_data_export[, !colnames(eduurb_data_export) %in% c("unique_id", "box")]
+    
+          # Convert all columns to character
+          eduurb_data_export[] <- lapply(eduurb_data_export, as.character)
+    
+          # Write the data to a CSV file
+          write.csv(eduurb_data_export, file, row.names = FALSE)
+        }
+      )
+
+  ##Generate data table for sociodem ----
+      #Create table for the sociodem tab, starting from the subsection of the main dataset identified by the filtered_data_sociodem element, that here is called as a function.
+      sociodem_table <- reactive({
+        data <- filtered_data_sociodem()
+        data <- data %>%
+          mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, region, age, category, sep = "_"))
+        
+        data_long <- data %>%
+          pivot_longer(cols = c(food_group, region),
+                       names_to = "variable",
+                       values_to = "values")
+        
+        data_wide <- data_long %>%
+          pivot_wider(names_from = variable, values_from = values,
+                      values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+        
+        data_wide <- data_wide %>%
+          mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
+        
+        return(data_wide)
+      })
       
-      # Remove the 'unique_id' column
-      sociodem_data_export <- sociodem_data_export[, !colnames(sociodem_data_export) %in% "unique_id"]
+      #Now create the actual table based on the dataframe that results from the previous section
+      output$sociodem_table <- renderUI({
+        
+        sociodem_data <- sociodem_table()
+        sociodem_data <- sociodem_data[, !colnames(sociodem_data) %in% "unique_id"]
+        sociodem_data$food_group <- sapply(sociodem_data$food_group, paste, collapse = ", ")
+        table_html <- datatable(sociodem_data,
+                                options = list(dom = 't', pageLength = nrow(sociodem_data),
+                                               scrollX = TRUE, scrollY = TRUE),
+                                rownames = TRUE)  # Include the default row numbers
+        
+        return(table_html)
+      })
       
-      # Convert all columns to character
-      sociodem_data_export[] <- lapply(sociodem_data_export, as.character)
+      #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
+      output$download_csv_sociodem <- downloadHandler(
+        filename = function() {
+          # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
+          paste("sociodem_data_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          # Create a copy of the data to avoid modifying the original data
+          sociodem_data_export <- sociodem_table()
+          
+          # Remove the 'unique_id' column
+          sociodem_data_export <- sociodem_data_export[, !colnames(sociodem_data_export) %in% "unique_id"]
+          
+          # Convert all columns to character
+          sociodem_data_export[] <- lapply(sociodem_data_export, as.character)
+          
+          # Write the data to a CSV file
+          write.csv(sociodem_data_export, file, row.names = FALSE)
+        }
+      )
       
-      # Write the data to a CSV file
-      write.csv(sociodem_data_export, file, row.names = FALSE)
-    }
-  )
+  ##Generate data table for region ----
+      #Create table for the region tab, starting from the subsection of the main dataset identified by the filtered_data_eduurb element, that here is called as a function.
+      region_table <- reactive({
+        data <- filtered_data_region()
+        data <- data %>%
+          mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
+        
+        data_long <- data %>%
+          pivot_longer(cols = c(env_itm, food_group),
+                       names_to = "variable",
+                       values_to = "values")
+        
+        data_wide <- data_long %>%
+          pivot_wider(names_from = variable, values_from = values,
+                      values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+        
+        data_wide <- data_wide %>%
+          mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
+        
+        return(data_wide)
+      })
+      
+      #Now create the actual table based on the dataframe that results from the previous section
+      output$region_table <- renderUI({
+        
+        region_data <- region_table()
+        region_data <- region_data[, !colnames(region_data) %in% c("unique_id", "box", "age.education", "sex.urbanisation")]
+        region_data$env_itm <- sapply(region_data$env_itm, paste, collapse = ", ")
+        table_html <- datatable(region_data,
+                                options = list(dom = 't', pageLength = nrow(region_data),
+                                               scrollX = TRUE, scrollY = TRUE),
+                                rownames = TRUE)  # Include the default row numbers
+        
+        return(table_html)
+      })
+      
+      #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
+      output$download_csv_region <- downloadHandler(
+        filename = function() {
+          # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
+          paste("region_data_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          # Create a copy of the data to avoid modifying the original data
+          region_data_export <- region_table()
+          
+          # Remove the 'unique_id' column
+          region_data_export <- region_data_export[, !colnames(region_data_export) %in% c("unique_id", "box", "age.education", "sex.urbanisation")]
+          
+          # Convert all columns to character
+          region_data_export[] <- lapply(region_data_export, as.character)
+          
+          # Write the data to a CSV file
+          write.csv(region_data_export, file, row.names = FALSE)
+        }
+      )
   
-  #Generate code to download the plot
+      
+  ##Generate data table for regiongeo ----
+      #Create table for the regiongeo tab, starting from the subsection of the main dataset identified by the filtered_data_regiongeo element, that here is called as a function.
+      regiongeo_table <- reactive({
+        data <- filtered_data_regiongeo()
+        data <- data %>%
+          mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
+        
+        data_long <- data %>%
+          pivot_longer(cols = c(env_itm, food_group),
+                       names_to = "variable",
+                       values_to = "values")
+        
+        data_wide <- data_long %>%
+          pivot_wider(names_from = variable, values_from = values,
+                      values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+        
+        data_wide <- data_wide %>%
+          mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
+        
+        return(data_wide)
+      })
+      
+      #Now create the actual table based on the dataframe that results from the previous section
+      output$regiongeo_table <- renderUI({
+        
+        regiongeo_data <- regiongeo_table()
+        regiongeo_data <- regiongeo_data[, !colnames(regiongeo_data) %in% c("unique_id", "box", "age.education", "sex.urbanisation")]
+        regiongeo_data$env_itm <- sapply(regiongeo_data$env_itm, paste, collapse = ", ")
+        table_html <- datatable(regiongeo_data,
+                                options = list(dom = 't', pageLength = nrow(regiongeo_data),
+                                               scrollX = TRUE, scrollY = TRUE),
+                                rownames = TRUE)  # Include the default row numbers
+        
+        return(table_html)
+      })
+      
+      #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
+      output$download_csv_regiongeo <- downloadHandler(
+        filename = function() {
+          # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
+          paste("regiongeo_data_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          # Create a copy of the data to avoid modifying the original data
+          regiongeo_data_export <- regiongeo_table()
+          
+          # Remove the 'unique_id' column
+          regiongeo_data_export <- regiongeo_data_export[, !colnames(regiongeo_data_export) %in% c("unique_id", "box", "age.education", "sex.urbanisation")]
+          
+          # Convert all columns to character
+          regiongeo_data_export[] <- lapply(regiongeo_data_export, as.character)
+          
+          # Write the data to a CSV file
+          write.csv(regiongeo_data_export, file, row.names = FALSE)
+        }
+      )
+ 
+      
+  ##Generate data table for category ----
+      #Create table for the category tab, starting from the subsection of the main dataset identified by the filtered_data_category element, that here is called as a function.
+      category_table <- reactive({
+        data <- filtered_data_category()
+        data <- data %>%
+          mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, region, age, category, macrofoods, sep = "_"))
+        
+        data_long <- data %>%
+          pivot_longer(cols = c(region, food_group),
+                       names_to = "variable",
+                       values_to = "values")
+        
+        data_wide <- data_long %>%
+          pivot_wider(names_from = variable, values_from = values,
+                      values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+        
+        data_wide <- data_wide %>%
+          mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
+        
+        return(data_wide)
+      })
+      
+      #Now create the actual table based on the dataframe that results from the previous section
+      output$category_table <- renderUI({
+        
+        category_data <- category_table()
+        category_data <- category_data[, !colnames(category_data) %in% "unique_id"]
+        category_data$region <- sapply(category_data$region, paste, collapse = ", ")
+        table_html <- datatable(category_data,
+                                options = list(dom = 't', pageLength = nrow(category_data),
+                                               scrollX = TRUE, scrollY = TRUE),
+                                rownames = TRUE)  # Include the default row numbers
+        
+        return(table_html)
+      })
+      
+      #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
+      output$download_csv_category <- downloadHandler(
+        filename = function() {
+          # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
+          paste("category_data_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          # Create a copy of the data to avoid modifying the original data
+          category_data_export <- category_table()
+          
+          # Remove the 'unique_id' column
+          category_data_export <- category_data_export[, !colnames(category_data_export) %in% "unique_id"]
+          
+          # Convert all columns to character
+          category_data_export[] <- lapply(category_data_export, as.character)
+          
+          # Write the data to a CSV file
+          write.csv(category_data_export, file, row.names = FALSE)
+        }
+      )
+      
+      
+       #Generate code to download the plot
 
 
 }
