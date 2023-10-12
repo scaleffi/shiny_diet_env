@@ -110,7 +110,8 @@ server <- function(input, output) {
              age == "all-a",
              cns_prsp == input$cns_prsp_4,
              region %in% input$region_4,
-             macrofoods %in% c("ASF", "Staples", "Other"))
+             #macrofoods %in% c("ASF", "Staples", "Other")
+             )
   })
 
   filtered_data_categorymacro <- reactive({
@@ -120,8 +121,9 @@ server <- function(input, output) {
              food_group %in% input$food_group_6,
              age == "all-a",
              cns_prsp == input$cns_prsp_6,
-             region %in% input$region_6,
-             macrofoods %in% c("ASF", "Staples", "Other"))
+             region %in% input$region_6
+             #macrofoods %in% c("ASF", "Staples", "Other")
+             )
   })
 
 
@@ -185,7 +187,7 @@ server <- function(input, output) {
   
   
  
-  #Prepare graphic objects and labels that will be used to create the plots below.
+  #Prepare graphic objects and labels that will be used to create the plots below ----
   
   
   # #Control shading by setting alpha values through a new vector named alpha_vals; changing the range of shading helps with displaying some images that have several colors.
@@ -350,7 +352,7 @@ server <- function(input, output) {
 
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
 
-    ggplot(data, aes(x = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")), y = value, fill = macrofoods)) +
+    ggplot(data, aes(x = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "roots","fruit_veg", "oils", "sugar", "legumes", "nuts_seeds")), y = value, fill = macrofoods)) +
       geom_col(color = "white", width = 0.6) +
       scale_x_discrete(guide = guide_axis(n.dodge=3)) +
       facet_wrap(~ region_custom,ncol = 2) +
@@ -775,10 +777,10 @@ server <- function(input, output) {
       category_table <- reactive({
         data <- filtered_data_category()
         data <- data %>%
-          mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, region, age, category, macrofoods, sep = "_"))
+          mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, region, age, macrofoods, sep = "_"))
         
         data_long <- data %>%
-          pivot_longer(cols = c(region, food_group),
+          pivot_longer(cols = c(region, macrofoods),
                        names_to = "variable",
                        values_to = "values")
         
@@ -824,6 +826,63 @@ server <- function(input, output) {
           
           # Write the data to a CSV file
           write.csv(category_data_export, file, row.names = FALSE)
+        }
+      )
+      
+      ##Generate data table for category macro ----
+      #Create table for the category macro tab, starting from the subsection of the main dataset identified by the filtered_data_categorymacro element, that here is called as a function.
+      categorymacro_table <- reactive({
+        data <- filtered_data_categorymacro()
+        data <- data %>%
+          mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, region, age, macrofoods, sep = "_"))
+
+        data_long <- data %>%
+          pivot_longer(cols = c(region, food_group),
+                       names_to = "variable",
+                       values_to = "values")
+
+        data_wide <- data_long %>%
+          pivot_wider(names_from = variable, values_from = values,
+                      values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+
+        data_wide <- data_wide %>%
+          mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
+
+        return(data_wide)
+      })
+
+      #Now create the actual table based on the dataframe that results from the previous section
+      output$categorymacro_table <- renderUI({
+
+        categorymacro_data <- categorymacro_table()
+        categorymacro_data <- categorymacro_data[, !colnames(categorymacro_data) %in% "unique_id"]
+        categorymacro_data$region <- sapply(categorymacro_data$region, paste, collapse = ", ")
+        table_html <- datatable(categorymacro_data,
+                                options = list(dom = 't', pageLength = nrow(categorymacro_data),
+                                               scrollX = TRUE, scrollY = TRUE),
+                                rownames = TRUE)  # Include the default row numbers
+
+        return(table_html)
+      })
+
+      #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
+      output$download_csv_categorymacro <- downloadHandler(
+        filename = function() {
+          # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
+          paste("categorymacro_data_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          # Create a copy of the data to avoid modifying the original data
+          categorymacro_data_export <- categorymacro_table()
+
+          # Remove the 'unique_id' column
+          categorymacro_data_export <- categorymacro_data_export[, !colnames(categorymacro_data_export) %in% "unique_id"]
+
+          # Convert all columns to character
+          categorymacro_data_export[] <- lapply(categorymacro_data_export, as.character)
+
+          # Write the data to a CSV file
+          write.csv(categorymacro_data_export, file, row.names = FALSE)
         }
       )
       

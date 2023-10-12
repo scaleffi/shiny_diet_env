@@ -202,8 +202,11 @@ ui <- dashboardPage(
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                plotOutput("plot_category"
-                           #, height = 400
+                tabsetPanel(
+                  tabPanel("Plot", plotOutput("plot_category"
+                                              #, height = 400
+                  )),
+                  tabPanel("Table",tableOutput("category_table"))
                 )
               )
             )
@@ -222,8 +225,11 @@ ui <- dashboardPage(
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                plotOutput("plot_categorymacro"
-                           #, height = 400
+                tabsetPanel(
+                  tabPanel("Plot", plotOutput("plot_categorymacro"
+                                              #, height = 400
+                  )),
+                  tabPanel("Table",tableOutput("categorymacro_table"))
                 )
               )
             )
