@@ -52,7 +52,7 @@ csv_file_FBSintake <- "data/FBS_intake_socio_all-a_051523.csv"
   
     data_cons <- read.csv(csv_file_cons)
     data_cons$Intake <- round(data_cons$Intake, 2)
-    df_cons <- data_cons
+    df_cons <- data_cons[-7]
     
     data_FBSintake <- read.csv(csv_file_FBSintake)
     data_FBSintake$Value <- round(data_FBSintake$Value, 2)

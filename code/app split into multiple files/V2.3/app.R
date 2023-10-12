@@ -3,7 +3,6 @@
 
 #----
 #Load the required libraries. 
-#library(shiny)
 #library(ggplot2)
 #library(dplyr)
 library(shinydashboard)
@@ -12,31 +11,26 @@ library(shinydashboard)
 #library(DT)
 #library(tidyr)
 
-
+#Prepare the environment for executing the dashboard ----
 rm(list = ls()) #clear the environment
 
-options(shiny.error = browser) # for debugging - remove in last version
+#options(shiny.error = browser) # for debugging - remove in last version
 
-##----
-#Source in the files that prepare the dashboard
+##Source in the files that prepare the dashboard ----
   #This loads in the dataset used for the dashboard
   source('code/app split into multiple files/V2.3/loaddata.R', local = FALSE, echo = TRUE)
-#cat("loaddata successfully loaded!\n")
 
-  
   #Load in the User interface file. This creates an object, called a ui label. The file needs to be in the same folder as this app.R file, otherwise the right path needs to 
   #be set to load the file in correctly.
   source('code/app split into multiple files/V2.3/ui.R', local = FALSE, echo = TRUE)
-  #cat("ui  successfully loaded!\n")
   
   #Load in the server file. This creates a function, called server The file needs to be in the same folder as this app.R file, otherwise the right path needs to 
   #be set to load the file in correctly.
   source('code/app split into multiple files/V2.3/server.R', local = FALSE, echo = TRUE)
-  #cat("server loaded\n")
 
 #######-------------------#########-------------------------###########
 #Start the dashboard. A dashboard in Shiny is composed of a UI, a Server Function, and a command to run the app.
-#######-------------------#########-------------------------###########
+
 
 #Notes on Shiny and dashboards. Shiny allows the user to create an app, or dashboard, to quickly visualise datasets. When using the app, and changing the data selections,
 #the app cycles through both the UI and the Server function in order to display the data. The UI tells R how the dashboard should look like and what

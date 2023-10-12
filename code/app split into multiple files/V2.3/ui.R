@@ -9,7 +9,7 @@ ui <- dashboardPage(
     title = "LSHTM - Global diets data explorer",
     titleWidth = 450
   ),
-  # titlePanel("The environmental footprints of global diets"),
+  # titlePanel("The environmental footprints of global diets"),----
   dashboardSidebar(
     sidebarMenu(
       menuItem("Data on env. footprints", tabName = "diet_footprints", icon = icon("seedling"),
@@ -27,7 +27,7 @@ ui <- dashboardPage(
   # mainPanel(
   dashboardBody(
     tabItems(
-      ###First item
+      ###First item----
       tabItem(
         tabName = "sociodem",
         tabsetPanel(
@@ -40,6 +40,7 @@ ui <- dashboardPage(
                       If you are interested in seeing instead how absolute and per capita impacts differ across sociodemographics, regions, and environmental dimensions, open the third tab, 'Sociodem'.")
           )),
           tabPanel(
+            #Sexage----
             "Sex-age",
             fluidRow(
               box(
@@ -66,6 +67,7 @@ ui <- dashboardPage(
             )
           ),
           tabPanel(
+            #Eduurb ----
             "Edu-urb",
             fluidRow(
               box(
@@ -90,6 +92,7 @@ ui <- dashboardPage(
             )
           ),
           tabPanel(
+            #Sociodem ----
             "Sociodem",
             fluidRow(
               box(
@@ -117,7 +120,7 @@ ui <- dashboardPage(
         )
       ),
       tabItem(
-        ###Second item
+      ###Second item ----
         tabName = "food_groups",
         tabsetPanel(
           tabPanel("About", box(
@@ -130,6 +133,7 @@ ui <- dashboardPage(
             )
           )),
           tabPanel(
+            #Region ----
             "Impacts by income region",
             fluidRow(
               box(
@@ -153,6 +157,7 @@ ui <- dashboardPage(
             )
           ),
           tabPanel(
+            #Regiongeo ----
             "Impacts by geographical region",
             fluidRow(
               box(
@@ -161,7 +166,8 @@ ui <- dashboardPage(
                 selectInput("measure_5", "Select Measure:", choices = c("abs", "cap"), selected = "cap"),
                 selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"),multiple = TRUE, selected = "GHG"),
                 selectInput("food_group_5", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c("beef", "milk", "rice", "roots")),
-                selectInput("region_5", "Select Region:", choices = c("NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF", "WLD"), multiple = TRUE, selected = c("NAC", "SAS", "SSF"))
+                selectInput("region_5", "Select Region:", choices = c("NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF", "WLD"), multiple = TRUE, selected = c("NAC", "SAS", "SSF")),
+                downloadButton("download_csv_regiongeo", "Download table")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -177,7 +183,7 @@ ui <- dashboardPage(
         )
       ),
       tabItem(
-        ###Third item
+      ###Third item ----
         tabName = "categories",
         tabsetPanel(
           tabPanel("About", box(
@@ -190,6 +196,7 @@ ui <- dashboardPage(
             )
           )),
           tabPanel(
+            #Category ----
             "Impacts by food group",
             fluidRow(
               box(
@@ -198,7 +205,8 @@ ui <- dashboardPage(
                 selectInput("measure_4", "Select Measure:", choices = c("abs", "cap"), selected = "abs"),
                 selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"), selected = "GHG"),
                 selectInput("food_group_4", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef", "lamb", "rice", "grains", "fruit_veg", "legumes")),
-                selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = "WLD")
+                selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = "WLD"),
+                downloadButton("download_csv_category", "Download table")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -212,6 +220,7 @@ ui <- dashboardPage(
             )
           ),
           tabPanel(
+            #Categorymacro ----
             "Impacts by food category",
             fluidRow(
               box(
@@ -221,7 +230,8 @@ ui <- dashboardPage(
                 selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("avg", "land_pstr", "land_crop")), selected = "GHG"),
                 selectInput("food_group_6", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef", "pork", "milk", "legumes", "roots", "rice", "grains")),
                 #selectInput("category_6", "Select Food Category:", choices = setdiff(unique(df_trs_macrof$macrofoods), "Total"), multiple = TRUE),
-                selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("LIC", "HIC"))
+                selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("LIC", "HIC")),
+                downloadButton("download_csv_categorymacro", "Download table")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -237,7 +247,7 @@ ui <- dashboardPage(
         )
       ),
       tabItem(
-        ###Fourth item
+      ###Fourth item ----
         tabName = "consumption",
         tabsetPanel(
           tabPanel("About", box(
@@ -252,6 +262,7 @@ ui <- dashboardPage(
             )
           )),
           tabPanel(
+            #Cons_compare ----
             "Compare consumption proxies",
             fluidRow(
               box(
@@ -260,12 +271,16 @@ ui <- dashboardPage(
                 selectInput("indicator_8", "Select Proxy:", choices = c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"), multiple = TRUE, selected = "GDD"),
                 selectInput("region_8", "Select Region:", choices = unique(df_cons$Region),multiple = TRUE, selected = "WLD"),
                 selectInput("food_group_8", "Select Food Group:", choices = unique(df_cons$Food.group), multiple = TRUE, selected = c("dairy", "fruits", "nuts")),
-                selectInput("stats_8", "Select Statistic of interest:", choices = unique(df_cons$Stats), selected = "mean")
+                selectInput("stats_8", "Select Statistic of interest:", choices = unique(df_cons$Stats), selected = "mean"),
+                downloadButton("download_csv_consumption", "Download table")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                plotOutput("plot_consumption"
-                           #, height = 400
+                tabsetPanel(
+                  tabPanel("Plot", plotOutput("plot_consumption"
+                                              #, height = 400
+                  )),
+                  tabPanel("Table",tableOutput("consumption_table"))
                 )
               )
             )
@@ -273,7 +288,7 @@ ui <- dashboardPage(
         )
       ),
       tabItem(
-        ####Fifth Item
+      ####Fifth Item ----
         tabName = "consumption_sociodem",
         tabsetPanel(
           tabPanel("About", box(
@@ -288,6 +303,7 @@ ui <- dashboardPage(
             )
           )),
           tabPanel(
+            #FBSsociodem ----
             "Cumulative intake by sociodemographic",
             fluidRow(
               box(
@@ -309,6 +325,7 @@ ui <- dashboardPage(
             )
           ),
           tabPanel(
+            #FBSregion ----
             "Intake by food group, across Regions",
             fluidRow(
               box(
@@ -330,6 +347,7 @@ ui <- dashboardPage(
             )
           ),
           tabPanel(
+            #FBS food groups ----
             "Intake by food group, across sociodemographics",
             fluidRow(
               box(
@@ -353,7 +371,7 @@ ui <- dashboardPage(
         )
       ),
       tabItem(
-        ###Fourth item
+      ###Fourth item ----
         tabName = "readme",
         fluidRow(
           box(

@@ -825,7 +825,7 @@ server <- function(input, output) {
         }
       )
       
-      ##Generate data table for category macro ----
+  ##Generate data table for category macro ----
       #Create table for the category macro tab, starting from the subsection of the main dataset identified by the filtered_data_categorymacro element, that here is called as a function.
       categorymacro_table <- reactive({
         data <- filtered_data_categorymacro()
@@ -882,6 +882,63 @@ server <- function(input, output) {
         }
       )
       
+      
+  ##Generate data table for cons proxy compare ----
+      #Create table for the cons compare proxy, starting from the subsection of the main dataset identified by the filtered_data_consumption element, that here is called as a function.
+      consumption_table <- reactive({
+        data <- filtered_data_consumption()
+        data <- data %>%
+          mutate(unique_id = paste(Measure, Indicator, Year, Food.group, Stats, Intake, sep = "_"))
+        
+        data_long <- data %>%
+          pivot_longer(cols = c(Region, Indicator),
+                       names_to = "variable",
+                       values_to = "values")
+        
+        data_wide <- data_long %>%
+          pivot_wider(names_from = variable, values_from = values,
+                      values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+        
+        data_wide <- data_wide %>%
+          mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
+        
+        return(data_wide)
+      })
+      
+      #Now create the actual table based on the dataframe that results from the previous section
+      output$consumption_table <- renderUI({
+        
+        consumption_data <- consumption_table()
+        consumption_data <- consumption_data[, !colnames(consumption_data) %in% "unique_id"]
+        consumption_data$Region <- sapply(consumption_data$Region, paste, collapse = ", ")
+        table_html <- datatable(consumption_data,
+                                options = list(dom = 't', pageLength = nrow(consumption_data),
+                                               scrollX = TRUE, scrollY = TRUE),
+                                rownames = TRUE)  # Include the default row numbers
+        
+        return(table_html)
+      })
+      
+      #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
+      output$download_csv_consumption <- downloadHandler(
+        filename = function() {
+          # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
+          paste("consumption_data_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          # Create a copy of the data to avoid modifying the original data
+          consumption_data_export <- consumption_table()
+          
+          # Remove the 'unique_id' column
+          consumption_data_export <- consumption_data_export[, !colnames(consumption_data_export) %in% "unique_id"]
+          
+          # Convert all columns to character
+          consumption_data_export[] <- lapply(consumption_data_export, as.character)
+          
+          # Write the data to a CSV file
+          write.csv(consumption_data_export, file, row.names = FALSE)
+        }
+      )
       
        #Generate code to download the plot
 
