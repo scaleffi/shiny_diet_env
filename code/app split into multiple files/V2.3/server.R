@@ -5,8 +5,8 @@ library(ggthemes)
 library(patchwork)
 library(thematic)
 library(bbplot)
-library(plotly)
-library(tidyverse)
+#library(plotly)
+#library(tidyverse)
 library(DT)
 
 ########################################
@@ -183,10 +183,6 @@ server <- function(input, output) {
   })
   
   
-  #Prepare graphic elements to draw the plots ----
-  
-  
- 
   #Prepare graphic objects and labels that will be used to create the plots below ----
   
   

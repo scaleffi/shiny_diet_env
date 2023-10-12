@@ -1,8 +1,8 @@
-#library(shinydashboard)
-#library(tidyverse)
-#----
+library(shinydashboard)
+library(tidyverse)
+########################################
 #Start the UI (User Interface). This section gives instructions on the visual display and structure of the dashboard. It generates a Shiny object.
-
+########################################
 
 ui <- dashboardPage(
   dashboardHeader(
@@ -138,16 +138,12 @@ ui <- dashboardPage(
                 selectInput("measure_1", "Select Measure:", choices = c("abs", "cap"), selected = "cap"),
                 selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"),multiple = TRUE, selected = "GHG"),
                 selectInput("food_group_1", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = "total"),
-                selectInput("region_1", "Select Region:", choices = c("LIC", "LMC", "UMC", "HIC", "WLD"), multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
-                downloadButton("download_csv_region", "Download table")
+                selectInput("region_1", "Select Region:", choices = c("LIC", "LMC", "UMC", "HIC", "WLD"), multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC"))
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                tabsetPanel(
-                  tabPanel("Plot", plotOutput("plot_region"
-                                              #, height = 400
-                  )),
-                  tabPanel("Table",tableOutput("region_table"))
+                plotOutput("plot_region"
+                           #, height = 400
                 )
               )
             )
@@ -165,11 +161,8 @@ ui <- dashboardPage(
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                tabsetPanel(
-                  tabPanel("Plot", plotOutput("plot_regiongeo"
-                                              #, height = 400
-                  )),
-                  tabPanel("Table",tableOutput("regiongeo_table"))
+                plotOutput("plot_regiongeo"
+                           #, height = 400
                 )
               )  
             )
@@ -202,11 +195,8 @@ ui <- dashboardPage(
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                tabsetPanel(
-                  tabPanel("Plot", plotOutput("plot_category"
-                                              #, height = 400
-                  )),
-                  tabPanel("Table",tableOutput("category_table"))
+                plotOutput("plot_category"
+                           #, height = 400
                 )
               )
             )
@@ -225,11 +215,8 @@ ui <- dashboardPage(
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                tabsetPanel(
-                  tabPanel("Plot", plotOutput("plot_categorymacro"
-                                              #, height = 400
-                  )),
-                  tabPanel("Table",tableOutput("categorymacro_table"))
+                plotOutput("plot_categorymacro"
+                           #, height = 400
                 )
               )
             )
