@@ -1,5 +1,5 @@
-#library(shinydashboard)
-#library(tidyverse)
+library(shinydashboard)
+library(tidyverse)
 #----
 #Start the UI (User Interface). This section gives instructions on the visual display and structure of the dashboard. It generates a Shiny object.
 
@@ -314,12 +314,16 @@ ui <- dashboardPage(
                 #selectInput("age_9", "Select Age Group:", choices = unique(df_FBSintake$Age), multiple = TRUE, selected = "all-a"),
                 selectInput("sex_9", "Select Sex:", choices = unique(df_FBSintake$Sex),multiple = TRUE, selected = c("FML", "MLE")),
                 selectInput("urbanisation_9", "Select Urbanisation Level:", choices = unique(df_FBSintake$Urbanisation),multiple = TRUE, selected = c("rural", "urban")),
-                selectInput("education_9", "Select Education Level:", choices = unique(df_FBSintake$Education),multiple = TRUE, selected = c("low", "medium", "high"))
+                selectInput("education_9", "Select Education Level:", choices = unique(df_FBSintake$Education),multiple = TRUE, selected = c("low", "medium", "high")),
+                downloadButton("download_csv_FBSintake", "Download table")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                plotOutput("plot_FBSintake"
-                           #, height = 400
+                tabsetPanel(
+                  tabPanel("Plot", plotOutput("plot_FBSintake"
+                                              #, height = 400
+                  )),
+                  tabPanel("Table",tableOutput("FBSintake_table"))
                 )
               )
             )

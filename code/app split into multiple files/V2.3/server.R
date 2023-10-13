@@ -888,7 +888,7 @@ server <- function(input, output) {
       consumption_table <- reactive({
         data <- filtered_data_consumption()
         data <- data %>%
-          mutate(unique_id = paste(Measure, Indicator, Year, Food.group, Stats, Intake, sep = "_"))
+          mutate(unique_id = paste(Measure, Indicator, Year, Food.group, Stats, sep = "_"))
         
         data_long <- data %>%
           pivot_longer(cols = c(Region, Indicator),
@@ -939,7 +939,66 @@ server <- function(input, output) {
           write.csv(consumption_data_export, file, row.names = FALSE)
         }
       )
+  
       
+  ##Generate data table for FBSintake ----
+      #Create table for the FBS cumulative intake, starting from the subsection of the main dataset identified by the filtered_data_FBSintake element, that here is called as a function.
+      FBSintake_table <- reactive({
+        data <- filtered_data_FBSintake()
+        data <- data %>%
+          mutate(unique_id = paste(Unit, Food.group, Region, Age, Sex, Urbanisation, Education, Year, sep = "_"))
+        
+        data_long <- data %>%
+          pivot_longer(cols = c(Urbanisation, Food.group),
+                       names_to = "variable",
+                       values_to = "values")
+        
+        data_wide <- data_long %>%
+          pivot_wider(names_from = variable, values_from = values,
+                      values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+        
+        data_wide <- data_wide %>%
+          mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
+        
+        return(data_wide)
+      })
+      
+      #Now create the actual table based on the dataframe that results from the previous section
+      output$FBSintake_table <- renderUI({
+        
+        FBSintake_data <- FBSintake_table()
+        FBSintake_data <- FBSintake_data[, !colnames(FBSintake_data) %in% "unique_id"]
+        FBSintake_data$Urbanisation <- sapply(FBSintake_data$Urbanisation, paste, collapse = ", ")
+        table_html <- datatable(FBSintake_data,
+                                options = list(dom = 't', pageLength = nrow(FBSintake_data),
+                                               scrollX = TRUE, scrollY = TRUE),
+                                rownames = TRUE)  # Include the default row numbers
+        
+        return(table_html)
+      })
+      
+      #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
+      output$download_csv_FBSintake <- downloadHandler(
+        filename = function() {
+          # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
+          paste("FBSintake_data_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          # Create a copy of the data to avoid modifying the original data
+          FBSintake_data_export <- FBSintake_table()
+          
+          # Remove the 'unique_id' column
+          FBSintake_data_export <- FBSintake_data_export[, !colnames(FBSintake_data_export) %in% "unique_id"]
+          
+          # Convert all columns to character
+          FBSintake_data_export[] <- lapply(FBSintake_data_export, as.character)
+          
+          # Write the data to a CSV file
+          write.csv(FBSintake_data_export, file, row.names = FALSE)
+        }
+      )
+      
+          
        #Generate code to download the plot
 
 
