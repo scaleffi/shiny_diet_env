@@ -289,8 +289,11 @@ server <- function(input, output) {
       #fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")))) +
       geom_col(aes(fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds", "total"))), color = "white") +
       #facet_wrap(~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")),ncol = 4) +
-      #coord_flip() +
-      facet_grid(factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")) ~ category , scales = "free_x", space = "free_x", switch = "x") +
+      
+      #coord_flip() is an easy way to swtich the x and y axis. Depending on what we want the user to focus on, each vis has its advantages. To see
+      #the graph with the impacts on the y axis and the sociodem/age variables on the x axis, comment the coord_flip() call, AND switch the arguments in facet_grid to scales = "free_x", space = "free_x", switch = "x".
+      coord_flip() +
+      facet_grid( category ~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")), scales = "free_y", space = "free", switch = "y") +
       theme_linedraw() +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
       scale_x_discrete(guide = guide_axis(n.dodge=2)) +
@@ -1055,7 +1058,7 @@ server <- function(input, output) {
         }
       )
       
-      ##Generate data table for FBSintake_fg_socio ----
+  ##Generate data table for FBSintake_fg_socio ----
       #Create table for the FBS_fg_socio intake, starting from the subsection of the main dataset identified by the filtered_data_FBSintake_fg_socio element, that here is called as a function.
       FBSintake_fg_socio_table <- reactive({
         data <- filtered_data_FBSintake_fg_socio()
