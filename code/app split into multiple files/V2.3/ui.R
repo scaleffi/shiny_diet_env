@@ -340,12 +340,16 @@ ui <- dashboardPage(
                 #selectInput("age_9", "Select Age Group:", choices = unique(df_FBSintake$Age), multiple = TRUE, selected = "all-a"),
                 selectInput("sex_10", "Select Sex:", choices = unique(df_FBSintake$Sex), selected = "BTH"),
                 selectInput("urbanisation_10", "Select Urbanisation Level:", choices = unique(df_FBSintake$Urbanisation), selected = "rural"),
-                selectInput("education_10", "Select Education Level:", choices = unique(df_FBSintake$Education), selected = "low")
+                selectInput("education_10", "Select Education Level:", choices = unique(df_FBSintake$Education), selected = "low"),
+                downloadButton("download_csv_FBSintake_fg", "Download table")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                plotOutput("plot_FBSintake_fg"
-                           #, height = 400
+                tabsetPanel(
+                  tabPanel("Plot", plotOutput("plot_FBSintake_fg"
+                                              #, height = 400
+                  )),
+                  tabPanel("Table",tableOutput("FBSintake_fg_table"))
                 )
               )
             )
@@ -362,12 +366,16 @@ ui <- dashboardPage(
                 #selectInput("age_9", "Select Age Group:", choices = unique(df_FBSintake$Age), multiple = TRUE, selected = "all-a"),
                 selectInput("sex_11", "Select Sex:", choices = unique(df_FBSintake$Sex),multiple = TRUE, selected = c("FML", "MLE")),
                 selectInput("urbanisation_11", "Select Urbanisation Level:", choices = unique(df_FBSintake$Urbanisation),multiple = TRUE, selected = c("rural", "urban")),
-                selectInput("education_11", "Select Education Level:", choices = unique(df_FBSintake$Education),multiple = TRUE, selected = c("low", "medium", "high"))
+                selectInput("education_11", "Select Education Level:", choices = unique(df_FBSintake$Education),multiple = TRUE, selected = c("low", "medium", "high")),
+                downloadButton("download_csv_FBSintake_fg_socio", "Download table")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                plotOutput("plot_FBSintake_fg_socio"
-                           #, height = 400
+                tabsetPanel(
+                  tabPanel("Plot", plotOutput("plot_FBSintake_fg_socio"
+                                              #, height = 400
+                  )),
+                  tabPanel("Table",tableOutput("FBSintake_fg_socio_table"))
                 )
               )
             )

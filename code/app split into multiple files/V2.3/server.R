@@ -998,6 +998,119 @@ server <- function(input, output) {
         }
       )
       
+  ##Generate data table for FBSintake_fg ----
+      #Create table for the FBS_fg intake, starting from the subsection of the main dataset identified by the filtered_data_FBSintake_fg element, that here is called as a function.
+      FBSintake_fg_table <- reactive({
+        data <- filtered_data_FBSintake_fg()
+        data <- data %>%
+          mutate(unique_id = paste(Unit, Food.group, Region, Age, Sex, Urbanisation, Education, Year, sep = "_"))
+        
+        data_long <- data %>%
+          pivot_longer(cols = c(Region, Food.group),
+                       names_to = "variable",
+                       values_to = "values")
+        
+        data_wide <- data_long %>%
+          pivot_wider(names_from = variable, values_from = values,
+                      values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+        
+        data_wide <- data_wide %>%
+          mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
+        
+        return(data_wide)
+      })
+      
+      #Now create the actual table based on the dataframe that results from the previous section
+      output$FBSintake_fg_table <- renderUI({
+        
+        FBSintake_fg_data <- FBSintake_fg_table()
+        FBSintake_fg_data <- FBSintake_fg_data[, !colnames(FBSintake_fg_data) %in% "unique_id"]
+        FBSintake_fg_data$Region <- sapply(FBSintake_fg_data$Region, paste, collapse = ", ")
+        table_html <- datatable(FBSintake_fg_data,
+                                options = list(dom = 't', pageLength = nrow(FBSintake_fg_data),
+                                               scrollX = TRUE, scrollY = TRUE),
+                                rownames = TRUE)  # Include the default row numbers
+        
+        return(table_html)
+      })
+      
+      #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
+      output$download_csv_FBSintake_fg <- downloadHandler(
+        filename = function() {
+          # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
+          paste("FBSintake_fg_data_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          # Create a copy of the data to avoid modifying the original data
+          FBSintake_fg_data_export <- FBSintake_fg_table()
+          
+          # Remove the 'unique_id' column
+          FBSintake_fg_data_export <- FBSintake_fg_data_export[, !colnames(FBSintake_fg_data_export) %in% "unique_id"]
+          
+          # Convert all columns to character
+          FBSintake_fg_data_export[] <- lapply(FBSintake_fg_data_export, as.character)
+          
+          # Write the data to a CSV file
+          write.csv(FBSintake_fg_data_export, file, row.names = FALSE)
+        }
+      )
+      
+      ##Generate data table for FBSintake_fg_socio ----
+      #Create table for the FBS_fg_socio intake, starting from the subsection of the main dataset identified by the filtered_data_FBSintake_fg_socio element, that here is called as a function.
+      FBSintake_fg_socio_table <- reactive({
+        data <- filtered_data_FBSintake_fg_socio()
+        data <- data %>%
+          mutate(unique_id = paste(Unit, Food.group, Region, Age, Sex, Urbanisation, Education, Year, sep = "_"))
+        
+        data_long <- data %>%
+          pivot_longer(cols = c(Urbanisation, Sex),
+                       names_to = "variable",
+                       values_to = "values")
+        
+        data_wide <- data_long %>%
+          pivot_wider(names_from = variable, values_from = values,
+                      values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+        
+        data_wide <- data_wide %>%
+          mutate(across(everything(), ~lapply(., as.character)))  # Convert to character
+        
+        return(data_wide)
+      })
+      
+      #Now create the actual table based on the dataframe that results from the previous section
+      output$FBSintake_fg_socio_table <- renderUI({
+        
+        FBSintake_fg_socio_data <- FBSintake_fg_socio_table()
+        FBSintake_fg_socio_data <- FBSintake_fg_socio_data[, !colnames(FBSintake_fg_socio_data) %in% "unique_id"]
+        FBSintake_fg_socio_data$Urbanisation <- sapply(FBSintake_fg_socio_data$Urbanisation, paste, collapse = ", ")
+        table_html <- datatable(FBSintake_fg_socio_data,
+                                options = list(dom = 't', pageLength = nrow(FBSintake_fg_socio_data),
+                                               scrollX = TRUE, scrollY = TRUE),
+                                rownames = TRUE)  # Include the default row numbers
+        
+        return(table_html)
+      })
+      
+      #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
+      output$download_csv_FBSintake_fg_socio <- downloadHandler(
+        filename = function() {
+          # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
+          paste("FBSintake_fg_socio_data_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          # Create a copy of the data to avoid modifying the original data
+          FBSintake_fg_socio_data_export <- FBSintake_fg_socio_table()
+          
+          # Remove the 'unique_id' column
+          FBSintake_fg_socio_data_export <- FBSintake_fg_socio_data_export[, !colnames(FBSintake_fg_socio_data_export) %in% "unique_id"]
+          
+          # Convert all columns to character
+          FBSintake_fg_socio_data_export[] <- lapply(FBSintake_fg_socio_data_export, as.character)
+          
+          # Write the data to a CSV file
+          write.csv(FBSintake_fg_socio_data_export, file, row.names = FALSE)
+        }
+      )
           
        #Generate code to download the plot
 
