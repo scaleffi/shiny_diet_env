@@ -6,10 +6,15 @@ library(tidyverse)
 
 
 #Load files from Github repository
-csv_file_trs <- "data/report_env_trs_053123.csv"
-csv_file_box <- "data/report_env_box_060123.csv" 
-csv_file_cons <- "data/cons_compare_012823.csv"
-csv_file_FBSintake <- "data/FBS_intake_socio_all-a_051523.csv"
+# csv_file_trs <- "data/report_env_trs_053123.csv"
+# csv_file_box <- "data/report_env_box_060123.csv" 
+# csv_file_cons <- "data/cons_compare_012823.csv"
+# csv_file_FBSintake <- "data/FBS_intake_socio_all-a_051523.csv"
+
+csv_file_trs <- "/Users/lshsc40/Documents/GitHub/shiny_diet_env/data/report_env_trs_053123.csv"
+csv_file_box <- "/Users/lshsc40/Documents/GitHub/shiny_diet_env/data/report_env_box_060123.csv" 
+csv_file_cons <- "/Users/lshsc40/Documents/GitHub/shiny_diet_env/data/cons_compare_012823.csv"
+csv_file_FBSintake <- "/Users/lshsc40/Documents/GitHub/shiny_diet_env/data/FBS_intake_socio_all-a_051523.csv"
 
   data_box <- read.csv(csv_file_box)
   data_box$value <- round(data_box$value, 2)
@@ -23,8 +28,8 @@ csv_file_FBSintake <- "data/FBS_intake_socio_all-a_051523.csv"
     data_trs_category <- data_trs %>%
       mutate(category = case_when(
         age %in% c("FML", "MLE", "BTH") ~ "Sex",
-        age %in% c("low", "medium", "high", "all-e") ~ "Education level",
-        age %in% c("rural", "urban", "all-u") ~ "Urbanisation level",
+        age %in% c("low", "medium", "high", "all-e") ~ "Edu. level",
+        age %in% c("rural", "urban", "all-u") ~ "Urb. level",
         age %in% c("0-10", "11-19", "20-39", "40-64", "65+", "all-a") ~ "Age group"
       ))
     
