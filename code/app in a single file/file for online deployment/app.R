@@ -707,20 +707,39 @@ server <- function(input, output) {
     
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(data, aes(x = age.education, y = value, color = sex.urbanisation, shape = sex.urbanisation)) +
-      geom_point(size=3) +
-      scale_color_brewer(palette = "Set1", name = "Sex:", labels = c("Female", "Male")) +
+    ggplot(
+      data,
+      aes(
+        x = age.education,
+        y = value,
+        color = sex.urbanisation,
+        shape = sex.urbanisation
+      )
+    ) +
+      geom_point(size = 3) +
+      scale_color_brewer(
+        palette = "Set1",
+        name = "Sex:",
+        labels = c("Female", "Male")
+      ) +
       scale_shape(name = "Sex:", labels = c("Female", "Male")) +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
-      scale_x_discrete(guide = guide_axis(n.dodge=2)) +
-      #facet_wrap(~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")),ncol = 4, labeller = labeller(region = region.labs)) +
-      facet_wrap(~ region_custom,ncol = 4) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+      facet_wrap( ~ region_custom, ncol = 4) +
       geom_hline(yintercept = 1, alpha = 0.3) +
-      #guides(shape = "none") +
       theme_linedraw() +
       labs(x = "Age group", y = "Diet-related env. impact expressed relative\nto global average  (1 = world average)") +
-      theme(axis.title.x = element_text(vjust = -1, face = "bold"), axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
-    #theme(plot.title=element_text(hjust = 0.5, size = 20), axis.title.x = element_text(face = "bold"), strip.text = element_text(size=12), legend.position = "top", legend.text = element_text(size = 12), axis.text.x = element_text(face = "bold"))
+      theme(
+        axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
+        axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   output$plot_eduurb <- renderPlot({
@@ -731,18 +750,38 @@ server <- function(input, output) {
     
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(data, aes(x = factor(age.education, level=c("low", "medium", "high")), y = value, color = sex.urbanisation, shape = sex.urbanisation)) +
-      geom_point(size=3) +
-      scale_color_brewer(palette = "Dark2", name="Urbanisation:", labels=c("Rural", "Urban")) +
+    ggplot(data,
+           aes(
+             x = factor(age.education, level = c("low", "medium", "high")),
+             y = value,
+             color = sex.urbanisation,
+             shape = sex.urbanisation
+           )) +
+      geom_point(size = 3) +
+      scale_color_brewer(
+        palette = "Dark2",
+        name = "Urbanisation:",
+        labels = c("Rural", "Urban")
+      ) +
       scale_shape(name = "Urbanisation:", labels = c("Rural", "Urban")) +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
-      scale_x_discrete(guide = guide_axis(n.dodge=2)) +
-      facet_wrap(~ region_custom,ncol = 4) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+      facet_wrap( ~ region_custom, ncol = 4) +
       geom_hline(yintercept = 1, alpha = 0.3) +
       #guides(shape = "none") +
       labs(x = "Education level", y = "Diet-related env. impact expressed relative\nto global average  (1 = world average)") +
       theme_linedraw() +
-      theme(axis.title.x = element_text(vjust = -1, face = "bold"), axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+      theme(
+        axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
+        axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
     #theme(axis.title.x = element_text(vjust = -1),axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
     #theme(plot.title=element_text(hjust = 0.5, size = 20), axis.title.x = element_text(face = "bold"), strip.text = element_text(size=12), legend.position = "top", legend.text = element_text(size = 15), axis.text.x = element_text(face = "bold"))
   })
@@ -750,10 +789,10 @@ server <- function(input, output) {
   output$plot_sociodem <- renderPlot({
     data <- filtered_data_sociodem()
     
-    # custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
-    # custom_labels_region <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "Europe & C. Asia", "Middle East & N. Africa", "E. Asia & Pacific", "South Asia", "North America", "Latin Am. & Caribbean", "Sub-Saharan Africa", "World")
-    #
-    # data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
+    custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
+    custom_labels_region <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "Europe & C. Asia", "Middle East & N. Africa", "E. Asia & Pacific", "South Asia", "North America", "Latin Am. & Caribbean", "Sub-Saharan Africa", "World")
+
+    data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
     ggplot(data, aes(x = factor(age, level=c("MLE", "FML", "0-10", "11-19", "20-39", "40-64", "65+", "low", "medium", "high", "urban", "rural")), y = value, label = value)) +
       #fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")))) +
@@ -763,13 +802,21 @@ server <- function(input, output) {
       #coord_flip() is an easy way to swtich the x and y axis. Depending on what we want the user to focus on, each vis has its advantages. To see
       #the graph with the impacts on the y axis and the sociodem/age variables on the x axis, comment the coord_flip() call, AND switch the arguments in facet_grid to scales = "free_x", space = "free", switch = "x".
       coord_flip() +
-      facet_grid(category ~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")), scales = "free_y", space = "free", switch = "y") +
+      facet_grid(category ~ region_custom, scales = "free_y", space = "free", switch = "y") +
       theme_linedraw() +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
       scale_x_discrete(guide = guide_axis(n.dodge=2)) +
       scale_fill_manual(values = colors_food) +
       labs(x = NULL, y = "Impact ", fill = "Food group") +
-      theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+      theme(axis.text.x = element_text(size=12), 
+            axis.title.y = element_text(size = 12, face = "bold"),
+            axis.title.x = element_text(size = 12, face = "bold"),
+            strip.text.x = element_text(size = 12, face = "bold"),
+            strip.text.y = element_text(size = 12, face = "bold"),
+            axis.text.y = element_text(size = 12),
+            legend.position = "right",
+            legend.text = element_text(size = 12),
+            legend.title = element_text(size = 12, face = "bold"))
     
     
   })
