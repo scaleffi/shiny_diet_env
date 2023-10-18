@@ -1,15 +1,18 @@
 library(shinydashboard)
 library(tidyverse)
 library(ggrepel)
-library(gghighlight)
-library(RColorBrewer)
-library(ggthemes)
-library(patchwork)
-library(thematic)
-library(bbplot)
-#library(plotly)
 library(DT)
 library(rsconnect)
+
+#library(gghighlight)
+#library(ggthemes)
+#library(patchwork)
+#library(thematic)
+#library(plotly)
+
+#To inspect the script one section at a time and make debugging easier, navigate to Edit --> Folding --> Collapse all. This will automatically
+#nest each subsection within their upper-level section, as defined in the code through the use of # and - symbols. Then simply click on the
+#small arrows that appear next to the line numbers, or on buttons with double-sided arrows at the end of each line, to expand the corresponding section of code.
 
 #Prepare the environment for executing the dashboard ----
 rm(list = ls()) #clear the environment
@@ -817,8 +820,6 @@ server <- function(input, output) {
             legend.position = "right",
             legend.text = element_text(size = 12),
             legend.title = element_text(size = 12, face = "bold"))
-    
-    
   })
   
   
@@ -828,32 +829,136 @@ server <- function(input, output) {
   
   output$plot_region <- renderPlot({
     data <- filtered_data_region()
-    ggplot(data, aes(x = factor(region, level=c("LIC", "LMC", "UMC", "HIC", "WLD")), y = value, fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds", "total")))) +
+    ggplot(data, aes(
+      x = factor(region, level = c("LIC", "LMC", "UMC", "HIC", "WLD")),
+      y = value,
+      fill = factor(
+        food_group,
+        level = c(
+          "beef",
+          "milk",
+          "lamb",
+          "pork",
+          "poultry",
+          "eggs",
+          "fish",
+          "rice",
+          "grains",
+          "fruit_veg",
+          "oils",
+          "sugar",
+          "roots",
+          "legumes",
+          "nuts_seeds",
+          "total"
+        )
+      )
+    )) +
       geom_col(color = "white", width = 0.6) +
       scale_fill_manual(values = colors_food) +
-      scale_x_discrete(labels = c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "World")) +
+      scale_x_discrete(
+        labels = c(
+          "Low Income",
+          "Lower Middle Income",
+          "Upper Middle Income",
+          "High Income",
+          "World"
+        )
+      ) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      facet_wrap(~ env_itm, scales = "free_y", ncol = 2, labeller = labeller(env_itm = env_itm.labs)) +
-      labs(x = NULL ,y = "Impact",
+      facet_wrap(
+        ~ env_itm,
+        scales = "free_y",
+        ncol = 2,
+        labeller = labeller(env_itm = env_itm.labs)
+      ) +
+      labs(x = "Income Region" , y = "Impact",
            fill = "Food group") +
       theme_linedraw() +
-      theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
-    #theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold", vjust = 1),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = -0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.x = element_text(
+          size = 12,
+          angle = 45,
+          hjust = 1
+        ),
+        axis.text.y = element_text(size = 12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   output$plot_regiongeo <- renderPlot({
     data <- filtered_data_regiongeo()
-    ggplot(data, aes(x = region, y = value, fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds", "total")))) +
+    ggplot(data, aes(
+      x = region,
+      y = value,
+      fill = factor(
+        food_group,
+        level = c(
+          "beef",
+          "milk",
+          "lamb",
+          "pork",
+          "poultry",
+          "eggs",
+          "fish",
+          "rice",
+          "grains",
+          "fruit_veg",
+          "oils",
+          "sugar",
+          "roots",
+          "legumes",
+          "nuts_seeds",
+          "total"
+        )
+      )
+    )) +
       geom_col(color = "white", width = 0.6) +
       scale_fill_manual(values = colors_food) +
-      scale_x_discrete(breaks = c("EAS", "ECS", "LCN", "MEA", "NAC", "SAS", "SSF", "WLD"),labels = c("E. Asia & Pacific", "Europe & C. Asia", "Latin Am. & Caribbean", "Middle East & N. Africa", "North America", "South Asia", "Sub-Saharan Africa", "World")) +
-      facet_wrap(~ env_itm, scales = "free_y", ncol = 2, labeller = labeller(env_itm = env_itm.labs)) +
+      scale_x_discrete(
+        breaks = c("EAS", "ECS", "LCN", "MEA", "NAC", "SAS", "SSF", "WLD"),
+        labels = c(
+          "E. Asia & Pacific",
+          "Europe & C. Asia",
+          "Latin Am. & Caribbean",
+          "Middle East & N. Africa",
+          "North America",
+          "South Asia",
+          "Sub-Saharan Africa",
+          "World"
+        )
+      ) +
+      facet_wrap(
+        ~ env_itm,
+        scales = "free_y",
+        ncol = 2,
+        labeller = labeller(env_itm = env_itm.labs)
+      ) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = NULL ,y = "Impact",
+      labs(x = "Geographical Region" , y = "Impact",
            fill = "Food group") +
       theme_linedraw() +
-      theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
-    #theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold", vjust = 1),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = -0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.x = element_text(
+          size = 12,
+          angle = 45,
+          hjust = 1
+        ),
+        axis.text.y = element_text(size = 12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   
@@ -863,41 +968,160 @@ server <- function(input, output) {
   output$plot_category <- renderPlot({
     data <- filtered_data_category()
     
-    custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
-    custom_labels_region <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "Europe & C. Asia", "Middle East & N. Africa", "E. Asia & Pacific", "South Asia", "North America", "Latin Am. & Caribbean", "Sub-Saharan Africa", "World")
+    custom_order_region <-
+      c("LIC",
+        "LMC",
+        "UMC",
+        "HIC",
+        "ECS",
+        "MEA",
+        "EAS",
+        "SAS",
+        "NAC",
+        "LCN",
+        "SSF",
+        "WLD")
+    custom_labels_region <-
+      c(
+        "Low Income",
+        "Lower Middle Income",
+        "Upper Middle Income",
+        "High Income",
+        "Europe & C. Asia",
+        "Middle East & N. Africa",
+        "E. Asia & Pacific",
+        "South Asia",
+        "North America",
+        "Latin Am. & Caribbean",
+        "Sub-Saharan Africa",
+        "World"
+      )
     
-    data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
+    data$region_custom <-
+      factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(data, aes(x = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "roots","fruit_veg", "oils", "sugar", "legumes", "nuts_seeds")), y = value, fill = macrofoods)) +
+    ggplot(data, aes(
+      x = factor(
+        food_group,
+        level = c(
+          "beef",
+          "milk",
+          "lamb",
+          "pork",
+          "poultry",
+          "eggs",
+          "fish",
+          "rice",
+          "grains",
+          "roots",
+          "fruit_veg",
+          "oils",
+          "sugar",
+          "legumes",
+          "nuts_seeds"
+        )
+      ),
+      y = value,
+      fill = macrofoods
+    )) +
       geom_col(color = "white", width = 0.6) +
-      scale_x_discrete(guide = guide_axis(n.dodge=3)) +
-      facet_wrap(~ region_custom,ncol = 2) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+      facet_wrap( ~ region_custom, ncol = 2) +
       scale_fill_manual(values = colors_macro) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = NULL, y = "Impact", fill = "Category:") +
+      labs(x = "Food Group", y = "Impact", fill = "Category:") +
       theme_linedraw() +
-      theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
-    #theme(axis.text.x = element_text(face="bold"), axis.title.y = element_text(size = 12), strip.text.x = element_text(size = 12), legend.position = "right")
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
     
   })
   
   output$plot_categorymacro <- renderPlot({
     data <- filtered_data_categorymacro()
     
-    custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
-    custom_labels_region <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "Europe & C. Asia", "Middle East & N. Africa", "E. Asia & Pacific", "South Asia", "North America", "Latin Am. & Caribbean", "Sub-Saharan Africa", "World")
+    custom_order_region <-
+      c("LIC",
+        "LMC",
+        "UMC",
+        "HIC",
+        "ECS",
+        "MEA",
+        "EAS",
+        "SAS",
+        "NAC",
+        "LCN",
+        "SSF",
+        "WLD")
+    custom_labels_region <-
+      c(
+        "Low Income",
+        "Lower Middle Income",
+        "Upper Middle Income",
+        "High Income",
+        "Europe & C. Asia",
+        "Middle East & N. Africa",
+        "E. Asia & Pacific",
+        "South Asia",
+        "North America",
+        "Latin Am. & Caribbean",
+        "Sub-Saharan Africa",
+        "World"
+      )
     
-    data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
+    data$region_custom <-
+      factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(data, aes(x = factor(macrofoods, level=c("ASF", "Staples", "Other")), y = value, fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")))) +
+    ggplot(data, aes(
+      x = factor(macrofoods, level = c("ASF", "Staples", "Other")),
+      y = value,
+      fill = factor(
+        food_group,
+        level = c(
+          "beef",
+          "milk",
+          "lamb",
+          "pork",
+          "poultry",
+          "eggs",
+          "fish",
+          "rice",
+          "grains",
+          "fruit_veg",
+          "oils",
+          "sugar",
+          "roots",
+          "legumes",
+          "nuts_seeds"
+        )
+      )
+    )) +
       geom_col(color = "white", width = 0.6) +
       #scale_x_discrete(guide = guide_axis(n.dodge=3)) +
-      facet_wrap(~ region_custom ,ncol = 4) +
+      facet_wrap( ~ region_custom , ncol = 4) +
       scale_fill_manual(values = colors_food) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = NULL, y = "Impact", fill = "Food group:") +
+      labs(x = "Food Category", y = "Impact", fill = "Food group:") +
       theme_linedraw() +
-      theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
     #theme(axis.text.x = element_text(face="bold"), axis.title.y = element_text(size = 12), strip.text.x = element_text(size = 12), legend.position = "right")
     
   })
