@@ -3,12 +3,15 @@ library(tidyverse)
 library(ggrepel)
 library(DT)
 library(rsconnect)
+#library(periscope)
 
 #library(gghighlight)
 #library(ggthemes)
 #library(patchwork)
 #library(thematic)
 #library(plotly)
+
+#logdebug("log", logger = "ss_userAction")
 
 #To inspect the script one section at a time and make debugging easier, navigate to Edit --> Folding --> Collapse all. This will automatically
 #nest each subsection within their upper-level section, as defined in the code through the use of # and - symbols. Then simply click on the
@@ -398,13 +401,13 @@ ui <- dashboardPage(
           ),
           tabPanel(
             #FBSregion ----
-            "Intake by food group, across Regions",
+            "Cummulative Intake by food group, across Regions",
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
                 selectInput("unit_10", "Select Unit:", choices = unique(df_FBSintake$Unit), selected = "g/d_w"),
                 selectInput("food_group_10", "Select Food Group:", unique(df_FBSintake$Food.group), multiple = TRUE, selected = c("rice", "wheat", "roots")),
-                selectInput("region_10", "Select Region:", choices = unique(df_FBSintake$Region),multiple = TRUE, selected = "WLD"),
+                selectInput("region_10", "Select Region:", choices = unique(df_FBSintake$Region),multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
                 #selectInput("age_9", "Select Age Group:", choices = unique(df_FBSintake$Age), multiple = TRUE, selected = "all-a"),
                 selectInput("sex_10", "Select Sex:", choices = unique(df_FBSintake$Sex), selected = "BTH"),
                 selectInput("urbanisation_10", "Select Urbanisation Level:", choices = unique(df_FBSintake$Urbanisation), selected = "rural"),
@@ -465,7 +468,7 @@ ui <- dashboardPage(
                         To better manage the level of detail available in these new estimates, we have divided the dashboard in 
                         distinct sections that focus on a specific number of dimensions at a time. Within each section,
                         the user is free to choose among several combinations of filters and generate plots of their interest.
-                        All plots are downloadable and reproducible, as long as their source is clearly and correctly cited.<br><br>
+                        All data can be visualised as a plot or a table; data can be downloaded in table format as a .csv file and is usable/reproducible, as long as their source is clearly and correctly cited.<br><br>
                         We hope that this tool can be useful to all who wish to know more about how diets differ among peoples, and what impact they have on the environment. For feedback or
                         questions please contact Sebastiano Caleffi at sebastiano.caleffi@lshtm.ac.uk",
               )
@@ -744,6 +747,8 @@ server <- function(input, output) {
         legend.title = element_text(size = 12, face = "bold")
       )
   })
+  
+ 
   
   output$plot_eduurb <- renderPlot({
     data <- filtered_data_eduurb()
@@ -1216,13 +1221,13 @@ server <- function(input, output) {
   
   output$plot_FBSintake_fg <- renderPlot({
     data <- filtered_data_FBSintake_fg()
-    ggplot(data, aes(x = Food.group, y = Value, fill = Food.group)) +
+    ggplot(data, aes(x = Region, y = Value, fill = Food.group)) +
       geom_col(color = "white", width = 0.6) +
       #geom_point(size = 4) +
-      scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       #geom_text_repel(aes(label = Value), show.legend = FALSE) +
-      facet_wrap( ~ Region, ncol = 2) +
-      labs(x = "Food Group", y = "Daily Intake", color = "Food group:") +
+      #facet_wrap( ~ Region, ncol = 2) +
+      labs(x = "Food Group", y = "Daily Intake", fill = "Food group:") +
       theme(
         axis.title.y = element_text(size = 12, face = "bold"),
         axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
