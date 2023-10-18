@@ -1122,8 +1122,6 @@ server <- function(input, output) {
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 12, face = "bold")
       )
-    #theme(axis.text.x = element_text(face="bold"), axis.title.y = element_text(size = 12), strip.text.x = element_text(size = 12), legend.position = "right")
-    
   })
   
   
@@ -1131,26 +1129,61 @@ server <- function(input, output) {
   
   output$plot_consumption <- renderPlot({
     data <- filtered_data_consumption()
-    ggplot(data, aes(x = Food.group, y = Intake, color = Indicator, shape = Indicator)) +
+    ggplot(data,
+           aes(
+             x = Food.group,
+             y = Intake,
+             color = Indicator,
+             shape = Indicator
+           )) +
       geom_point(size = 4) +
-      scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+      #Uncomment the following line if you want to show values for each point on the plot
       #geom_text_repel(aes(label = Intake), show.legend = FALSE) +
-      facet_wrap(~ Region,ncol = 2) +
-      scale_color_discrete(name  ="Intake proxy",
-                           breaks=c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"),
-                           labels=c("Global Dietary Dataset (GDD)", "FAO Balance Sheet (FBS)", "GDD - energy adjusted", "FBS - energy adjusted")) +
-      scale_shape_discrete(name  ="Intake proxy",
-                           breaks=c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"),
-                           labels=c("Global Dietary Dataset (GDD)", "FAO Balance Sheet (FBS)", "GDD - energy adjusted", "FBS - energy adjusted")) +
+      facet_wrap( ~ Region, ncol = 2) +
+      scale_color_discrete(
+        name  = "Intake proxy",
+        breaks = c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"),
+        labels = c(
+          "Global Dietary Dataset (GDD)",
+          "FAO Balance Sheet (FBS)",
+          "GDD - energy adjusted",
+          "FBS - energy adjusted"
+        )
+      ) +
+      scale_shape_discrete(
+        name  = "Intake proxy",
+        breaks = c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"),
+        labels = c(
+          "Global Dietary Dataset (GDD)",
+          "FAO Balance Sheet (FBS)",
+          "GDD - energy adjusted",
+          "FBS - energy adjusted"
+        )
+      ) +
       # scale_fill_manual(values = colors_macro) +
       #If I assign different aesthetics to the same variable, labelling the legend with a common name will
       #force ggplot to create a single legend containing info on both. Here I assign the name
       #"Intake proxy" to the legend for both color and shape, which I mapped to the same variable
       #and ggplot automatically merges both in a single legend
-      labs(x = NULL, y = "Intake (g/day)", color = "Intake proxy", shape = "Intake proxy") +
+      labs(
+        x = "Food Group",
+        y = "Intake (g/day)",
+        color = "Intake proxy",
+        shape = "Intake proxy"
+      ) +
       theme_linedraw() +
-      theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
-    #
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   
@@ -1159,31 +1192,69 @@ server <- function(input, output) {
   
   output$plot_FBSintake <- renderPlot({
     data <- filtered_data_FBSintake()
-    ggplot(data, aes(x = factor(Education, level=c("low", "medium", "high", "all-e")), y = Value, fill = Food.group)) +
+    ggplot(data, aes(
+      x = factor(Education, level = c("low", "medium", "high", "all-e")),
+      y = Value,
+      fill = Food.group
+    )) +
       geom_col(color = "white", width = 0.6) +
       #scale_x_discrete(guide = guide_axis(n.dodge=3)) +
       facet_grid(Sex ~ Urbanisation) +
-      labs(x = "Education Level", y = "Daily Intake", fill = "Food group:")
+      labs(x = "Education Level", y = "Daily Intake", fill = "Food group:") +
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   output$plot_FBSintake_fg <- renderPlot({
     data <- filtered_data_FBSintake_fg()
-    ggplot(data, aes(x = Food.group, y = Value, color = Food.group)) +
-      geom_point(size = 4) +
-      scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+    ggplot(data, aes(x = Food.group, y = Value, fill = Food.group)) +
+      geom_col(color = "white", width = 0.6) +
+      #geom_point(size = 4) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
       #geom_text_repel(aes(label = Value), show.legend = FALSE) +
-      facet_wrap(~ Region, ncol = 2) +
-      labs(x = "Food Group", y = "Daily Intake", color = "Food group:")
+      facet_wrap( ~ Region, ncol = 2) +
+      labs(x = "Food Group", y = "Daily Intake", color = "Food group:") +
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   output$plot_FBSintake_fg_socio <- renderPlot({
     data <- filtered_data_FBSintake_fg_socio()
     ggplot(data, aes(x = Food.group, y = Value, color = Sex)) +
       geom_point(size = 4) +
-      scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
       #geom_text_repel(aes(label = Value), show.legend = FALSE) +
       facet_grid(Education ~ Urbanisation) +
-      labs(x = "Food Group", y = "Daily Intake", color = "Sex:")
+      labs(x = "Food Group", y = "Daily Intake", color = "Sex:") +
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   
