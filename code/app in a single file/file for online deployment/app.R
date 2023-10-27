@@ -1,15 +1,21 @@
 library(shinydashboard)
 library(tidyverse)
 library(ggrepel)
-library(gghighlight)
-library(RColorBrewer)
-library(ggthemes)
-library(patchwork)
-library(thematic)
-library(bbplot)
-#library(plotly)
 library(DT)
 library(rsconnect)
+#library(periscope)
+
+#library(gghighlight)
+#library(ggthemes)
+#library(patchwork)
+#library(thematic)
+#library(plotly)
+
+#logdebug("log", logger = "ss_userAction")
+
+#To inspect the script one section at a time and make debugging easier, navigate to Edit --> Folding --> Collapse all. This will automatically
+#nest each subsection within their upper-level section, as defined in the code through the use of # and - symbols. Then simply click on the
+#small arrows that appear next to the line numbers, or on buttons with double-sided arrows at the end of each line, to expand the corresponding section of code.
 
 #Prepare the environment for executing the dashboard ----
 rm(list = ls()) #clear the environment
@@ -395,13 +401,13 @@ ui <- dashboardPage(
           ),
           tabPanel(
             #FBSregion ----
-            "Intake by food group, across Regions",
+            "Cummulative Intake by food group, across Regions",
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
                 selectInput("unit_10", "Select Unit:", choices = unique(df_FBSintake$Unit), selected = "g/d_w"),
                 selectInput("food_group_10", "Select Food Group:", unique(df_FBSintake$Food.group), multiple = TRUE, selected = c("rice", "wheat", "roots")),
-                selectInput("region_10", "Select Region:", choices = unique(df_FBSintake$Region),multiple = TRUE, selected = "WLD"),
+                selectInput("region_10", "Select Region:", choices = unique(df_FBSintake$Region),multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
                 #selectInput("age_9", "Select Age Group:", choices = unique(df_FBSintake$Age), multiple = TRUE, selected = "all-a"),
                 selectInput("sex_10", "Select Sex:", choices = unique(df_FBSintake$Sex), selected = "BTH"),
                 selectInput("urbanisation_10", "Select Urbanisation Level:", choices = unique(df_FBSintake$Urbanisation), selected = "rural"),
@@ -462,7 +468,7 @@ ui <- dashboardPage(
                         To better manage the level of detail available in these new estimates, we have divided the dashboard in 
                         distinct sections that focus on a specific number of dimensions at a time. Within each section,
                         the user is free to choose among several combinations of filters and generate plots of their interest.
-                        All plots are downloadable and reproducible, as long as their source is clearly and correctly cited.<br><br>
+                        All data can be visualised as a plot or a table; data can be downloaded in table format as a .csv file and is usable/reproducible, as long as their source is clearly and correctly cited.<br><br>
                         We hope that this tool can be useful to all who wish to know more about how diets differ among peoples, and what impact they have on the environment. For feedback or
                         questions please contact Sebastiano Caleffi at sebastiano.caleffi@lshtm.ac.uk",
               )
@@ -742,6 +748,8 @@ server <- function(input, output) {
       )
   })
   
+ 
+  
   output$plot_eduurb <- renderPlot({
     data <- filtered_data_eduurb()
     
@@ -817,8 +825,6 @@ server <- function(input, output) {
             legend.position = "right",
             legend.text = element_text(size = 12),
             legend.title = element_text(size = 12, face = "bold"))
-    
-    
   })
   
   
@@ -828,32 +834,136 @@ server <- function(input, output) {
   
   output$plot_region <- renderPlot({
     data <- filtered_data_region()
-    ggplot(data, aes(x = factor(region, level=c("LIC", "LMC", "UMC", "HIC", "WLD")), y = value, fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds", "total")))) +
+    ggplot(data, aes(
+      x = factor(region, level = c("LIC", "LMC", "UMC", "HIC", "WLD")),
+      y = value,
+      fill = factor(
+        food_group,
+        level = c(
+          "beef",
+          "milk",
+          "lamb",
+          "pork",
+          "poultry",
+          "eggs",
+          "fish",
+          "rice",
+          "grains",
+          "fruit_veg",
+          "oils",
+          "sugar",
+          "roots",
+          "legumes",
+          "nuts_seeds",
+          "total"
+        )
+      )
+    )) +
       geom_col(color = "white", width = 0.6) +
       scale_fill_manual(values = colors_food) +
-      scale_x_discrete(labels = c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "World")) +
+      scale_x_discrete(
+        labels = c(
+          "Low Income",
+          "Lower Middle Income",
+          "Upper Middle Income",
+          "High Income",
+          "World"
+        )
+      ) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      facet_wrap(~ env_itm, scales = "free_y", ncol = 2, labeller = labeller(env_itm = env_itm.labs)) +
-      labs(x = NULL ,y = "Impact",
+      facet_wrap(
+        ~ env_itm,
+        scales = "free_y",
+        ncol = 2,
+        labeller = labeller(env_itm = env_itm.labs)
+      ) +
+      labs(x = "Income Region" , y = "Impact",
            fill = "Food group") +
       theme_linedraw() +
-      theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
-    #theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold", vjust = 1),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = -0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.x = element_text(
+          size = 12,
+          angle = 45,
+          hjust = 1
+        ),
+        axis.text.y = element_text(size = 12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   output$plot_regiongeo <- renderPlot({
     data <- filtered_data_regiongeo()
-    ggplot(data, aes(x = region, y = value, fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds", "total")))) +
+    ggplot(data, aes(
+      x = region,
+      y = value,
+      fill = factor(
+        food_group,
+        level = c(
+          "beef",
+          "milk",
+          "lamb",
+          "pork",
+          "poultry",
+          "eggs",
+          "fish",
+          "rice",
+          "grains",
+          "fruit_veg",
+          "oils",
+          "sugar",
+          "roots",
+          "legumes",
+          "nuts_seeds",
+          "total"
+        )
+      )
+    )) +
       geom_col(color = "white", width = 0.6) +
       scale_fill_manual(values = colors_food) +
-      scale_x_discrete(breaks = c("EAS", "ECS", "LCN", "MEA", "NAC", "SAS", "SSF", "WLD"),labels = c("E. Asia & Pacific", "Europe & C. Asia", "Latin Am. & Caribbean", "Middle East & N. Africa", "North America", "South Asia", "Sub-Saharan Africa", "World")) +
-      facet_wrap(~ env_itm, scales = "free_y", ncol = 2, labeller = labeller(env_itm = env_itm.labs)) +
+      scale_x_discrete(
+        breaks = c("EAS", "ECS", "LCN", "MEA", "NAC", "SAS", "SSF", "WLD"),
+        labels = c(
+          "E. Asia & Pacific",
+          "Europe & C. Asia",
+          "Latin Am. & Caribbean",
+          "Middle East & N. Africa",
+          "North America",
+          "South Asia",
+          "Sub-Saharan Africa",
+          "World"
+        )
+      ) +
+      facet_wrap(
+        ~ env_itm,
+        scales = "free_y",
+        ncol = 2,
+        labeller = labeller(env_itm = env_itm.labs)
+      ) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = NULL ,y = "Impact",
+      labs(x = "Geographical Region" , y = "Impact",
            fill = "Food group") +
       theme_linedraw() +
-      theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
-    #theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold", vjust = 1),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = -0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.x = element_text(
+          size = 12,
+          angle = 45,
+          hjust = 1
+        ),
+        axis.text.y = element_text(size = 12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   
@@ -863,43 +973,160 @@ server <- function(input, output) {
   output$plot_category <- renderPlot({
     data <- filtered_data_category()
     
-    custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
-    custom_labels_region <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "Europe & C. Asia", "Middle East & N. Africa", "E. Asia & Pacific", "South Asia", "North America", "Latin Am. & Caribbean", "Sub-Saharan Africa", "World")
+    custom_order_region <-
+      c("LIC",
+        "LMC",
+        "UMC",
+        "HIC",
+        "ECS",
+        "MEA",
+        "EAS",
+        "SAS",
+        "NAC",
+        "LCN",
+        "SSF",
+        "WLD")
+    custom_labels_region <-
+      c(
+        "Low Income",
+        "Lower Middle Income",
+        "Upper Middle Income",
+        "High Income",
+        "Europe & C. Asia",
+        "Middle East & N. Africa",
+        "E. Asia & Pacific",
+        "South Asia",
+        "North America",
+        "Latin Am. & Caribbean",
+        "Sub-Saharan Africa",
+        "World"
+      )
     
-    data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
+    data$region_custom <-
+      factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(data, aes(x = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "roots","fruit_veg", "oils", "sugar", "legumes", "nuts_seeds")), y = value, fill = macrofoods)) +
+    ggplot(data, aes(
+      x = factor(
+        food_group,
+        level = c(
+          "beef",
+          "milk",
+          "lamb",
+          "pork",
+          "poultry",
+          "eggs",
+          "fish",
+          "rice",
+          "grains",
+          "roots",
+          "fruit_veg",
+          "oils",
+          "sugar",
+          "legumes",
+          "nuts_seeds"
+        )
+      ),
+      y = value,
+      fill = macrofoods
+    )) +
       geom_col(color = "white", width = 0.6) +
-      scale_x_discrete(guide = guide_axis(n.dodge=3)) +
-      facet_wrap(~ region_custom,ncol = 2) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+      facet_wrap( ~ region_custom, ncol = 2) +
       scale_fill_manual(values = colors_macro) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = NULL, y = "Impact", fill = "Category:") +
+      labs(x = "Food Group", y = "Impact", fill = "Category:") +
       theme_linedraw() +
-      theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
-    #theme(axis.text.x = element_text(face="bold"), axis.title.y = element_text(size = 12), strip.text.x = element_text(size = 12), legend.position = "right")
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
     
   })
   
   output$plot_categorymacro <- renderPlot({
     data <- filtered_data_categorymacro()
     
-    custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
-    custom_labels_region <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "Europe & C. Asia", "Middle East & N. Africa", "E. Asia & Pacific", "South Asia", "North America", "Latin Am. & Caribbean", "Sub-Saharan Africa", "World")
+    custom_order_region <-
+      c("LIC",
+        "LMC",
+        "UMC",
+        "HIC",
+        "ECS",
+        "MEA",
+        "EAS",
+        "SAS",
+        "NAC",
+        "LCN",
+        "SSF",
+        "WLD")
+    custom_labels_region <-
+      c(
+        "Low Income",
+        "Lower Middle Income",
+        "Upper Middle Income",
+        "High Income",
+        "Europe & C. Asia",
+        "Middle East & N. Africa",
+        "E. Asia & Pacific",
+        "South Asia",
+        "North America",
+        "Latin Am. & Caribbean",
+        "Sub-Saharan Africa",
+        "World"
+      )
     
-    data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
+    data$region_custom <-
+      factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(data, aes(x = factor(macrofoods, level=c("ASF", "Staples", "Other")), y = value, fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")))) +
+    ggplot(data, aes(
+      x = factor(macrofoods, level = c("ASF", "Staples", "Other")),
+      y = value,
+      fill = factor(
+        food_group,
+        level = c(
+          "beef",
+          "milk",
+          "lamb",
+          "pork",
+          "poultry",
+          "eggs",
+          "fish",
+          "rice",
+          "grains",
+          "fruit_veg",
+          "oils",
+          "sugar",
+          "roots",
+          "legumes",
+          "nuts_seeds"
+        )
+      )
+    )) +
       geom_col(color = "white", width = 0.6) +
       #scale_x_discrete(guide = guide_axis(n.dodge=3)) +
-      facet_wrap(~ region_custom ,ncol = 4) +
+      facet_wrap( ~ region_custom , ncol = 4) +
       scale_fill_manual(values = colors_food) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = NULL, y = "Impact", fill = "Food group:") +
+      labs(x = "Food Category", y = "Impact", fill = "Food group:") +
       theme_linedraw() +
-      theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
-    #theme(axis.text.x = element_text(face="bold"), axis.title.y = element_text(size = 12), strip.text.x = element_text(size = 12), legend.position = "right")
-    
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   
@@ -907,26 +1134,61 @@ server <- function(input, output) {
   
   output$plot_consumption <- renderPlot({
     data <- filtered_data_consumption()
-    ggplot(data, aes(x = Food.group, y = Intake, color = Indicator, shape = Indicator)) +
+    ggplot(data,
+           aes(
+             x = Food.group,
+             y = Intake,
+             color = Indicator,
+             shape = Indicator
+           )) +
       geom_point(size = 4) +
-      scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+      #Uncomment the following line if you want to show values for each point on the plot
       #geom_text_repel(aes(label = Intake), show.legend = FALSE) +
-      facet_wrap(~ Region,ncol = 2) +
-      scale_color_discrete(name  ="Intake proxy",
-                           breaks=c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"),
-                           labels=c("Global Dietary Dataset (GDD)", "FAO Balance Sheet (FBS)", "GDD - energy adjusted", "FBS - energy adjusted")) +
-      scale_shape_discrete(name  ="Intake proxy",
-                           breaks=c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"),
-                           labels=c("Global Dietary Dataset (GDD)", "FAO Balance Sheet (FBS)", "GDD - energy adjusted", "FBS - energy adjusted")) +
+      facet_wrap( ~ Region, ncol = 2) +
+      scale_color_discrete(
+        name  = "Intake proxy",
+        breaks = c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"),
+        labels = c(
+          "Global Dietary Dataset (GDD)",
+          "FAO Balance Sheet (FBS)",
+          "GDD - energy adjusted",
+          "FBS - energy adjusted"
+        )
+      ) +
+      scale_shape_discrete(
+        name  = "Intake proxy",
+        breaks = c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"),
+        labels = c(
+          "Global Dietary Dataset (GDD)",
+          "FAO Balance Sheet (FBS)",
+          "GDD - energy adjusted",
+          "FBS - energy adjusted"
+        )
+      ) +
       # scale_fill_manual(values = colors_macro) +
       #If I assign different aesthetics to the same variable, labelling the legend with a common name will
       #force ggplot to create a single legend containing info on both. Here I assign the name
       #"Intake proxy" to the legend for both color and shape, which I mapped to the same variable
       #and ggplot automatically merges both in a single legend
-      labs(x = NULL, y = "Intake (g/day)", color = "Intake proxy", shape = "Intake proxy") +
+      labs(
+        x = "Food Group",
+        y = "Intake (g/day)",
+        color = "Intake proxy",
+        shape = "Intake proxy"
+      ) +
       theme_linedraw() +
-      theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
-    #
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   
@@ -935,31 +1197,69 @@ server <- function(input, output) {
   
   output$plot_FBSintake <- renderPlot({
     data <- filtered_data_FBSintake()
-    ggplot(data, aes(x = factor(Education, level=c("low", "medium", "high", "all-e")), y = Value, fill = Food.group)) +
+    ggplot(data, aes(
+      x = factor(Education, level = c("low", "medium", "high", "all-e")),
+      y = Value,
+      fill = Food.group
+    )) +
       geom_col(color = "white", width = 0.6) +
       #scale_x_discrete(guide = guide_axis(n.dodge=3)) +
       facet_grid(Sex ~ Urbanisation) +
-      labs(x = "Education Level", y = "Daily Intake", fill = "Food group:")
+      labs(x = "Education Level", y = "Daily Intake", fill = "Food group:") +
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   output$plot_FBSintake_fg <- renderPlot({
     data <- filtered_data_FBSintake_fg()
-    ggplot(data, aes(x = Food.group, y = Value, color = Food.group)) +
-      geom_point(size = 4) +
-      scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+    ggplot(data, aes(x = Region, y = Value, fill = Food.group)) +
+      geom_col(color = "white", width = 0.6) +
+      #geom_point(size = 4) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       #geom_text_repel(aes(label = Value), show.legend = FALSE) +
-      facet_wrap(~ Region, ncol = 2) +
-      labs(x = "Food Group", y = "Daily Intake", color = "Food group:")
+      #facet_wrap( ~ Region, ncol = 2) +
+      labs(x = "Food Group", y = "Daily Intake", fill = "Food group:") +
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   output$plot_FBSintake_fg_socio <- renderPlot({
     data <- filtered_data_FBSintake_fg_socio()
     ggplot(data, aes(x = Food.group, y = Value, color = Sex)) +
       geom_point(size = 4) +
-      scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
       #geom_text_repel(aes(label = Value), show.legend = FALSE) +
       facet_grid(Education ~ Urbanisation) +
-      labs(x = "Food Group", y = "Daily Intake", color = "Sex:")
+      labs(x = "Food Group", y = "Daily Intake", color = "Sex:") +
+      theme(
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size=12),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold")
+      )
   })
   
   
