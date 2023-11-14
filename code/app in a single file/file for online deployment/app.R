@@ -1,9 +1,9 @@
 library(shinydashboard)
-library(shiny)
 library(tidyverse)
 library(ggrepel)
 library(DT)
 library(rsconnect)
+library(shiny)
 #library(periscope)
 
 #library(gghighlight)
@@ -22,8 +22,9 @@ library(rsconnect)
 rm(list = ls()) #clear the environment
 
 #Load files from Github repository ----
-csv_file_trs <- "report_env_trs_053123.csv"
-csv_file_box <- "report_env_box_060123.csv" 
+#csv_file_trs <- "report_env_trs_053123.csv"
+csv_file_trs <- "report_env_trs_110423.csv"
+csv_file_box <- "report_env_box_110423.csv" 
 csv_file_cons <- "cons_compare_012823.csv"
 csv_file_FBSintake <- "FBS_intake_socio_all-a_051523.csv"
 
@@ -41,16 +42,16 @@ data_trs_category <- data_trs %>%
     age %in% c("FML", "MLE", "BTH") ~ "Sex",
     age %in% c("low", "medium", "high", "all-e") ~ "Edu. level",
     age %in% c("rural", "urban", "all-u") ~ "Urb. level",
-    age %in% c("0-10", "11-19", "20-39", "40-64", "65+", "all-a") ~ "Age group"
+    age %in% c("0-9", "10-19", "20-39", "40-64", "65+", "all-a") ~ "Age group"
   ))
 
 #Create another dataset, data_trs_macrofoods by adding to data_trs_category a column labelled 'macrofoods', to group different labels in the food_group variable to subgroups (if useful)
 # namely ASF, Staples, Other, Total. This dataset includes a column for the category, and a column for the macrofoods.
 data_trs_macrofoods <- data_trs_category %>%
   mutate(macrofoods = case_when(
-    food_group %in% c("beef", "milk", "lamb", "pork", "poultry", "eggs", "fish") ~ "ASF",
-    food_group %in% c("rice", "grains") ~ "Staples",
-    food_group %in% c("fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds") ~ "Other",
+    food_group %in% c("beef_lamb", "dairy", "othr_ani", "othr_meat", "pork", "fish") ~ "ASF",
+    food_group %in% c("rice", "grains", "roots") ~ "Staples",
+    food_group %in% c("fruit_veg", "oils", "sugar", "legumes", "nuts_seeds", "other") ~ "Other",
     food_group %in% c("total") ~ "Total"
   ))
 
@@ -58,9 +59,9 @@ data_trs_macrofoods <- data_trs_category %>%
 #interested in grouping sociodem categories
 df_trs_macrof <- df_trs %>%
   mutate(macrofoods = case_when(
-    food_group %in% c("beef", "milk", "lamb", "pork", "poultry", "eggs", "fish") ~ "ASF",
+    food_group %in% c("beef_lamb", "dairy", "othr_ani", "othr_meat", "pork", "fish") ~ "ASF",
     food_group %in% c("rice", "grains", "roots") ~ "Staples",
-    food_group %in% c("fruit_veg", "oils", "sugar", "legumes", "nuts_seeds") ~ "Other",
+    food_group %in% c("fruit_veg", "oils", "sugar", "legumes", "nuts_seeds", "other") ~ "Other",
     food_group %in% c("total") ~ "Total"
   ))
 
@@ -117,11 +118,11 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_2", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
-                selectInput("measure_2", "Select Measure:", choices = c("cap-avg_WLD","cap-avg_RGS"), selected = "cap-avg_WLD"),
+                selectInput("cns_prsp_2", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
+                selectInput("measure_2", "Select Measure:", choices = c("pct_cap_WLD","pct_cap_RGS"), selected = "pct_cap_WLD"),
                 selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "avg"),
                 selectInput("region_2", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
-                selectInput("age.education_2", "Select age group:", choices = c("0-10", "11-19", "20-39", "40-64", "65+", "all-a"), multiple = TRUE, selected = c("0-10", "11-19", "20-39", "40-64", "65+")),
+                selectInput("age.education_2", "Select age group:", choices = c("0-9", "10-19", "20-39", "40-64", "65+", "all-a"), multiple = TRUE, selected = c("0-9", "10-19", "20-39", "40-64", "65+")),
                 selectInput("sex.urbanisation_2", "Select sex:", choices = c("MLE", "FML", "BTH"), multiple = TRUE, selected = c("MLE", "FML")),
                 downloadButton("download_csv_sexage", "Download table")
                 #downloadButton("download_plot_sexage", "Download plot")
@@ -144,8 +145,8 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary", 
-                selectInput("cns_prsp_3", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
-                selectInput("measure_3", "Select Measure:", choices = c("cap-avg_WLD","cap-avg_RGS"), selected = "cap-avg_WLD"),
+                selectInput("cns_prsp_3", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
+                selectInput("measure_3", "Select Measure:", choices = c("pct_cap_WLD","pct_cap_RGS"), selected = "pct_cap_WLD"),
                 selectInput("env_dimensions_3", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "avg"),
                 selectInput("region_3", "Select Region:", choices = unique(df$region), multiple = TRUE, selected = "WLD"),
                 selectInput("age.education_3", "Select education level:", choices = c("low", "medium", "high"), multiple = TRUE, selected = c("low", "medium", "high")),
@@ -169,7 +170,7 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_7", "Select Consumption Perspective:", choices = unique(df_trs_category$cns_prsp), selected = "avb"),
+                selectInput("cns_prsp_7", "Select Consumption Perspective:", choices = unique(df_trs_category$cns_prsp), selected = "actl"),
                 selectInput("measure_7", "Select Measure:", choices = c("abs","cap"), selected = "cap"),
                 selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "avg"), selected = "GHG"),
                 selectInput("region_7", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = "WLD"),
@@ -210,7 +211,7 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",  
-                selectInput("cns_prsp_1", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
+                selectInput("cns_prsp_1", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
                 selectInput("measure_1", "Select Measure:", choices = c("abs", "cap"), selected = "cap"),
                 selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"),multiple = TRUE, selected = "GHG"),
                 selectInput("food_group_1", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = "total"),
@@ -234,10 +235,10 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_5", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
+                selectInput("cns_prsp_5", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
                 selectInput("measure_5", "Select Measure:", choices = c("abs", "cap"), selected = "cap"),
                 selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"),multiple = TRUE, selected = "GHG"),
-                selectInput("food_group_5", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c("beef", "milk", "rice", "roots")),
+                selectInput("food_group_5", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c("beef_lamb", "dairy", "rice", "roots")),
                 selectInput("region_5", "Select Region:", choices = c("NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF", "WLD"), multiple = TRUE, selected = c("NAC", "SAS", "SSF")),
                 downloadButton("download_csv_regiongeo", "Download table")
               ),
@@ -273,10 +274,10 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_4", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
+                selectInput("cns_prsp_4", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
                 selectInput("measure_4", "Select Measure:", choices = c("abs", "cap"), selected = "abs"),
                 selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"), selected = "GHG"),
-                selectInput("food_group_4", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef", "lamb", "rice", "grains", "fruit_veg", "legumes")),
+                selectInput("food_group_4", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef_lamb", "rice", "grains", "fruit_veg", "legumes")),
                 selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = "WLD"),
                 downloadButton("download_csv_category", "Download table")
               ),
@@ -297,10 +298,10 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_6", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
+                selectInput("cns_prsp_6", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
                 selectInput("measure_6", "Select Measure:", choices = c("abs", "cap"), selected = "abs"),
                 selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("avg", "land_pstr", "land_crop")), selected = "GHG"),
-                selectInput("food_group_6", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef", "pork", "milk", "legumes", "roots", "rice", "grains")),
+                selectInput("food_group_6", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef_lamb", "pork", "dairy", "legumes", "roots", "rice", "grains")),
                 #selectInput("category_6", "Select Food Category:", choices = setdiff(unique(df_trs_macrof$macrofoods), "Total"), multiple = TRUE),
                 selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("LIC", "HIC")),
                 downloadButton("download_csv_categorymacro", "Download table")
@@ -677,23 +678,45 @@ server <- function(input, output) {
   colors_macro <- c("#922b21", "#85929e", "#f1c40f")
   
   #create a vector named colors_food made up of fifteen colors, to assign specific ones to each food in the food_group variable. This helps with consistency across plots.
-  colors_food <- c(
-    "total" = "#a6a79b",
-    "rice" = "#f9e79f",
-    "roots" = "#eb984e",
-    "sugar" = "#fad7a0",
-    "legumes" = "#6e2c00",
-    "beef" = "#cb4335",
-    "lamb" = "#d98880",
-    "pork" = "#f5a5b5",
-    "poultry" = "#fae5d3",
-    "eggs" = "#fdedec",
-    "milk" = "#f0ebe2",
-    "fish" = "#8fbad3",
-    "grains" = "#ecdb54",
-    "fruit_veg" = "#229954",
-    "nuts_seeds" = "#7d6608",
-    "oils" = "#abebc6")
+ 
+  #Based on _trs_053123
+   # colors_food <- c(
+   #  "total" = "#a6a79b",
+   #  "rice" = "#f9e79f",
+   #  "roots" = "#eb984e",
+   #  "sugar" = "#fad7a0",
+   #  "legumes" = "#6e2c00",
+   #  "beef" = "#cb4335",
+   #  "lamb" = "#d98880",
+   #  "pork" = "#f5a5b5",
+   #  "poultry" = "#fae5d3",
+   #  "eggs" = "#fdedec",
+   #  "milk" = "#f0ebe2",
+   #  "fish" = "#8fbad3",
+   #  "grains" = "#ecdb54",
+   #  "fruit_veg" = "#229954",
+   #  "nuts_seeds" = "#7d6608",
+   #  "oils" = "#abebc6")
+   # 
+   
+   #Based on _trs_110423
+   colors_food <- c(
+     "total" = "#a6a79b",
+     "rice" = "#f9e79f",
+     "roots" = "#eb984e",
+     "sugar" = "#fad7a0",
+     "legumes" = "#6e2c00",
+     "beef_lamb" = "#cb4335",
+     "othr_meat" = "#d98880",
+     "pork" = "#f5a5b5",
+     "othr_ani" = "#fae5d3",
+     "other" = "#fdedec",
+     "dairy" = "#f0ebe2",
+     "fish" = "#8fbad3",
+     "grains" = "#ecdb54",
+     "fruit_veg" = "#229954",
+     "nuts_seeds" = "#7d6608",
+     "oils" = "#abebc6")
   
   # Create a vector to rename facet plots with the full names of the environmental dimensions
   env_itm.labs <- c("GHG (Mt CO2eq)", "Freshwater use (Cubic meters)", "Eutrophication (Mt PO4eq)", "Land use (thousands of sqKm)", "Land use_pasture (thousands of sqKm)", "Land use_crops (thousands of sqKm)")
@@ -733,9 +756,9 @@ server <- function(input, output) {
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 4) +
-      geom_hline(yintercept = 1, alpha = 0.3) +
+      geom_hline(yintercept = 100, alpha = 0.3) +
       theme_linedraw() +
-      labs(x = "Age group", y = "Diet-related env. impact expressed relative\nto global average  (1 = world average)") +
+      labs(x = "Age group", y = "Diet-related env. impact expressed relative\nto global average  (100 = world average)") +
       theme(
         axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
         axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
@@ -776,9 +799,9 @@ server <- function(input, output) {
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 4) +
-      geom_hline(yintercept = 1, alpha = 0.3) +
+      geom_hline(yintercept = 100, alpha = 0.3) +
       #guides(shape = "none") +
-      labs(x = "Education level", y = "Diet-related env. impact expressed relative\nto global average  (1 = world average)") +
+      labs(x = "Education level", y = "Diet-related env. impact expressed relative\nto global average  (100 = world average)") +
       theme_linedraw() +
       theme(
         axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
@@ -803,9 +826,49 @@ server <- function(input, output) {
 
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(data, aes(x = factor(age, level=c("MLE", "FML", "0-10", "11-19", "20-39", "40-64", "65+", "low", "medium", "high", "urban", "rural")), y = value, label = value)) +
+    ggplot(data, aes(
+      x = factor(
+        age,
+        level = c(
+          "MLE",
+          "FML",
+          "0-9",
+          "10-19",
+          "20-39",
+          "40-64",
+          "65+",
+          "low",
+          "medium",
+          "high",
+          "urban",
+          "rural"
+        )
+      ),
+      y = value,
+      label = value
+    )) +
       #fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")))) +
-      geom_col(aes(fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds", "total"))), color = "white") +
+      geom_col(aes(fill = factor(
+        food_group,
+        level = c(
+          "beef_lamb",
+          "dairy",
+          "pork",
+          "othr_meat",
+          "fish",
+          "othr_ani",
+          "rice",
+          "grains",
+          "fruit_veg",
+          "oils",
+          "sugar",
+          "roots",
+          "legumes",
+          "nuts_seeds",
+          "other",
+          "total"
+        )
+      )), color = "white") +
       #facet_wrap(~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")),ncol = 4) +
       
       #coord_flip() is an easy way to swtich the x and y axis. Depending on what we want the user to focus on, each vis has its advantages. To see
@@ -841,13 +904,12 @@ server <- function(input, output) {
       fill = factor(
         food_group,
         level = c(
-          "beef",
-          "milk",
-          "lamb",
+          "beef_lamb",
+          "dairy",
           "pork",
-          "poultry",
-          "eggs",
+          "othr_meat",
           "fish",
+          "othr_ani",
           "rice",
           "grains",
           "fruit_veg",
@@ -856,6 +918,7 @@ server <- function(input, output) {
           "roots",
           "legumes",
           "nuts_seeds",
+          "other",
           "total"
         )
       )
@@ -906,13 +969,12 @@ server <- function(input, output) {
       fill = factor(
         food_group,
         level = c(
-          "beef",
-          "milk",
-          "lamb",
+          "beef_lamb",
+          "dairy",
           "pork",
-          "poultry",
-          "eggs",
+          "othr_meat",
           "fish",
+          "othr_ani",
           "rice",
           "grains",
           "fruit_veg",
@@ -921,6 +983,7 @@ server <- function(input, output) {
           "roots",
           "legumes",
           "nuts_seeds",
+          "other",
           "total"
         )
       )
@@ -1010,13 +1073,12 @@ server <- function(input, output) {
       x = factor(
         food_group,
         level = c(
-          "beef",
-          "milk",
-          "lamb",
+          "beef_lamb",
+          "dairy",
           "pork",
-          "poultry",
-          "eggs",
+          "othr_meat",
           "fish",
+          "othr_ani",
           "rice",
           "grains",
           "roots",
@@ -1024,7 +1086,9 @@ server <- function(input, output) {
           "oils",
           "sugar",
           "legumes",
-          "nuts_seeds"
+          "nuts_seeds",
+          "other",
+          "total"
         )
       ),
       y = value,
@@ -1092,13 +1156,12 @@ server <- function(input, output) {
       fill = factor(
         food_group,
         level = c(
-          "beef",
-          "milk",
-          "lamb",
+          "beef_lamb",
+          "dairy",
           "pork",
-          "poultry",
-          "eggs",
+          "othr_meat",
           "fish",
+          "othr_ani",
           "rice",
           "grains",
           "fruit_veg",
@@ -1106,7 +1169,9 @@ server <- function(input, output) {
           "sugar",
           "roots",
           "legumes",
-          "nuts_seeds"
+          "nuts_seeds",
+          "other",
+          "total"
         )
       )
     )) +
@@ -1280,7 +1345,7 @@ server <- function(input, output) {
     
     #Add a unique identifier column based on all relevant variables. This is needed because otherwise the datatable command used further down will automatically
     #group into a single row instances where different combinations of variables in the dataset correspond to the same impact value on the y axis.
-    #If for example FML aged 11-19 have an impact value of 1.19 in both HIC and LIC, the datatable command would display just one row for the value 1.19, and list
+    #If for example FML aged 10-19 have an impact value of 1.19 in both HIC and LIC, the datatable command would display just one row for the value 1.19, and list
     #both HIC and LIC in the region column. Creating a unique identifier that is formed by the values taken by each variable in each occurrence ensures
     #that we can generate a table in which duplicate values are presented in distinct rows.
     data <- data %>%
