@@ -32,6 +32,18 @@ data_box <- read.csv(csv_file_box)
 data_box$value <- round(data_box$value, 2)
 df <- data_box 
 
+#Rename values in env_itm column to include unit of measurements for each environmental dimension
+df <- df %>%
+  mutate(env_itm = case_when(
+    env_itm == "GHG" ~ "GHG (MT CO2eq)",
+    env_itm == "water" ~ "Water use (millions of m3)",
+    env_itm == "land" ~ "Land use (thousands of Km2)",
+    env_itm == "land_crop" ~ "Land use, crops (thousands of Km2)",
+    env_itm == "land_pstr" ~ "Land use, pasture (thousands of Km2)",
+    env_itm == "eutr" ~ "Eutrophication pot. (MT PO4eq)",
+    TRUE ~ env_itm  # Keep the original value if it doesn't match any condition
+  ))
+
 data_trs <- read.csv(csv_file_trs)
 data_trs$value <- round(data_trs$value, 2)
 df_trs <- data_trs 
@@ -42,7 +54,20 @@ data_trs_category <- data_trs %>%
     age %in% c("FML", "MLE", "BTH") ~ "Sex",
     age %in% c("low", "medium", "high", "all-e") ~ "Edu. level",
     age %in% c("rural", "urban", "all-u") ~ "Urb. level",
-    age %in% c("0-9", "10-19", "20-39", "40-64", "65+", "all-a") ~ "Age group"
+    age %in% c("0-10", "11-19", "20-39", "40-64", "65+", "all-a") ~ "Age group"
+  ))
+
+df_trs_category <- data_trs_category
+
+df_trs_category <- df_trs_category %>%
+  mutate(env_itm = case_when(
+    env_itm == "GHG" ~ "GHG (MT CO2eq)",
+    env_itm == "water" ~ "Water use (millions of m3)",
+    env_itm == "land" ~ "Land use (thousands of Km2)",
+    env_itm == "land_crop" ~ "Land use, crops (thousands of Km2)",
+    env_itm == "land_pstr" ~ "Land use, pasture (thousands of Km2)",
+    env_itm == "eutr" ~ "Eutrophication pot. (MT PO4eq)",
+    TRUE ~ env_itm  # Keep the original value if it doesn't match any condition
   ))
 
 #Create another dataset, data_trs_macrofoods by adding to data_trs_category a column labelled 'macrofoods', to group different labels in the food_group variable to subgroups (if useful)
@@ -65,7 +90,17 @@ df_trs_macrof <- df_trs %>%
     food_group %in% c("total") ~ "Total"
   ))
 
-df_trs_category <- data_trs_category
+df_trs_macrof <- df_trs_macrof %>%
+  mutate(env_itm = case_when(
+    env_itm == "GHG" ~ "GHG (MT CO2eq)",
+    env_itm == "water" ~ "Water use (millions of m3)",
+    env_itm == "land" ~ "Land use (thousands of Km2)",
+    env_itm == "land_crop" ~ "Land use, crops (thousands of Km2)",
+    env_itm == "land_pstr" ~ "Land use, pasture (thousands of Km2)",
+    env_itm == "eutr" ~ "Eutrophication pot. (MT PO4eq)",
+    TRUE ~ env_itm  # Keep the original value if it doesn't match any condition
+  ))
+
 
 data_cons <- read.csv(csv_file_cons)
 data_cons$Intake <- round(data_cons$Intake, 2)
@@ -74,6 +109,8 @@ df_cons <- data_cons[-7]
 data_FBSintake <- read.csv(csv_file_FBSintake)
 data_FBSintake$Value <- round(data_FBSintake$Value, 2)
 df_FBSintake <- data_FBSintake
+
+
 
 #UI ----
 
@@ -122,7 +159,7 @@ ui <- dashboardPage(
                 selectInput("measure_2", "Select Measure:", choices = c("pct_cap_WLD","pct_cap_RGS"), selected = "pct_cap_WLD"),
                 selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "avg"),
                 selectInput("region_2", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
-                selectInput("age.education_2", "Select age group:", choices = c("0-9", "10-19", "20-39", "40-64", "65+", "all-a"), multiple = TRUE, selected = c("0-9", "10-19", "20-39", "40-64", "65+")),
+                selectInput("age.education_2", "Select age group:", choices = c("0-10", "11-19", "20-39", "40-64", "65+", "all-a"), multiple = TRUE, selected = c("0-10", "11-19", "20-39", "40-64", "65+")),
                 selectInput("sex.urbanisation_2", "Select sex:", choices = c("MLE", "FML", "BTH"), multiple = TRUE, selected = c("MLE", "FML")),
                 downloadButton("download_csv_sexage", "Download table")
                 #downloadButton("download_plot_sexage", "Download plot")
@@ -172,7 +209,7 @@ ui <- dashboardPage(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
                 selectInput("cns_prsp_7", "Select Consumption Perspective:", choices = unique(df_trs_category$cns_prsp), selected = "actl"),
                 selectInput("measure_7", "Select Measure:", choices = c("abs","cap"), selected = "cap"),
-                selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "avg"), selected = "GHG"),
+                selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "avg"), selected = "GHG (MT CO2eq)"),
                 selectInput("region_7", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = "WLD"),
                 selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = "total"),
                 selectInput("age_7", "Select sociodemographic:", choices = setdiff(unique(df_trs_category$age), c("all-a", "all-e", "BTH", "all-u")), multiple = TRUE, selected = c("low", "medium", "high", "urban", "rural")),
@@ -199,7 +236,7 @@ ui <- dashboardPage(
           tabPanel("About", box(
             title = "About this data",HTML(
               "These tabs allow you to compare absolute and per capita diet-related environmental footprints of diets across income and geographical regions.<br><br>
-                      In both tabs, you can see how much each food group contributes to the environmental footprint across six different dimensions: GHG emissions, Eutrophication, Land Use, Land Use - Pasture, Land Use - Crops,
+                      In both tabs, you can see how much each food group contributes to the environmental footprint across six different dimensions: GHG (MT CO2eq) emissions, Eutrophication, Land Use, Land Use - Pasture, Land Use - Crops,
                       Freshwater Withdrawals.<br><br> If you want to 
                       compare across income regions (Low Income Countries, Low-Middle Income Countries, Upper-Middle Income Countries, High Income Countries), open the first tab. Explore the second tab instead
                       if your focus is on geographic groupings."
@@ -213,7 +250,7 @@ ui <- dashboardPage(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",  
                 selectInput("cns_prsp_1", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
                 selectInput("measure_1", "Select Measure:", choices = c("abs", "cap"), selected = "cap"),
-                selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"),multiple = TRUE, selected = "GHG"),
+                selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"),multiple = TRUE, selected = "GHG (MT CO2eq)"),
                 selectInput("food_group_1", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = "total"),
                 selectInput("region_1", "Select Region:", choices = c("LIC", "LMC", "UMC", "HIC", "WLD"), multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
                 downloadButton("download_csv_region", "Download table")
@@ -237,7 +274,7 @@ ui <- dashboardPage(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
                 selectInput("cns_prsp_5", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
                 selectInput("measure_5", "Select Measure:", choices = c("abs", "cap"), selected = "cap"),
-                selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"),multiple = TRUE, selected = "GHG"),
+                selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"),multiple = TRUE, selected = "GHG (MT CO2eq)"),
                 selectInput("food_group_5", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c("beef_lamb", "dairy", "rice", "roots")),
                 selectInput("region_5", "Select Region:", choices = c("NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF", "WLD"), multiple = TRUE, selected = c("NAC", "SAS", "SSF")),
                 downloadButton("download_csv_regiongeo", "Download table")
@@ -276,7 +313,7 @@ ui <- dashboardPage(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
                 selectInput("cns_prsp_4", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
                 selectInput("measure_4", "Select Measure:", choices = c("abs", "cap"), selected = "abs"),
-                selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"), selected = "GHG"),
+                selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"), selected = "GHG (MT CO2eq)"),
                 selectInput("food_group_4", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef_lamb", "rice", "grains", "fruit_veg", "legumes")),
                 selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = "WLD"),
                 downloadButton("download_csv_category", "Download table")
@@ -300,7 +337,7 @@ ui <- dashboardPage(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
                 selectInput("cns_prsp_6", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
                 selectInput("measure_6", "Select Measure:", choices = c("abs", "cap"), selected = "abs"),
-                selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("avg", "land_pstr", "land_crop")), selected = "GHG"),
+                selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("avg", "Land use, pasture (thousands of Km2)", "Land use, crops (thousands of Km2)")), selected = "GHG (MT CO2eq)"),
                 selectInput("food_group_6", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef_lamb", "pork", "dairy", "legumes", "roots", "rice", "grains")),
                 #selectInput("category_6", "Select Food Category:", choices = setdiff(unique(df_trs_macrof$macrofoods), "Total"), multiple = TRUE),
                 selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("LIC", "HIC")),
@@ -719,8 +756,16 @@ server <- function(input, output) {
      "oils" = "#abebc6")
   
   # Create a vector to rename facet plots with the full names of the environmental dimensions
-  env_itm.labs <- c("GHG (Mt CO2eq)", "Freshwater use (Cubic meters)", "Eutrophication (Mt PO4eq)", "Land use (thousands of sqKm)", "Land use_pasture (thousands of sqKm)", "Land use_crops (thousands of sqKm)")
-  names(env_itm.labs) <- c("GHG", "water", "eutr", "land", "land_pstr", "land_crop")
+  env_itm.labs <- c("GHG (MT CO2eq)", "Freshwater use (millions of m3)", "Eutrophication pot. (Mt PO4eq)", "Land use (thousands of sqKm)", "Land use_pasture (thousands of sqKm)", "Land use_crops (thousands of sqKm)")
+  names(env_itm.labs) <- c("GHG (MT CO2eq)", "Water use (millions of m3)", "Eutrophication pot. (MT PO4eq)", "Land use (thousands of Km2)", "Land use, pasture (thousands of Km2)", "Land use, crops (thousands of Km2)")
+  
+  # env_itm == "GHG" ~ "GHG (MT CO2eq)",
+  # env_itm == "water" ~ "Water use (millions of m3)",
+  # env_itm == "land" ~ "Land use (thousands of Km2)",
+  # env_itm == "land_crop" ~ "Land use,crops (thousands of Km2)",
+  # env_itm == "land_pstr" ~ "Land use,pasture (thousands of Km2)",
+  # env_itm == "eutr" ~ "Eutrophication pot. (MT PO4eq)",
+  
   
   # Create a vector to rename facet plots with the full names of the regions
   region.labs <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "East Asia and Pacific", "Europe & C. Asia", "Latin America & Caribbean", "Middle East and North Africa", "North America", "South Asia", "Sub-Saharan Africa", "World")
@@ -826,14 +871,16 @@ server <- function(input, output) {
 
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
+    selected_env_itm <- input$env_dimensions_7
+    
     ggplot(data, aes(
       x = factor(
         age,
         level = c(
           "MLE",
           "FML",
-          "0-9",
-          "10-19",
+          "0-10",
+          "11-19",
           "20-39",
           "40-64",
           "65+",
@@ -879,7 +926,7 @@ server <- function(input, output) {
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
       scale_x_discrete(guide = guide_axis(n.dodge=2)) +
       scale_fill_manual(values = colors_food) +
-      labs(x = NULL, y = "Impact ", fill = "Food group") +
+      labs(x = NULL, y = paste(selected_env_itm), fill = "Food group") +
       theme(axis.text.x = element_text(size=12), 
             axis.title.y = element_text(size = 12, face = "bold"),
             axis.title.x = element_text(size = 12, face = "bold"),
@@ -1035,6 +1082,9 @@ server <- function(input, output) {
   ##Draw plots for tabs in the third item (category) ----
   
   output$plot_category <- renderPlot({
+    
+    selected_env_itm <- input$env_dimensions_4
+    
     data <- filtered_data_category()
     
     custom_order_region <-
@@ -1099,7 +1149,7 @@ server <- function(input, output) {
       facet_wrap( ~ region_custom, ncol = 2) +
       scale_fill_manual(values = colors_macro) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = "Food Group", y = "Impact", fill = "Category:") +
+      labs(x = "Food Group", y = paste(selected_env_itm), fill = "Category:") +
       theme_linedraw() +
       theme(
         axis.title.y = element_text(size = 12, face = "bold"),
@@ -1116,6 +1166,9 @@ server <- function(input, output) {
   })
   
   output$plot_categorymacro <- renderPlot({
+    
+    selected_env_itm <- input$env_dimensions_6
+    
     data <- filtered_data_categorymacro()
     
     custom_order_region <-
@@ -1180,7 +1233,7 @@ server <- function(input, output) {
       facet_wrap( ~ region_custom , ncol = 4) +
       scale_fill_manual(values = colors_food) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = "Food Category", y = "Impact", fill = "Food group:") +
+      labs(x = "Food Category", y = paste(selected_env_itm), fill = "Food group:") +
       theme_linedraw() +
       theme(
         axis.title.y = element_text(size = 12, face = "bold"),
@@ -1345,7 +1398,7 @@ server <- function(input, output) {
     
     #Add a unique identifier column based on all relevant variables. This is needed because otherwise the datatable command used further down will automatically
     #group into a single row instances where different combinations of variables in the dataset correspond to the same impact value on the y axis.
-    #If for example FML aged 10-19 have an impact value of 1.19 in both HIC and LIC, the datatable command would display just one row for the value 1.19, and list
+    #If for example FML aged 11-19 have an impact value of 1.19 in both HIC and LIC, the datatable command would display just one row for the value 1.19, and list
     #both HIC and LIC in the region column. Creating a unique identifier that is formed by the values taken by each variable in each occurrence ensures
     #that we can generate a table in which duplicate values are presented in distinct rows.
     data <- data %>%
