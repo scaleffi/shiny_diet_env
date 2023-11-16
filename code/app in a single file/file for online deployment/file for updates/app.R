@@ -4,6 +4,7 @@ library(ggrepel)
 library(DT)
 library(rsconnect)
 library(shiny)
+#library(shinythemes)
 #library(periscope)
 
 #library(gghighlight)
@@ -41,8 +42,23 @@ df <- df %>%
     env_itm == "land_crop" ~ "Land use, crops (thousands of Km2)",
     env_itm == "land_pstr" ~ "Land use, pasture (thousands of Km2)",
     env_itm == "eutr" ~ "Eutrophication pot. (MT PO4eq)",
+    env_itm == "avg" ~ "Average",
     TRUE ~ env_itm  # Keep the original value if it doesn't match any condition
-  ))
+  ),
+          cns_prsp = case_when(
+    cns_prsp == "actl" ~ "Actual Consumption",
+    cns_prsp == "norm" ~ "Consumption normalised to 2,000 kcal/day",
+    TRUE ~ cns_prsp
+          ),
+          measure = case_when(
+    measure == "abs" ~ "Absolute",
+    measure == "cap" ~ "Per capita",
+    measure == "pct_abs_WLD" ~ "Ratio to World average (absolute)",
+    measure == "pct_abs_RGS" ~ "Ratio to Regional average (absolute)",
+    measure == "pct_cap_RGS" ~ "Ratio to Regional average (capita)",
+    measure == "pct_cap_WLD" ~ "Ratio to World average (capita)",
+    TRUE ~ measure
+          ))
 
 data_trs <- read.csv(csv_file_trs)
 data_trs$value <- round(data_trs$value, 2)
@@ -54,7 +70,7 @@ data_trs_category <- data_trs %>%
     age %in% c("FML", "MLE", "BTH") ~ "Sex",
     age %in% c("low", "medium", "high", "all-e") ~ "Edu. level",
     age %in% c("rural", "urban", "all-u") ~ "Urb. level",
-    age %in% c("0-10", "11-19", "20-39", "40-64", "65+", "all-a") ~ "Age group"
+    age %in% c("0-9", "10-19", "20-39", "40-64", "65+", "all-a") ~ "Age group"
   ))
 
 df_trs_category <- data_trs_category
@@ -67,8 +83,22 @@ df_trs_category <- df_trs_category %>%
     env_itm == "land_crop" ~ "Land use, crops (thousands of Km2)",
     env_itm == "land_pstr" ~ "Land use, pasture (thousands of Km2)",
     env_itm == "eutr" ~ "Eutrophication pot. (MT PO4eq)",
-    TRUE ~ env_itm  # Keep the original value if it doesn't match any condition
-  ))
+    env_itm == "avg" ~ "Average",
+    TRUE ~ env_itm),
+    cns_prsp = case_when(
+      cns_prsp == "actl" ~ "Actual Consumption",
+      cns_prsp == "norm" ~ "Consumption normalised to 2,000 kcal/day",
+      TRUE ~ cns_prsp
+    ),
+    measure = case_when(
+      measure == "abs" ~ "Absolute",
+      measure == "cap" ~ "Per capita",
+      measure == "pct_abs_WLD" ~ "Ratio to World average (absolute)",
+      measure == "pct_abs_RGS" ~ "Ratio to Regional average (absolute)",
+      measure == "pct_cap_RGS" ~ "Ratio to Regional average (capita)",
+      measure == "pct_cap_WLD" ~ "Ratio to World average (capita)",
+      TRUE ~ measure
+    ))
 
 #Create another dataset, data_trs_macrofoods by adding to data_trs_category a column labelled 'macrofoods', to group different labels in the food_group variable to subgroups (if useful)
 # namely ASF, Staples, Other, Total. This dataset includes a column for the category, and a column for the macrofoods.
@@ -98,7 +128,21 @@ df_trs_macrof <- df_trs_macrof %>%
     env_itm == "land_crop" ~ "Land use, crops (thousands of Km2)",
     env_itm == "land_pstr" ~ "Land use, pasture (thousands of Km2)",
     env_itm == "eutr" ~ "Eutrophication pot. (MT PO4eq)",
-    TRUE ~ env_itm  # Keep the original value if it doesn't match any condition
+    env_itm == "avg" ~ "Average",
+    TRUE ~ env_itm),
+    cns_prsp = case_when(
+      cns_prsp == "actl" ~ "Actual Consumption",
+      cns_prsp == "norm" ~ "Consumption normalised to 2,000 kcal/day",
+      TRUE ~ cns_prsp
+    ),
+    measure = case_when(
+      measure == "abs" ~ "Absolute",
+      measure == "cap" ~ "Per capita",
+      measure == "pct_abs_WLD" ~ "Ratio to World average (absolute)",
+      measure == "pct_abs_RGS" ~ "Ratio to Regional average (absolute)",
+      measure == "pct_cap_RGS" ~ "Ratio to Regional average (capita)",
+      measure == "pct_cap_WLD" ~ "Ratio to World average (capita)",
+      TRUE ~ measure# Keep the original value if it doesn't match any condition
   ))
 
 
@@ -114,7 +158,7 @@ df_FBSintake <- data_FBSintake
 
 #UI ----
 
-ui <- dashboardPage(
+ui <- dashboardPage(skin = "black",
   dashboardHeader(
     title = "LSHTM - Global diets data explorer",
     titleWidth = 450
@@ -155,14 +199,14 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_2", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
-                selectInput("measure_2", "Select Measure:", choices = c("pct_cap_WLD","pct_cap_RGS"), selected = "pct_cap_WLD"),
-                selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "avg"),
+                selectInput("cns_prsp_2", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "Actual Consumption"),
+                selectInput("measure_2", "Select Measure:", choices = c("Ratio to World average (capita)","Ratio to Regional average (capita)"), selected = "Ratio to World average (capita)"),
+                selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average"),
                 selectInput("region_2", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
-                selectInput("age.education_2", "Select age group:", choices = c("0-10", "11-19", "20-39", "40-64", "65+", "all-a"), multiple = TRUE, selected = c("0-10", "11-19", "20-39", "40-64", "65+")),
+                selectInput("age.education_2", "Select age group:", choices = c("0-9", "10-19", "20-39", "40-64", "65+", "all-a"), multiple = TRUE, selected = c("0-9", "10-19", "20-39", "40-64", "65+")),
                 selectInput("sex.urbanisation_2", "Select sex:", choices = c("MLE", "FML", "BTH"), multiple = TRUE, selected = c("MLE", "FML")),
-                downloadButton("download_csv_sexage", "Download table")
-                #downloadButton("download_plot_sexage", "Download plot")
+                downloadButton("download_csv_sexage", "Download table"),
+                downloadButton("download_plot_sexage", "Download plot")
                 #downloadButton("sexage_download_plot", "Download plot", class = "butt1")
               ),
               box(
@@ -182,13 +226,14 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary", 
-                selectInput("cns_prsp_3", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
-                selectInput("measure_3", "Select Measure:", choices = c("pct_cap_WLD","pct_cap_RGS"), selected = "pct_cap_WLD"),
-                selectInput("env_dimensions_3", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "avg"),
+                selectInput("cns_prsp_3", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "Actual Consumption"),
+                selectInput("measure_3", "Select Measure:", choices = c("Ratio to World average (capita)","Ratio to Regional average (capita)"), selected = "Ratio to World average (capita)"),
+                selectInput("env_dimensions_3", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average"),
                 selectInput("region_3", "Select Region:", choices = unique(df$region), multiple = TRUE, selected = "WLD"),
                 selectInput("age.education_3", "Select education level:", choices = c("low", "medium", "high"), multiple = TRUE, selected = c("low", "medium", "high")),
                 selectInput("sex.urbanisation_3", "Select urbanisation level:", choices = c("urban", "rural"), multiple = TRUE, selected = c("urban", "rural")),
-                downloadButton("download_csv_eduurb", "Download table")
+                downloadButton("download_csv_eduurb", "Download table"),
+                downloadButton("download_plot_eduurb", "Download plot")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -207,13 +252,14 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_7", "Select Consumption Perspective:", choices = unique(df_trs_category$cns_prsp), selected = "actl"),
-                selectInput("measure_7", "Select Measure:", choices = c("abs","cap"), selected = "cap"),
-                selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "avg"), selected = "GHG (MT CO2eq)"),
+                selectInput("cns_prsp_7", "Select Consumption Perspective:", choices = unique(df_trs_category$cns_prsp), selected = "Actual Consumption"),
+                selectInput("measure_7", "Select Measure:", choices = c("Absolute","Per capita"), selected = "Per capita"),
+                selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "Average"), selected = "GHG (MT CO2eq)"),
                 selectInput("region_7", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = "WLD"),
                 selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = "total"),
                 selectInput("age_7", "Select sociodemographic:", choices = setdiff(unique(df_trs_category$age), c("all-a", "all-e", "BTH", "all-u")), multiple = TRUE, selected = c("low", "medium", "high", "urban", "rural")),
-                downloadButton("download_csv_sociodem", "Download table")
+                downloadButton("download_csv_sociodem", "Download table"),
+                downloadButton("download_plot_sociodem", "Download plot")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -248,12 +294,13 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",  
-                selectInput("cns_prsp_1", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
-                selectInput("measure_1", "Select Measure:", choices = c("abs", "cap"), selected = "cap"),
-                selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"),multiple = TRUE, selected = "GHG (MT CO2eq)"),
+                selectInput("cns_prsp_1", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "Actual Consumption"),
+                selectInput("measure_1", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita"),
+                selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"),multiple = TRUE, selected = "GHG (MT CO2eq)"),
                 selectInput("food_group_1", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = "total"),
                 selectInput("region_1", "Select Region:", choices = c("LIC", "LMC", "UMC", "HIC", "WLD"), multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
-                downloadButton("download_csv_region", "Download table")
+                downloadButton("download_csv_region", "Download table"),
+                downloadButton("download_plot_region", "Download plot")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -272,12 +319,13 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_5", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
-                selectInput("measure_5", "Select Measure:", choices = c("abs", "cap"), selected = "cap"),
-                selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"),multiple = TRUE, selected = "GHG (MT CO2eq)"),
+                selectInput("cns_prsp_5", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "Actual Consumption"),
+                selectInput("measure_5", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita"),
+                selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"),multiple = TRUE, selected = "GHG (MT CO2eq)"),
                 selectInput("food_group_5", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c("beef_lamb", "dairy", "rice", "roots")),
                 selectInput("region_5", "Select Region:", choices = c("NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF", "WLD"), multiple = TRUE, selected = c("NAC", "SAS", "SSF")),
-                downloadButton("download_csv_regiongeo", "Download table")
+                downloadButton("download_csv_regiongeo", "Download table"),
+                downloadButton("download_plot_regiongeo", "Download plot")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -311,12 +359,13 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_4", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
-                selectInput("measure_4", "Select Measure:", choices = c("abs", "cap"), selected = "abs"),
-                selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"), selected = "GHG (MT CO2eq)"),
+                selectInput("cns_prsp_4", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "Actual Consumption"),
+                selectInput("measure_4", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Absolute"),
+                selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"), selected = "GHG (MT CO2eq)"),
                 selectInput("food_group_4", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef_lamb", "rice", "grains", "fruit_veg", "legumes")),
                 selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = "WLD"),
-                downloadButton("download_csv_category", "Download table")
+                downloadButton("download_csv_category", "Download table"),
+                downloadButton("download_plot_category", "Download plot")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -335,13 +384,14 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_6", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "actl"),
-                selectInput("measure_6", "Select Measure:", choices = c("abs", "cap"), selected = "abs"),
-                selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("avg", "Land use, pasture (thousands of Km2)", "Land use, crops (thousands of Km2)")), selected = "GHG (MT CO2eq)"),
+                selectInput("cns_prsp_6", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "Actual Consumption"),
+                selectInput("measure_6", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Absolute"),
+                selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("Average", "Land use, pasture (thousands of Km2)", "Land use, crops (thousands of Km2)")), selected = "GHG (MT CO2eq)"),
                 selectInput("food_group_6", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef_lamb", "pork", "dairy", "legumes", "roots", "rice", "grains")),
                 #selectInput("category_6", "Select Food Category:", choices = setdiff(unique(df_trs_macrof$macrofoods), "Total"), multiple = TRUE),
                 selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("LIC", "HIC")),
-                downloadButton("download_csv_categorymacro", "Download table")
+                downloadButton("download_csv_categorymacro", "Download table"),
+                downloadButton("download_plot_categorymacro", "Download plot")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -377,12 +427,13 @@ ui <- dashboardPage(
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("measure_8", "Select Measure:", choices = unique(df_cons$Measure), selected = "abs"),
+                selectInput("measure_8", "Select Measure:", choices = unique(df_cons$Measure), selected = "Absolute"),
                 selectInput("indicator_8", "Select Proxy:", choices = c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"), multiple = TRUE, selected = "GDD"),
                 selectInput("region_8", "Select Region:", choices = unique(df_cons$Region),multiple = TRUE, selected = "WLD"),
                 selectInput("food_group_8", "Select Food Group:", choices = unique(df_cons$Food.group), multiple = TRUE, selected = c("dairy", "fruits", "nuts")),
                 selectInput("stats_8", "Select Statistic of interest:", choices = unique(df_cons$Stats), selected = "mean"),
-                downloadButton("download_csv_consumption", "Download table")
+                downloadButton("download_csv_consumption", "Download table"),
+                downloadButton("download_plot_consumption", "Download plot")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -425,7 +476,8 @@ ui <- dashboardPage(
                 selectInput("sex_9", "Select Sex:", choices = unique(df_FBSintake$Sex),multiple = TRUE, selected = c("FML", "MLE")),
                 selectInput("urbanisation_9", "Select Urbanisation Level:", choices = unique(df_FBSintake$Urbanisation),multiple = TRUE, selected = c("rural", "urban")),
                 selectInput("education_9", "Select Education Level:", choices = unique(df_FBSintake$Education),multiple = TRUE, selected = c("low", "medium", "high")),
-                downloadButton("download_csv_FBSintake", "Download table")
+                downloadButton("download_csv_FBSintake", "Download table"),
+                downloadButton("download_plot_FBSintake", "Download plot")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -440,7 +492,7 @@ ui <- dashboardPage(
           ),
           tabPanel(
             #FBSregion ----
-            "Cummulative Intake by food group, across Regions",
+            "Cumulative Intake by food group, across Regions",
             fluidRow(
               box(
                 width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
@@ -451,7 +503,8 @@ ui <- dashboardPage(
                 selectInput("sex_10", "Select Sex:", choices = unique(df_FBSintake$Sex), selected = "BTH"),
                 selectInput("urbanisation_10", "Select Urbanisation Level:", choices = unique(df_FBSintake$Urbanisation), selected = "rural"),
                 selectInput("education_10", "Select Education Level:", choices = unique(df_FBSintake$Education), selected = "low"),
-                downloadButton("download_csv_FBSintake_fg", "Download table")
+                downloadButton("download_csv_FBSintake_fg", "Download table"),
+                downloadButton("download_plot_FBSintake_fg", "Download plot")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -477,7 +530,8 @@ ui <- dashboardPage(
                 selectInput("sex_11", "Select Sex:", choices = unique(df_FBSintake$Sex),multiple = TRUE, selected = c("FML", "MLE")),
                 selectInput("urbanisation_11", "Select Urbanisation Level:", choices = unique(df_FBSintake$Urbanisation),multiple = TRUE, selected = c("rural", "urban")),
                 selectInput("education_11", "Select Education Level:", choices = unique(df_FBSintake$Education),multiple = TRUE, selected = c("low", "medium", "high")),
-                downloadButton("download_csv_FBSintake_fg_socio", "Download table")
+                downloadButton("download_csv_FBSintake_fg_socio", "Download table"),
+                downloadButton("download_plot_FBSintake_fg_socio", "Download plot")
               ),
               box(
                 width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
@@ -757,7 +811,7 @@ server <- function(input, output) {
   
   # Create a vector to rename facet plots with the full names of the environmental dimensions
   env_itm.labs <- c("GHG (MT CO2eq)", "Freshwater use (millions of m3)", "Eutrophication pot. (Mt PO4eq)", "Land use (thousands of sqKm)", "Land use_pasture (thousands of sqKm)", "Land use_crops (thousands of sqKm)")
-  names(env_itm.labs) <- c("GHG (MT CO2eq)", "Water use (millions of m3)", "Eutrophication pot. (MT PO4eq)", "Land use (thousands of Km2)", "Land use,pasture (thousands of Km2)", "Land use,crops (thousands of Km2)")
+  names(env_itm.labs) <- c("GHG (MT CO2eq)", "Water use (millions of m3)", "Eutrophication pot. (MT PO4eq)", "Land use (thousands of Km2)", "Land use, pasture (thousands of Km2)", "Land use, crops (thousands of Km2)")
   
   # env_itm == "GHG" ~ "GHG (MT CO2eq)",
   # env_itm == "water" ~ "Water use (millions of m3)",
@@ -773,8 +827,15 @@ server <- function(input, output) {
   
   
   ##Draw plots for tabs in the first item (sociodem) ----
-  
-  output$plot_sexage <- renderPlot({
+
+#The dashboard works if the plots are directly called using the renderPlot call, which means that R generates a new plot dynamically
+#each time the inputs change. HOWEVER, this means the plot object is never stored anywhere in R's working memory/environment. This makes
+#it impossible to download the plot, because R doesn't accept the result of a renderPlot call as the input to create a file for download.
+#I suspect this creates other issues as well, so in keeping with best practice I've seen online, since 16/11/2023 I've changed the code
+#so that the plots are first created as a reactive object and temporarily stored in R's working environment, AND ONLY THEN they are
+#rendered using the renderPlot call. This makes it possible to download the plots (an issue I have been trying to fix for weeks, if not
+#months), and likely streamlines the execution of the code as well.
+  reactive_plot_sexage <- reactive({
     data <- filtered_data_sexage()
     
     custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
@@ -782,7 +843,7 @@ server <- function(input, output) {
     
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(
+    p_sexage <- ggplot(
       data,
       aes(
         x = age.education,
@@ -815,11 +876,14 @@ server <- function(input, output) {
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 12, face = "bold")
       )
+    return(p_sexage)
   })
   
- 
+  output$plot_sexage <- renderPlot({
+    print(reactive_plot_sexage())
+  })
   
-  output$plot_eduurb <- renderPlot({
+  reactive_plot_eduurb <- reactive({
     data <- filtered_data_eduurb()
     
     custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
@@ -827,7 +891,7 @@ server <- function(input, output) {
     
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(data,
+    p_eduurb <- ggplot(data,
            aes(
              x = factor(age.education, level = c("low", "medium", "high")),
              y = value,
@@ -859,11 +923,17 @@ server <- function(input, output) {
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 12, face = "bold")
       )
+    return(p_eduurb)
     #theme(axis.title.x = element_text(vjust = -1),axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
     #theme(plot.title=element_text(hjust = 0.5, size = 20), axis.title.x = element_text(face = "bold"), strip.text = element_text(size=12), legend.position = "top", legend.text = element_text(size = 15), axis.text.x = element_text(face = "bold"))
   })
   
-  output$plot_sociodem <- renderPlot({
+  output$plot_eduurb <- renderPlot({
+    print(reactive_plot_eduurb())
+  })
+  
+  
+  reactive_plot_sociodem <- reactive({
     data <- filtered_data_sociodem()
     
     custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
@@ -871,14 +941,17 @@ server <- function(input, output) {
 
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(data, aes(
+    selected_env_itm <- input$env_dimensions_7
+    
+    p_sociodem <- ggplot(data, 
+                aes(
       x = factor(
         age,
         level = c(
           "MLE",
           "FML",
-          "0-10",
-          "11-19",
+          "0-9",
+          "10-19",
           "20-39",
           "40-64",
           "65+",
@@ -924,7 +997,7 @@ server <- function(input, output) {
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
       scale_x_discrete(guide = guide_axis(n.dodge=2)) +
       scale_fill_manual(values = colors_food) +
-      labs(x = NULL, y = "Impact ", fill = "Food group") +
+      labs(x = NULL, y = paste(selected_env_itm), fill = "Food group") +
       theme(axis.text.x = element_text(size=12), 
             axis.title.y = element_text(size = 12, face = "bold"),
             axis.title.x = element_text(size = 12, face = "bold"),
@@ -934,16 +1007,20 @@ server <- function(input, output) {
             legend.position = "right",
             legend.text = element_text(size = 12),
             legend.title = element_text(size = 12, face = "bold"))
+    return(p_sociodem)
   })
   
+  output$plot_sociodem <- renderPlot({
+    print(reactive_plot_sociodem())
+  })
   
   ##Draw plots for tabs in the second item (region) ----
   
   
   
-  output$plot_region <- renderPlot({
+  reactive_plot_region <- reactive({
     data <- filtered_data_region()
-    ggplot(data, aes(
+    p_region <- ggplot(data, aes(
       x = factor(region, level = c("LIC", "LMC", "UMC", "HIC", "WLD")),
       y = value,
       fill = factor(
@@ -1006,9 +1083,13 @@ server <- function(input, output) {
       )
   })
   
-  output$plot_regiongeo <- renderPlot({
+  output$plot_region <- renderPlot({
+    print(reactive_plot_region())
+  })
+  
+  reactive_plot_regiongeo <- reactive({
     data <- filtered_data_regiongeo()
-    ggplot(data, aes(
+    p_regiongeo <- ggplot(data, aes(
       x = region,
       y = value,
       fill = factor(
@@ -1075,11 +1156,16 @@ server <- function(input, output) {
       )
   })
   
-  
+  output$plot_regiongeo <- renderPlot({
+    print(reactive_plot_regiongeo())
+  })
   
   ##Draw plots for tabs in the third item (category) ----
   
-  output$plot_category <- renderPlot({
+  reactive_plot_category <- reactive({
+    
+    selected_env_itm <- input$env_dimensions_4
+    
     data <- filtered_data_category()
     
     custom_order_region <-
@@ -1114,7 +1200,7 @@ server <- function(input, output) {
     data$region_custom <-
       factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(data, aes(
+    p_category <- ggplot(data, aes(
       x = factor(
         food_group,
         level = c(
@@ -1144,7 +1230,7 @@ server <- function(input, output) {
       facet_wrap( ~ region_custom, ncol = 2) +
       scale_fill_manual(values = colors_macro) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = "Food Group", y = "Impact", fill = "Category:") +
+      labs(x = "Food Group", y = paste(selected_env_itm), fill = "Category:") +
       theme_linedraw() +
       theme(
         axis.title.y = element_text(size = 12, face = "bold"),
@@ -1160,7 +1246,15 @@ server <- function(input, output) {
     
   })
   
-  output$plot_categorymacro <- renderPlot({
+  output$plot_category <- renderPlot({
+    print(reactive_plot_category())
+  })
+  
+  
+  reactive_plot_categorymacro <- reactive({
+    
+    selected_env_itm <- input$env_dimensions_6
+    
     data <- filtered_data_categorymacro()
     
     custom_order_region <-
@@ -1195,7 +1289,7 @@ server <- function(input, output) {
     data$region_custom <-
       factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
-    ggplot(data, aes(
+    p_categorymacro <- ggplot(data, aes(
       x = factor(macrofoods, level = c("ASF", "Staples", "Other")),
       y = value,
       fill = factor(
@@ -1225,7 +1319,7 @@ server <- function(input, output) {
       facet_wrap( ~ region_custom , ncol = 4) +
       scale_fill_manual(values = colors_food) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = "Food Category", y = "Impact", fill = "Food group:") +
+      labs(x = "Food Category", y = paste(selected_env_itm), fill = "Food group:") +
       theme_linedraw() +
       theme(
         axis.title.y = element_text(size = 12, face = "bold"),
@@ -1240,12 +1334,15 @@ server <- function(input, output) {
       )
   })
   
+  output$plot_categorymacro <- renderPlot({
+    print(reactive_plot_categorymacro())
+  })
   
   ##Draw plots for tabs in the fourth item (cons proxy) ----
   
-  output$plot_consumption <- renderPlot({
+  reactive_plot_consumption <- reactive({
     data <- filtered_data_consumption()
-    ggplot(data,
+    p_consumption <- ggplot(data,
            aes(
              x = Food.group,
              y = Intake,
@@ -1302,13 +1399,16 @@ server <- function(input, output) {
       )
   })
   
+  output$plot_consumption <- renderPlot({
+    print(reactive_plot_consumption())
+  })
   
   ##Draw plots for tabs in the fifth item (FBS socio intake) ----
   
   
-  output$plot_FBSintake <- renderPlot({
+  reactive_plot_FBSintake <- reactive({
     data <- filtered_data_FBSintake()
-    ggplot(data, aes(
+    p_FBSintake <- ggplot(data, aes(
       x = factor(Education, level = c("low", "medium", "high", "all-e")),
       y = Value,
       fill = Food.group
@@ -1330,9 +1430,13 @@ server <- function(input, output) {
       )
   })
   
-  output$plot_FBSintake_fg <- renderPlot({
+  output$plot_FBSintake <- renderPlot({
+    print(reactive_plot_FBSintake())
+  })
+  
+  reactive_plot_FBSintake_fg <- reactive({
     data <- filtered_data_FBSintake_fg()
-    ggplot(data, aes(x = Region, y = Value, fill = Food.group)) +
+    p_FBSintake_fg <- ggplot(data, aes(x = Region, y = Value, fill = Food.group)) +
       geom_col(color = "white", width = 0.6) +
       #geom_point(size = 4) +
       scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
@@ -1352,9 +1456,13 @@ server <- function(input, output) {
       )
   })
   
-  output$plot_FBSintake_fg_socio <- renderPlot({
+  output$plot_FBSintake_fg <- renderPlot({
+    print(reactive_plot_FBSintake_fg())
+  })
+  
+  reactive_plot_FBSintake_fg_socio <- reactive({
     data <- filtered_data_FBSintake_fg_socio()
-    ggplot(data, aes(x = Food.group, y = Value, color = Sex)) +
+    p_FBSintake_fg_socio <- ggplot(data, aes(x = Food.group, y = Value, color = Sex)) +
       geom_point(size = 4) +
       scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
       #geom_text_repel(aes(label = Value), show.legend = FALSE) +
@@ -1373,6 +1481,9 @@ server <- function(input, output) {
       )
   })
   
+  output$plot_FBSintake_fg_socio <- renderPlot({
+    print(reactive_plot_FBSintake_fg_socio())
+  })
   
   #Generate data tables ----
   
@@ -1390,7 +1501,7 @@ server <- function(input, output) {
     
     #Add a unique identifier column based on all relevant variables. This is needed because otherwise the datatable command used further down will automatically
     #group into a single row instances where different combinations of variables in the dataset correspond to the same impact value on the y axis.
-    #If for example FML aged 11-19 have an impact value of 1.19 in both HIC and LIC, the datatable command would display just one row for the value 1.19, and list
+    #If for example FML aged 10-19 have an impact value of 1.19 in both HIC and LIC, the datatable command would display just one row for the value 1.19, and list
     #both HIC and LIC in the region column. Creating a unique identifier that is formed by the values taken by each variable in each occurrence ensures
     #that we can generate a table in which duplicate values are presented in distinct rows.
     data <- data %>%
@@ -2043,8 +2154,74 @@ server <- function(input, output) {
     }
   )
   
-  #Generate code to download the plot
   
+  #Generate code to download the plots
+  
+  output$download_plot_sexage <- downloadHandler(
+    filename = function() { paste("plot_sexage", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_sexage(),
+                                        device = "png", width = 10) }  
+  )
+  
+  output$download_plot_eduurb <- downloadHandler(
+    filename = function() { paste("plot_eduurb", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_eduurb(),
+                                      device = "png", width = 10) }  
+  )
+  
+  output$download_plot_sociodem <- downloadHandler(
+    filename = function() { paste("plot_sociodem", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_sociodem(),
+                                      device = "png", width = 10) } 
+  )
+  
+  output$download_plot_region <- downloadHandler(
+    filename = function() { paste("plot_region", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_region(),
+                                      device = "png", width = 10) } 
+  )
+  
+  output$download_plot_regiongeo <- downloadHandler(
+    filename = function() { paste("plot_regiongeo", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_regiongeo(),
+                                      device = "png", width = 10) } 
+  )
+  
+  output$download_plot_category <- downloadHandler(
+    filename = function() { paste("plot_category", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_category(),
+                                      device = "png", width = 10) } 
+  )
+  
+  output$download_plot_categorymacro <- downloadHandler(
+    filename = function() { paste("plot_categorymacro", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_categorymacro(),
+                                      device = "png", width = 10) } 
+  )
+  
+  output$download_plot_consumption <- downloadHandler(
+    filename = function() { paste("plot_consumption", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_consumption(),
+                                      device = "png", width = 10) } 
+  )
+  
+  output$download_plot_FBSintake <- downloadHandler(
+    filename = function() { paste("plot_FBSintake", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_FBSintake(),
+                                      device = "png", width = 10) } 
+  )
+  
+  output$download_plot_FBSintake_fg <- downloadHandler(
+    filename = function() { paste("plot_FBSintake_fg", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_FBSintake_fg(),
+                                      device = "png", width = 10) } 
+  )
+  
+  output$download_plot_FBSintake_fg_socio <- downloadHandler(
+    filename = function() { paste("plot_FBSintake_fg_socio", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_FBSintake_fg_socio(),
+                                      device = "png", width = 10) } 
+  )
   
 }
 
