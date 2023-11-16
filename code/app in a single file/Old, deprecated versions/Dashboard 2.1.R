@@ -1,0 +1,737 @@
+#This file includes all the instructions to launch the dashboard. It only requires loading in the correct data files.
+
+library(shiny)
+library(ggplot2)
+library(dplyr)
+library(shinydashboard)
+library(tidyverse)
+library(ggrepel)
+library(gghighlight)
+library(RColorBrewer)
+library(ggthemes)
+library(patchwork)
+library(thematic)
+library(bbplot)
+library(plotly)
+library(here)
+#clear the environment
+rm(list = ls())
+
+#######-------------------#########-------------------------###########
+                #Load data files
+#######-------------------#########-------------------------###########
+
+    #################
+    #Load the _trs report, whith all sociodem charactestics listed in the same variable/vector, to create plots that display do not require comparing across more than one sociodem
+    #characteristic at a time
+    #################
+  
+    #Report_TRS Load the csv file from work computer, and make it into a dataframe
+    #csv_file_trs <- "/Users/lshsc40/Documents/R files/report_env_trs_053123.csv"
+    #csv_file_trs <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/report_env_trs_053123.csv"
+    #load from personal laptop
+    csv_file_trs <- "/Users/sebastianoc/Documents/R scripts/report_env_trs_053123.csv"
+    
+
+    data_trs <- read.csv(csv_file_trs)
+      data_trs$value <- round(data_trs$value, 2)
+        df_trs <- data_trs 
+        
+
+        # Create a new dataset, data_trs_category, by adding a column labelled 'category' to the _trs dataset, to group different labels in the variable age/sociodem to subgroups (if useful)
+        data_trs_category <- data_trs %>%
+        mutate(category = case_when(
+          age %in% c("FML", "MLE", "BTH") ~ "Sex",
+          age %in% c("low", "medium", "high", "all-e") ~ "Education level",
+          age %in% c("rural", "urban", "all-u") ~ "Urbanisation level",
+          age %in% c("0-10", "11-19", "20-39", "40-64", "65+", "all-a") ~ "Age group"
+        ))
+      
+        #Create another dataset, data_trs_macrofoods by adding to data_trs_category a column labelled 'macrofoods', to group different labels in the food_group variable to subgroups (if useful)
+        # namely ASF, Staples, Other, Total. This dataset includes a column for the category, and a column for the macrofoods.
+        data_trs_macrofoods <- data_trs_category %>%
+          mutate(macrofoods = case_when(
+            food_group %in% c("beef", "milk", "lamb", "pork", "poultry", "eggs", "fish") ~ "ASF",
+            food_group %in% c("rice", "grains") ~ "Staples",
+            food_group %in% c("fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds") ~ "Other",
+            food_group %in% c("total") ~ "Total"
+          ))
+  
+        #Create a third dataset, df_trs_macrof, by adding a column labelled 'macrofoods' to the main df dataframe. This dataset only has one additional column, to group macrofoods, if the user is not
+        #interested in grouping sociodem categories
+        df_trs_macrof <- df_trs %>%
+          mutate(macrofoods = case_when(
+            food_group %in% c("beef", "milk", "lamb", "pork", "poultry", "eggs", "fish") ~ "ASF",
+            food_group %in% c("rice", "grains") ~ "Staples",
+            food_group %in% c("fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds") ~ "Other",
+            food_group %in% c("total") ~ "Total"
+          ))
+        
+        df_trs_category <- data_trs_category
+        
+        
+    #################
+    #Load the _box report file, which has the 'box' variable, to create plots that display age-sex and edu-urb combinations.
+    #################
+        
+    #Report_BOX Load the csv file on work laptop
+    #csv_file_box <- "/Users/lshsc40/Documents/R files/report_env_box_060123.csv"
+    #csv_file_box <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/report_env_box_060123.csv"
+    #Report_BOX Load the csv file on personal laptop
+    csv_file_box <- "/Users/sebastianoc/Documents/R scripts/report_env_box_060123.csv"
+    #generate a dataset from the _box file as source for the dashboard
+    data_box <- read.csv(csv_file_box)
+    data_box$value <- round(data_box$value, 2)
+    df <- data_box 
+    
+    ########################################
+    #Load the cons_compare file, which contains daily intakes for several food groups across countries and for different intake proxies (GDD, FBS, etc)
+    ########################################
+    
+    #Load from work laptop
+    #csv_file_cons <- "/Users/lshsc40/Documents/R files/cons_compare_012823.csv"
+    #csv_file_cons <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/cons_compare_012823.csv"
+    #Load from personal laptop
+    csv_file_cons <- "/Users/sebastianoc/Documents/R scripts/cons_compare_012823.csv"
+    
+    data_cons <- read.csv(csv_file_cons)
+    data_cons$Intake <- round(data_cons$Intake, 2)
+    df_cons <- data_cons
+
+    ########################################
+    #Load the FBS_intake file, which contains FBS daily intakes for across different demographics
+    ########################################
+    
+    #Load from work laptop
+    #csv_file_FBSintake <- "/Users/lshsc40/Library/CloudStorage/OneDrive-LondonSchoolofHygieneandTropicalMedicine/LSHTM/Visualisation/Dashboard/Seb Dashboard/data/FBS_intake_socio_all-a_051523.csv"
+    #Load from personal laptop
+    csv_file_FBSintake <- "/Users/sebastianoc/Documents/R scripts/FBS_intake_socio_all-a_051523.csv"
+    
+    data_FBSintake <- read.csv(csv_file_FBSintake)
+    data_FBSintake$Value <- round(data_FBSintake$Value, 2)
+    df_FBSintake <- data_FBSintake
+    
+#######-------------------#########-------------------------###########
+#Start the dashboard. A dashboard in Shiny is composed of a UI, a Server Function, and a command to run the app.
+#######-------------------#########-------------------------###########
+
+#Notes on Shiny and dashboards. Shiny allows the user to create an app, or dashboard, to quickly visualise datasets. When using the app, and changing the data selections,
+#the app cycles through both the UI and the Server function in order to display the data. The UI tells R how the dashboard should look like and what
+#options the user should have. The Server function starts from the original data sources to build and visualise the data selection that results
+#from the user's choices. Both UI and Server function are called on when running the app, so errors must be looked for in both. 
+
+
+    ########################################
+    #Start the UI (User Interface). This section gives instructions on the visual display and structure of the dashboard. It generates a Shiny object.
+    ########################################
+    
+    ui <- dashboardPage(
+            dashboardHeader(
+              title = "Explore the environmental footprint of global diets",
+              titleWidth = 450
+              ),
+        # titlePanel("The environmental footprints of global diets"),
+            dashboardSidebar(
+              sidebarMenu(
+                menuItem("Footprint by sociodemographic", tabName = "sociodem", icon = icon("person-half-dress")),
+                menuItem("Footprint by geo/income region", tabName = "food_groups", icon = icon("earth-africa")),
+                menuItem("Footprint by food group/category", tabName = "categories", icon = icon("wheat-awn")),
+                menuItem("Consumption by proxy", tabName = "consumption", icon = icon("bowl-food")),
+                menuItem("Consumption by sociodem", tabName = "consumption_sociodem", icon = icon("bowl-rice")),
+                menuItem("ReadMe", tabName = "readme", icon = icon("info-circle"), selected = TRUE)
+        )
+      ),
+      # mainPanel(
+            dashboardBody(
+              tabItems(
+          ###First item
+                tabItem(
+                  tabName = "sociodem",
+                  tabsetPanel(
+                    tabPanel("About", box(
+                      title = "About this data",
+                      "These tabs show how the environmental footprints of average diets compare across different sociodemographic characteristics.\n
+                      The sex-age tab can help you focus on the relative differences of diet-related environmental impacts for males and females across age cohorts. The edu-urb tab instead  They display impacts as a ratio to the global average\n
+                      (which we've set equal to 1 in our data), allowing you to see how much more impactful the diets of urban populations in HIC are as a % of the\n
+                      global mean."
+                    )),
+                    tabPanel(
+                      "Sex-age",
+                      fluidRow(
+                        box(
+                          width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
+                          selectInput("cns_prsp_2", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
+                          selectInput("measure_2", "Select Measure:", choices = c("cap-avg_WLD","cap-avg_RGS"), selected = "cap-avg_WLD"),
+                          selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "avg"),
+                          selectInput("region_2", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = "WLD"),
+                          selectInput("age.education_2", "Select age group:", choices = c("0-10", "11-19", "20-39", "40-64", "65+", "all-a"), multiple = TRUE, selected = c("0-10", "11-19", "20-39", "40-64", "65+")),
+                          selectInput("sex.urbanisation_2", "Select sex:", choices = c("MLE", "FML", "BTH"), multiple = TRUE, selected = c("MLE", "FML")),
+                         #downloadButton("sexage_download_plot", "Download plot", class = "butt1")
+                        ),
+                        box(
+                          width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                          plotOutput("plot_sexage"
+                                     #, height = 400
+                                     )
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Edu-urb",
+                      fluidRow(
+                        box(
+                          width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary", 
+                          selectInput("cns_prsp_3", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
+                          selectInput("measure_3", "Select Measure:", choices = c("cap-avg_WLD","cap-avg_RGS"), selected = "cap-avg_WLD"),
+                          selectInput("env_dimensions_3", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "avg"),
+                          selectInput("region_3", "Select Region:", choices = unique(df$region), multiple = TRUE, selected = "WLD"),
+                          selectInput("age.education_3", "Select education level:", choices = c("low", "medium", "high"), multiple = TRUE, selected = c("low", "medium", "high")),
+                          selectInput("sex.urbanisation_3", "Select urbanisation level:", choices = c("urban", "rural"), multiple = TRUE, selected = c("urban", "rural")),
+                        ),
+                        box(
+                          width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                          plotOutput("plot_eduurb"
+                                     #, height = 400
+                           )
+                        )
+                      )
+                    ),
+                    tabPanel(
+                      "Sociodem",
+                      fluidRow(
+                        box(
+                          width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",  
+                          selectInput("cns_prsp_7", "Select Consumption Perspective:", choices = unique(df_trs_category$cns_prsp), selected = "avb"),
+                          selectInput("measure_7", "Select Measure:", choices = c("abs","cap"), selected = "cap"),
+                          selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "avg"), selected = "GHG"),
+                          selectInput("region_7", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = "WLD"),
+                          selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = "total"),
+                          selectInput("age_7", "Select sociodemographic:", choices = setdiff(unique(df_trs_category$age), c("all-a", "all-e", "BTH", "all-u")), multiple = TRUE, selected = c("low", "medium", "high"))
+                          ),
+                        box(
+                          width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                          plotOutput("plot_sociodem"
+                                     #, height = 400
+                                     )
+                        )
+                    )
+                  )
+                )
+                ),
+                tabItem(
+            ###Second item
+                  tabName = "food_groups",
+                  tabsetPanel(
+                    tabPanel("About", box(
+                      title = "About this data",
+                      "These tabs display the environmental footprints of diets across the world, by food group, in absolute and per capita terms"
+                    )),
+                    tabPanel(
+                      "Impacts by income region",
+                      fluidRow(
+                        box(
+                          width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",  
+                          selectInput("cns_prsp_1", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
+                          selectInput("measure_1", "Select Measure:", choices = c("abs", "cap"), selected = "cap"),
+                          selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"), selected = "GHG"),
+                          selectInput("food_group_1", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = "total"),
+                          selectInput("region_1", "Select Region:", choices = c("LIC", "LMC", "UMC", "HIC"), multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC"))
+                        ),
+                        box(
+                          width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                          plotOutput("plot_region"
+                                     #, height = 400
+                          )
+                        )
+                      )
+                    ),
+                    tabPanel(
+                    "Impacts by geographical region",
+                      fluidRow(
+                        box(
+                          width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
+                          selectInput("cns_prsp_5", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
+                          selectInput("measure_5", "Select Measure:", choices = c("abs", "cap"), selected = "cap"),
+                          selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"), selected = "GHG"),
+                          selectInput("food_group_5", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c("beef", "milk", "rice", "roots")),
+                          selectInput("region_5", "Select Region:", choices = c("NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF"), multiple = TRUE, selected = c("NAC", "SAS", "SSF"))
+                        ),
+                        box(
+                          width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                          plotOutput("plot_regiongeo"
+                                     #, height = 400
+                          )
+                        )  
+                      )
+                    )
+                  )
+                ),
+                tabItem(
+            ###Third item
+                  tabName = "categories",
+                  tabsetPanel(
+                    tabPanel("About", box(
+                      title = "About this data",
+                      "These tabs display the environmental footprints of diets across the world, as a ratio of the global average."
+                    )),
+                    tabPanel(
+                    "Impacts by food group",
+                      fluidRow(
+                        box(
+                          width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
+                          selectInput("cns_prsp_4", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
+                          selectInput("measure_4", "Select Measure:", choices = c("abs", "cap"), selected = "abs"),
+                          selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "avg"), selected = "GHG"),
+                          selectInput("food_group_4", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef", "lamb", "rice", "grains", "fruit_veg", "legumes")),
+                          selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = "WLD")
+                           ),
+                        box(
+                          width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                          plotOutput("plot_category"
+                                     #, height = 400
+                          )
+                        )
+                      )
+                    ),
+                    tabPanel(
+                    "Impacts by food category",
+                      fluidRow(
+                        box(
+                          width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
+                          selectInput("cns_prsp_6", "Select Consumption Perspective:", choices = unique(df$cns_prsp), selected = "avb"),
+                          selectInput("measure_6", "Select Measure:", choices = c("abs", "cap"), selected = "abs"),
+                          selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("avg", "land_pstr", "land_crop")), selected = "GHG"),
+                          selectInput("food_group_6", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c("beef", "pork", "milk", "legumes", "roots", "rice", "grains")),
+                          #selectInput("category_6", "Select Food Category:", choices = setdiff(unique(df_trs_macrof$macrofoods), "Total"), multiple = TRUE),
+                          selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = "WLD")
+                            ),
+                        box(
+                          width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                          plotOutput("plot_categorymacro"
+                                     #, height = 400
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                tabItem(
+            ###Fourth item
+                  tabName = "consumption",
+                  tabsetPanel(
+                    tabPanel("About", box(
+                      title = "About this data",
+                      "These tabs display daily global intakes of different food groups, by intake proxy"
+                    )),
+                    tabPanel(
+                      "Compare consumption proxies",
+                        fluidRow(
+                          box(
+                            width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
+                            selectInput("measure_8", "Select Measure:", choices = unique(df_cons$Measure), selected = "abs"),
+                            selectInput("indicator_8", "Select Proxy:", choices = c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"), multiple = TRUE, selected = "GDD"),
+                            selectInput("region_8", "Select Region:", choices = unique(df_cons$Region),multiple = TRUE, selected = "WLD"),
+                            selectInput("food_group_8", "Select Food Group:", choices = unique(df_cons$Food.group), multiple = TRUE, selected = c("dairy", "fruits", "nuts")),
+                            selectInput("stats_8", "Select Statistic of interest:", choices = unique(df_cons$Stats), selected = "mean")
+                          ),
+                          box(
+                            width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                            plotOutput("plot_consumption"
+                                       #, height = 400
+                             )
+                           )
+                        )
+                      )
+                    )
+                  ),
+                tabItem(
+                  ####Fifth Item
+                  tabName = "consumption_sociodem",
+                  tabsetPanel(
+                    tabPanel("About", box(
+                      title = "About this data",
+                      "These tabs display daily global intakes of different food groups, by sociodem"
+                    )),
+                    tabPanel(
+                      "Compare consumption across demographics",
+                      fluidRow(
+                        box(
+                          width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
+                          selectInput("unit_9", "Select Unit:", choices = unique(df_FBSintake$Unit), selected = "g/d_w"),
+                          selectInput("food_group_9", "Select Food Group:", unique(df_FBSintake$Food.group), multiple = TRUE, selected = "rice"),
+                          selectInput("region_9", "Select Region:", choices = unique(df_FBSintake$Region),multiple = TRUE, selected = "WLD"),
+                          #selectInput("age_9", "Select Age Group:", choices = unique(df_FBSintake$Age), multiple = TRUE, selected = "all-a"),
+                          selectInput("sex_9", "Select Sex:", choices = unique(df_FBSintake$Sex),multiple = TRUE, selected = "BTH"),
+                          selectInput("urbanisation_9", "Select Urbanisation Level:", choices = unique(df_FBSintake$Urbanisation),multiple = TRUE, selected = "all-u"),
+                          selectInput("education_9", "Select Education Level:", choices = unique(df_FBSintake$Education),multiple = TRUE, selected = "all-e")
+                        ),
+                        box(
+                          width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                          plotOutput("plot_FBSintake"
+                                     #, height = 400
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                tabItem(
+            ###Fourth item
+                  tabName = "readme",
+                    box(
+                      title = "ReadMe",
+                      "This dashboard offers users the chance to explore data on the environmental footprints generated by global diets. All data refers to the year 2018 (CHECK!)
+                      and is built on the most comprehensive estimates of daily intakes and average footprints by food group currently available. Etc Etc Etc"
+                    )
+                  )
+                )
+              )
+            )
+    
+    
+    ########################################
+    #Start the Server function. This section gives instructions on how the data should be filtered and visualised. It generates a function.
+    ########################################
+
+
+    server <- function(input, output, session) {
+  
+    ###########
+    #Create filters for tabs in the first menu item, 'compare by sociodemographic'. 
+    #NOTE: The filters need to be coherent with the options for data selection given to users in the UI using the command 'selectInput'. If the user is
+    #given the freedom to choose specific inputs in the UI, but then the corresponding filters are not set appropriately in the Server, 
+    #the app may work but it won't display any plots, or the plots may be empty. So if plots are not showing or not showing correctly, first ensure that
+    #the inputs available to the user in the UI correctly match the corresponding filters in the Server function.
+    ###########
+      
+    #Note on filter notation: 
+      #The notation == means that for the variable x, the app will take as input the specific value selected for that variable by the user through the UI interface. It implies that the user can select only one value at a time for that variable.
+      #The notation %in% means that for the variable x, the app will take as input any values selected for that variable by the user through the UI interface. It implies that the user can select multiple values within that variable.
+      
+    filtered_data_sexage <- reactive({
+      df %>%
+        filter(measure == input$measure_2,
+               env_itm %in% input$env_dimensions_2,
+               food_group == "total",
+               box == "age-sex",
+               age.education %in% input$age.education_2,
+               sex.urbanisation %in% input$sex.urbanisation_2,
+               cns_prsp == input$cns_prsp_2,
+               region %in% input$region_2)
+    })
+    
+    filtered_data_eduurb <- reactive({
+      df %>%
+        filter(measure == input$measure_3,
+               env_itm %in% input$env_dimensions_3,
+               food_group == "total",
+               box == "edu-urb",
+               age.education %in% input$age.education_3,
+               sex.urbanisation %in% input$sex.urbanisation_3,
+               cns_prsp == input$cns_prsp_3,
+               region %in% input$region_3)
+    })
+    
+    filtered_data_sociodem <- reactive({
+      df_trs_category %>%
+        filter(measure == input$measure_7,
+               env_itm %in% input$env_dimensions_7,
+               food_group %in% input$food_group_7,
+               age %in% input$age_7,
+               cns_prsp == input$cns_prsp_7,
+               region %in% input$region_7)
+    })
+    
+    #############
+    #Create filters for tabs in the second menu item, 'compare by food groups'
+    #############
+    filtered_data_region <- reactive({
+      df %>%
+        filter(measure == input$measure_1,
+               env_itm %in% input$env_dimensions_1,
+               food_group %in% input$food_group_1,
+               box == "age-sex",
+               age.education == "all-a",
+               sex.urbanisation == "BTH",
+               cns_prsp == input$cns_prsp_1,
+               region %in% input$region_1)
+    })
+    
+    filtered_data_regiongeo <- reactive({
+      df %>%
+        filter(measure == input$measure_5,
+               env_itm %in% input$env_dimensions_5,
+               food_group %in% input$food_group_5,
+               box == "age-sex",
+               age.education == "all-a",
+               sex.urbanisation == "BTH",
+               cns_prsp == input$cns_prsp_5,
+               region %in% input$region_5)
+    })
+    
+    #############
+    #Create filters for tabs in the third menu item, 'compare by categories'
+    #############
+    filtered_data_category <- reactive({
+      df_trs_macrof %>%
+        filter(measure == input$measure_4,
+               env_itm %in% input$env_dimensions_4,
+               food_group %in% input$food_group_4,
+               age == "all-a",
+               cns_prsp == input$cns_prsp_4,
+               region %in% input$region_4,
+               macrofoods %in% c("ASF", "Staples", "Other"))
+    })
+    
+    filtered_data_categorymacro <- reactive({
+      df_trs_macrof %>%
+        filter(measure == input$measure_6,
+               env_itm %in% input$env_dimensions_6,
+               food_group %in% input$food_group_6,
+               age == "all-a",
+               cns_prsp == input$cns_prsp_6,
+               region %in% input$region_6,
+               macrofoods %in% c("ASF", "Staples", "Other"))
+    })
+    
+    
+    #############
+    #Create filters for tabs in the fourth menu item, 'consumption data'
+    #############
+    filtered_data_consumption <- reactive({
+      df_cons %>%
+        filter(Measure == input$measure_8,
+               Indicator %in% input$indicator_8,
+               Region %in% input$region_8,
+               Food.group %in% input$food_group_8,
+               Stats == input$stats_8,
+               Year == "2015"
+              )
+    })
+    
+    filtered_data_FBSintake <- reactive({
+      df_FBSintake %>%
+        filter(Unit == input$unit_9,
+               Food.group %in% input$food_group_9,
+               Region %in% input$region_9,
+               Age == "all-a",
+               Sex %in% input$sex_9,
+               Urbanisation %in% input$urbanisation_9,
+               Education %in% input$education_9,
+               Year == "2020"
+        )
+    })
+    
+  
+    ##################
+    #Draw the plots
+    ##################
+      
+      ###############
+      #Prepare graphic objects and labels that will be used to create the plots below.
+      ###############
+    
+      # #Control shading by setting alpha values through a new vector named alpha_vals; changing the range of shading helps with displaying some images that have several colors.
+      # alpha_max <- 1
+      # alpha_min <- 0.7
+      # alpha_vals <- c(
+      #   seq(alpha_max, alpha_min, length.out = 8), 
+      #   seq(alpha_min, alpha_max, length.out = 8)[-1]
+      # )
+      # alpha_vals
+      # 
+    
+      #create a vector named 'colors_macro' made up of three colors from the Set1 ColorBrewer palette. This can be used to assign specific colors to values in the macrofoods variable.
+      colors_macro <- c("#E41A1C", "#377EB8", "#FFFF33")
+    
+      #create a vector named colors_food made up of fifteen colors, to assign specific ones to each food in the food_group variable. This helps with consistency across plots.
+      colors_food <- c(
+        "total" = "#a6a79b",
+        "rice" = "#f9e79f",
+        "roots" = "#eb984e",
+        "sugar" = "#fad7a0",
+        "legumes" = "#6e2c00",
+        "beef" = "#cb4335",
+        "lamb" = "#d98880",
+        "pork" = "#f5a5b5",
+        "poultry" = "#fae5d3",
+        "eggs" = "#fdedec",
+        "milk" = "#f0ebe2",
+        "fish" = "#8fbad3",
+        "grains" = "#ecdb54",
+        "fruit_veg" = "#229954",
+        "nuts_seeds" = "#7d6608",
+        "oils" = "#abebc6")
+      
+      ###########
+      #Draw plots for tabs in the first item
+      ###########
+      output$plot_sexage <- renderPlot({
+        data <- filtered_data_sexage()
+        ggplot(data, aes(x = age.education, y = value, color = sex.urbanisation, shape = sex.urbanisation)) +
+          geom_point(size=3) +
+          scale_color_brewer(palette = "Set1", name = "Sex:", labels = c("Female", "Male")) +
+          scale_shape(name = "Sex:", labels = c("Female", "Male")) +
+          geom_text_repel(aes(label = value), show.legend = FALSE) +
+          facet_wrap(~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")),ncol = 4) +
+          geom_hline(yintercept = 1, alpha = 0.3) +
+          #guides(shape = "none") +
+          theme_linedraw() +
+          labs(x = "Age group", y = "Diet-related env. impact expressed relative\nto global average  (1 = world average)") + 
+          theme(axis.title.x = element_text(vjust = -1, face = "bold"), axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+          #theme(plot.title=element_text(hjust = 0.5, size = 20), axis.title.x = element_text(face = "bold"), strip.text = element_text(size=12), legend.position = "top", legend.text = element_text(size = 12), axis.text.x = element_text(face = "bold"))
+      })
+      
+      output$plot_eduurb <- renderPlot({
+        data <- filtered_data_eduurb()
+        ggplot(data, aes(x = factor(age.education, level=c("low", "medium", "high")), y = value, color = sex.urbanisation, shape = sex.urbanisation)) +
+          geom_point(size=3) +
+          scale_color_brewer(palette = "Dark2", name="Urbanisation:", labels=c("Rural", "Urban")) +
+          scale_shape(name = "Urbanisation:", labels = c("Rural", "Urban")) +
+          geom_text_repel(aes(label = value), show.legend = FALSE) +
+          facet_wrap(~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")),ncol = 4) +
+          geom_hline(yintercept = 1, alpha = 0.3) +
+          #guides(shape = "none") +
+          labs(x = "Education level", y = "Diet-related env. impact expressed relative\nto global average  (1 = world average)") + 
+          theme_linedraw() + 
+          theme(axis.title.x = element_text(vjust = -1, face = "bold"), axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+          #theme(axis.title.x = element_text(vjust = -1),axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+          #theme(plot.title=element_text(hjust = 0.5, size = 20), axis.title.x = element_text(face = "bold"), strip.text = element_text(size=12), legend.position = "top", legend.text = element_text(size = 15), axis.text.x = element_text(face = "bold"))
+      })
+      
+      output$plot_sociodem <- renderPlot({
+        data <- filtered_data_sociodem()
+        ggplot(data, aes(x = factor(age, level=c("MLE", "FML", "0-10", "11-19", "20-39", "40-64", "65+", "low", "medium", "high", "urban", "rural")), y = value, label = value)) +
+                         #fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")))) +
+          geom_col(aes(fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds", "total"))), color = "white") +
+          #facet_wrap(~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")),ncol = 4) +
+          #coord_flip() +
+          facet_grid(factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD"))~ category , scales = "free_x", space = "free_x", switch = "x") +
+          theme_linedraw() +
+          #geom_text_repel(aes(label = value), show.legend = FALSE) +
+          scale_x_discrete(guide = guide_axis(n.dodge=2)) +
+          scale_fill_manual(values = colors_food) +
+          labs(x = NULL, y = "Impact ", fill = "Food group") +
+          theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+          
+          
+      })
+      
+      ###########
+      #Draw plots for tabs in the second item
+      ###########
+      output$plot_region <- renderPlot({
+        data <- filtered_data_region()
+        ggplot(data, aes(x = factor(region, level=c("LIC", "LMC", "UMC", "HIC")), y = value, fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds", "total")))) +
+          geom_col(color = "white", width = 0.6) +
+          scale_fill_manual(values = colors_food) +
+          #geom_text_repel(aes(label = value), show.legend = FALSE) +
+          labs(x = NULL ,y = "Impact",
+               fill = "Food group") +
+          theme_linedraw() +
+          theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+          #theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      })
+      
+      output$plot_regiongeo <- renderPlot({
+        data <- filtered_data_regiongeo()
+        ggplot(data, aes(x = region, y = value, fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds", "total")))) +
+          geom_col(color = "white", width = 0.6) +
+          scale_fill_manual(values = colors_food) +
+          #geom_text_repel(aes(label = value), show.legend = FALSE) +
+          labs(x = NULL ,y = "Impact",
+               fill = "Food group") +
+          theme_linedraw() +
+          theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+          #theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      })
+      
+      
+      ###########
+      #Draw plots for tabs in the third item
+      ###########
+      output$plot_category <- renderPlot({
+        data <- filtered_data_category()
+        ggplot(data, aes(x = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")), y = value, fill = macrofoods)) +
+          geom_col(color = "white", width = 0.6) +
+          scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+          facet_wrap(~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")),ncol = 2) +
+          scale_fill_manual(values = colors_macro) +
+          #geom_text_repel(aes(label = value), show.legend = FALSE) +
+          labs(x = NULL, y = "Impact", fill = "Category:") +
+          theme_linedraw() +
+          theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+          #theme(axis.text.x = element_text(face="bold"), axis.title.y = element_text(size = 12), strip.text.x = element_text(size = 12), legend.position = "right")
+        
+    })
+      
+      output$plot_categorymacro <- renderPlot({
+        data <- filtered_data_categorymacro()
+        ggplot(data, aes(x = factor(macrofoods, level=c("ASF", "Staples", "Other")), y = value, fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")))) +
+          geom_col(color = "white", width = 0.6) +
+          #scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+          facet_wrap(~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")),ncol = 4) +
+          scale_fill_manual(values = colors_food) +
+          #geom_text_repel(aes(label = value), show.legend = FALSE) +
+          labs(x = NULL, y = "Impact", fill = "Food group:") +
+          theme_linedraw() +
+          theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+          #theme(axis.text.x = element_text(face="bold"), axis.title.y = element_text(size = 12), strip.text.x = element_text(size = 12), legend.position = "right")
+        
+      })
+      
+      ###########
+      #Draw plots for tabs in the fourth item
+      ###########
+      output$plot_consumption <- renderPlot({
+        data <- filtered_data_consumption()
+        ggplot(data, aes(x = Food.group, y = Intake, color = Indicator, shape = Indicator)) +
+          geom_point(size = 4) +
+          scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+          geom_text_repel(aes(label = Intake), show.legend = FALSE) +
+          facet_wrap(~ Region,ncol = 2) +
+          scale_color_discrete(name  ="Intake proxy",
+                                breaks=c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"),
+                                labels=c("Global Dietary Dataset (GDD)", "FAO Balance Sheet (FBS)", "GDD - energy adjusted", "FBS - energy adjusted")) +
+          scale_shape_discrete(name  ="Intake proxy",
+                                breaks=c("GDD", "FBS", "GDD_adj_IOM", "FBS_adj_IOM"),
+                                labels=c("Global Dietary Dataset (GDD)", "FAO Balance Sheet (FBS)", "GDD - energy adjusted", "FBS - energy adjusted")) +
+          # scale_fill_manual(values = colors_macro) +
+          #If I assign different aesthetics to the same variable, labelling the legend with a common name will
+          #force ggplot to create a single legend containing info on both. Here I assign the name
+          #"Intake proxy" to the legend for both color and shape, which I mapped to the same variable
+          #and ggplot automatically merges both in a single legend
+          labs(x = NULL, y = "Intake (g/day)", color = "Intake proxy", shape = "Intake proxy") +
+           theme_linedraw() +
+            theme(axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
+          # 
+      })
+      
+      output$plot_FBSintake <- renderPlot({
+        data <- filtered_data_FBSintake()
+        ggplot(data, aes(x = factor(Education, level=c("low", "medium", "high")), y = Value, fill = Food.group)) +
+          geom_col(color = "white", width = 0.6) +
+          #scale_x_discrete(guide = guide_axis(n.dodge=3)) +
+          facet_grid(Sex ~ Urbanisation)
+      })
+      # output$sexage_download_plot <- downloadHandler(
+      #   filename = function() { paste("plot_sexage", '.png', sep='') },
+      #   content = function(file) { ggsave(file, plot = output$plot_sexage(), device = "png", width = 10) } #  this wont work because it is a ggsave but the plot is plotly 
+      # )
+      
+      # output$sexage_download_plot <- downloadHandler(
+      #   filename = function() { paste("plot_sexage", '.png', sep='') },
+      #   content = function(file) {
+      #     ggsave(file, plot = output$plot_sexage, device = "png", width = 10, height = 6)
+      #   }
+      # )
+      # 
+      
+      }
+    
+    
+    ########################################
+    #Run the Shiny app.
+    ########################################
+    
+    shinyApp(ui = ui, server = server)
