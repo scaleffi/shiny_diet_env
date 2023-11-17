@@ -766,30 +766,24 @@ server <- function(input, output) {
   # 
   
   #create a vector named 'colors_macro' made up of three colors from the Set1 ColorBrewer palette. This can be used to assign specific colors to values in the macrofoods variable.
-  colors_macro <- c("#922b21", "#85929e", "#f1c40f")
+  colors_macro <- c(
+    "ASF" = "#922b21",
+    "Other" = "#85929e",
+    "Staples" = "#f1c40f")
   
-  #create a vector named colors_food made up of fifteen colors, to assign specific ones to each food in the food_group variable. This helps with consistency across plots.
- 
-  #Based on _trs_053123
-   # colors_food <- c(
-   #  "total" = "#a6a79b",
-   #  "rice" = "#f9e79f",
-   #  "roots" = "#eb984e",
-   #  "sugar" = "#fad7a0",
-   #  "legumes" = "#6e2c00",
-   #  "beef" = "#cb4335",
-   #  "lamb" = "#d98880",
-   #  "pork" = "#f5a5b5",
-   #  "poultry" = "#fae5d3",
-   #  "eggs" = "#fdedec",
-   #  "milk" = "#f0ebe2",
-   #  "fish" = "#8fbad3",
-   #  "grains" = "#ecdb54",
-   #  "fruit_veg" = "#229954",
-   #  "nuts_seeds" = "#7d6608",
-   #  "oils" = "#abebc6")
-   # 
+  #create vectors to assign colors to the sociodem characteristics
+  colors_sex <- c(
+    "MLE" = "#E41A1C",
+    "FML" = "#377EB8",
+    "BTH" = "#4DAF4A"
+  )
    
+  colors_urban <- c(
+    "urban" = "#D95F02",
+    "rural" = "#66A61E"
+  )
+  
+  #Create a vector with specific color assigned to each food group
    #Based on _trs_110423
    colors_food <- c(
      "total" = "#a6a79b",
@@ -849,16 +843,17 @@ server <- function(input, output) {
         x = age.education,
         y = value,
         color = sex.urbanisation,
-        shape = sex.urbanisation
       )
     ) +
       geom_point(size = 3) +
-      scale_color_brewer(
-        palette = "Set1",
-        name = "Sex:",
-        labels = c("Female", "Male")
-      ) +
-      scale_shape(name = "Sex:", labels = c("Female", "Male")) +
+      scale_color_manual(values = colors_sex,
+                        breaks = c("MLE",
+                                   "FML",
+                                   "BTH"),
+                        labels = c("Male",
+                                   "Female",
+                                   "Both"),
+                        name = "Sex:") +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 4) +
@@ -876,7 +871,6 @@ server <- function(input, output) {
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 12, face = "bold")
       )
-    return(p_sexage)
   })
   
   output$plot_sexage <- renderPlot({
@@ -896,20 +890,20 @@ server <- function(input, output) {
              x = factor(age.education, level = c("low", "medium", "high")),
              y = value,
              color = sex.urbanisation,
-             shape = sex.urbanisation
            )) +
       geom_point(size = 3) +
-      scale_color_brewer(
-        palette = "Dark2",
-        name = "Urbanisation:",
-        labels = c("Rural", "Urban")
-      ) +
-      scale_shape(name = "Urbanisation:", labels = c("Rural", "Urban")) +
+      scale_color_manual(values = colors_urban,
+                         breaks = c("urban",
+                                    "rural"
+                                    ),
+                         labels = c("Urban",
+                                    "Rural"
+                                    ),
+                         name = "Urbanisation:") +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 4) +
       geom_hline(yintercept = 100, alpha = 0.3) +
-      #guides(shape = "none") +
       labs(x = "Education level", y = "Diet-related env. impact expressed relative\nto global average  (100 = world average)") +
       theme_linedraw() +
       theme(
