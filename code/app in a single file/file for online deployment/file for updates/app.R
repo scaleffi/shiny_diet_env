@@ -35,18 +35,18 @@ df <- data_box
 df <- df %>%
   mutate(env_itm = case_when(
     env_itm == "GHG" ~ "GHG (Mt CO2eq)",
-    env_itm == "water" ~ "Water use (millions of m3)",
-    env_itm == "land" ~ "Land use (thousands of Km2)",
-    env_itm == "land_crop" ~ "Land use, crops (thousands of Km2)",
-    env_itm == "land_pstr" ~ "Land use, pasture (thousands of Km2)",
+    env_itm == "water" ~ "Water use (thousands of km3)",
+    env_itm == "land" ~ "Land use (thousands of km2)",
+    env_itm == "land_crop" ~ "Land use, crops (thousands of km2)",
+    env_itm == "land_pstr" ~ "Land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "Eutrophication pot. (kt PO4eq)",
     env_itm == "avg" ~ "Average",
     TRUE ~ env_itm  # Keep the original value if it doesn't match any condition
   ),
-          cns_prsp = case_when(
-    cns_prsp == "actl" ~ "Actual Demand",
-    cns_prsp == "norm" ~ "Demand normalised to 2,000 kcal/day",
-    TRUE ~ cns_prsp
+          dmd_scn = case_when(
+    dmd_scn == "actl" ~ "Actual Demand",
+    dmd_scn == "norm" ~ "Demand normalised to 2,000 kcal/day",
+    TRUE ~ dmd_scn
           ),
           measure = case_when(
     measure == "abs" ~ "Absolute",
@@ -76,17 +76,17 @@ df_trs_category <- data_trs_category
 df_trs_category <- df_trs_category %>%
   mutate(env_itm = case_when(
     env_itm == "GHG" ~ "GHG (Mt CO2eq)",
-    env_itm == "water" ~ "Water use (millions of m3)",
-    env_itm == "land" ~ "Land use (thousands of Km2)",
-    env_itm == "land_crop" ~ "Land use, crops (thousands of Km2)",
-    env_itm == "land_pstr" ~ "Land use, pasture (thousands of Km2)",
+    env_itm == "water" ~ "Water use (thousands of km3)",
+    env_itm == "land" ~ "Land use (thousands of km2)",
+    env_itm == "land_crop" ~ "Land use, crops (thousands of km2)",
+    env_itm == "land_pstr" ~ "Land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "Eutrophication pot. (kt PO4eq)",
     env_itm == "avg" ~ "Average",
     TRUE ~ env_itm),
-    cns_prsp = case_when(
-      cns_prsp == "actl" ~ "Actual Demand",
-      cns_prsp == "norm" ~ "Demand normalised to 2,000 kcal/day",
-      TRUE ~ cns_prsp
+    dmd_scn = case_when(
+      dmd_scn == "actl" ~ "Actual Demand",
+      dmd_scn == "norm" ~ "Demand normalised to 2,000 kcal/day",
+      TRUE ~ dmd_scn
     ),
     measure = case_when(
       measure == "abs" ~ "Absolute",
@@ -121,17 +121,17 @@ df_trs_macrof <- df_trs %>%
 df_trs_macrof <- df_trs_macrof %>%
   mutate(env_itm = case_when(
     env_itm == "GHG" ~ "GHG (Mt CO2eq)",
-    env_itm == "water" ~ "Water use (millions of m3)",
-    env_itm == "land" ~ "Land use (thousands of Km2)",
-    env_itm == "land_crop" ~ "Land use, crops (thousands of Km2)",
-    env_itm == "land_pstr" ~ "Land use, pasture (thousands of Km2)",
+    env_itm == "water" ~ "Water use (thousands of km3)",
+    env_itm == "land" ~ "Land use (thousands of km2)",
+    env_itm == "land_crop" ~ "Land use, crops (thousands of km2)",
+    env_itm == "land_pstr" ~ "Land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "Eutrophication pot. (kt PO4eq)",
     env_itm == "avg" ~ "Average",
     TRUE ~ env_itm),
-    cns_prsp = case_when(
-      cns_prsp == "actl" ~ "Actual Demand",
-      cns_prsp == "norm" ~ "Demand normalised to 2,000 kcal/day",
-      TRUE ~ cns_prsp
+    dmd_scn = case_when(
+      dmd_scn == "actl" ~ "Actual Demand",
+      dmd_scn == "norm" ~ "Demand normalised to 2,000 kcal/day",
+      TRUE ~ dmd_scn
     ),
     measure = case_when(
       measure == "abs" ~ "Absolute",
@@ -158,16 +158,18 @@ df_trs_macrof <- df_trs_macrof %>%
 
 ui <- dashboardPage(skin = "black",
   dashboardHeader(
-    title = "LSHTM - Global diets data explorer",
+    title = "The environmental footprints of global diets",
     titleWidth = 450
   ),
   # titlePanel("The environmental footprints of global diets"),----
   dashboardSidebar(
     sidebarMenu(
-               menuItem("Footprints by sociodemographic", tabName = "sociodem", icon = icon("person-half-dress")),
-               menuItem("Footprints by geo/income region", tabName = "food_groups", icon = icon("earth-africa")),
-               menuItem("Footprints by food group/category", tabName = "categories", icon = icon("wheat-awn")),
-               menuItem("ReadMe", tabName = "readme", icon = icon("info-circle"), selected = TRUE)
+               menuItem("Compare by socio-demographic", tabName = "sociodem", icon = icon("person-half-dress")),
+               menuItem("Compare by region", tabName = "food_groups", icon = icon("earth-africa")),
+               menuItem("Compare by food group", tabName = "categories", icon = icon("wheat-awn")),
+               menuItem("ReadMe", tabName = "readme", icon = icon("info-circle")
+                        , selected = TRUE
+                        ) 
     ), collapsed = FALSE
   ),
   # mainPanel(
@@ -181,54 +183,67 @@ ui <- dashboardPage(skin = "black",
             title = "About this data", HTML(
               "These tabs allow you to compare diet-related environmental footprints across different sociodemographics.<br><br>
                       Use the first tab, 'Sex-age', if you want to explore how diet-related environmental footprints differ among sexes and age groups. Open the second tab instead, 'Edu-urb', if you want
-                      to explore how the footprints change across education and urbanisation levels. Both tabs display the impacts as a ratio to those of an average global diet, which is set equal to 1 in the plots.
-                      This means that the impacts in the first two tabs are not expressed in absolute values, but in relative terms, and represent an average across all environmental dimensions included in our data.<br><br>
-                      If you are interested in seeing instead how absolute and per capita impacts differ across sociodemographics, regions, and environmental dimensions, open the third tab, 'Sociodem'.")
+                      to explore how the footprints change across education and urbanisation levels. <br><br>
+                      If you are interested in seeing how absolute and per capita impacts differ across sociodemographics, regions, and environmental dimensions, open the third tab, 'Sociodem'.")
           )),
           tabPanel(
             #Sexage----
             "Sex-age",
-            fluidRow(
-              box(
-                width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_2", "Select Demand Perspective:", choices = unique(df$cns_prsp), selected = "Actual Demand"),
-                selectInput("measure_2", "Select Measure:", choices = c("Ratio to World average (capita)","Ratio to Regional average (capita)"), selected = "Ratio to World average (capita)"),
-                selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average"),
-                selectInput("region_2", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
-                selectInput("age.education_2", "Select age group:", choices = c("0-9", "10-19", "20-39", "40-64", "65+", "all-a"), multiple = TRUE, selected = c("0-9", "10-19", "20-39", "40-64", "65+")),
-                selectInput("sex.urbanisation_2", "Select sex:", choices = c("MLE", "FML", "BTH"), multiple = TRUE, selected = c("MLE", "FML")),
-                downloadButton("download_csv_sexage", "Download table"),
-                downloadButton("download_plot_sexage", "Download plot")
-                #downloadButton("sexage_download_plot", "Download plot", class = "butt1")
-              ),
-              box(
-                width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
-                tabsetPanel(
-                  tabPanel("Plot", plotOutput("plot_sexage"
-                                              #, height = 400
-                  )),
-                  tabPanel("Table",tableOutput("sexage_table"))
-                )
-              )
-            )
+            fluidPage(title = "Compare footprints by sex and age group",
+                      box(width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
+                        fluidRow(
+                          column(4,
+                               selectInput("dmd_scn_2", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "Actual Demand"),
+                               selectInput("measure_2", "Select Measure:", choices = c("Ratio to World average (capita)","Ratio to Regional average (capita)"), selected = "Ratio to World average (capita)")
+                        ),
+                          column(4,
+                               selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average"),
+                               selectInput("region_2", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
+                        ),
+                          column(4,
+                               selectInput("age.education_2", "Select age group:", choices = c("0-9", "10-19", "20-39", "40-64", "65+", "all-a"), multiple = TRUE, selected = c("0-9", "10-19", "20-39", "40-64", "65+")),
+                               selectInput("sex.urbanisation_2", "Select sex:", choices = c("MLE", "FML", "BTH"), multiple = TRUE, selected = c("MLE", "FML")),
+                               downloadButton("download_csv_sexage", "Download table"),
+                               downloadButton("download_plot_sexage", "Download plot")
+                        )
+                      )
+                      ),
+                      box(
+                        width = 12, title = "Output" , collapsible = T, solidHeader = TRUE, status = "primary",
+                        tabsetPanel(
+                          tabPanel("Plot", plotOutput("plot_sexage"
+                                                      #, height = 400
+                          )),
+                          tabPanel("Table",tableOutput("sexage_table"))
+                        )
+                      )
+                    )
           ),
           tabPanel(
             #Eduurb ----
             "Edu-urb",
-            fluidRow(
+            fluidPage(title = "Compare footprints by urbanisation and education levels",
               box(
-                width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary", 
-                selectInput("cns_prsp_3", "Select Demand Perspective:", choices = unique(df$cns_prsp), selected = "Actual Demand"),
-                selectInput("measure_3", "Select Measure:", choices = c("Ratio to World average (capita)","Ratio to Regional average (capita)"), selected = "Ratio to World average (capita)"),
-                selectInput("env_dimensions_3", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average"),
-                selectInput("region_3", "Select Region:", choices = unique(df$region), multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
-                selectInput("age.education_3", "Select education level:", choices = c("low", "medium", "high"), multiple = TRUE, selected = c("low", "medium", "high")),
-                selectInput("sex.urbanisation_3", "Select urbanisation level:", choices = c("urban", "rural"), multiple = TRUE, selected = c("urban", "rural")),
-                downloadButton("download_csv_eduurb", "Download table"),
-                downloadButton("download_plot_eduurb", "Download plot")
-              ),
+                width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
+               fluidRow(
+                 column(4,
+                        selectInput("dmd_scn_3", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "Actual Demand"),
+                        selectInput("measure_3", "Select Measure:", choices = c("Ratio to World average (capita)","Ratio to Regional average (capita)"), selected = "Ratio to World average (capita)")
+                        ),
+                 column(4,
+                        selectInput("env_dimensions_3", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average"),
+                        selectInput("region_3", "Select Region:", choices = unique(df$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
+                        ),
+                 column(4,
+                        selectInput("age.education_3", "Select education level:", choices = c("low", "medium", "high"), multiple = TRUE, selected = c("low", "medium", "high")),
+                        selectInput("sex.urbanisation_3", "Select urbanisation level:", choices = c("urban", "rural"), multiple = TRUE, selected = c("urban", "rural")),
+                        downloadButton("download_csv_eduurb", "Download table"),
+                        downloadButton("download_plot_eduurb", "Download plot")
+                        )
+                      )
+                ),
               box(
-                width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
                 tabsetPanel(
                   tabPanel("Plot", plotOutput("plot_eduurb"
                                               #, height = 400
@@ -241,47 +256,55 @@ ui <- dashboardPage(skin = "black",
           tabPanel(
             #Sociodem ----
             "Sociodem",
-            fluidRow(
+            fluidPage(title = "Compare footprints across multiple dimensions",
               box(
-                width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_7", "Select Demand Perspective:", choices = unique(df_trs_category$cns_prsp), selected = "Actual Demand"),
-                selectInput("measure_7", "Select Measure:", choices = c("Absolute","Per capita"), selected = "Per capita"),
-                selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "Average"), selected = "GHG (Mt CO2eq)"),
-                selectInput("region_7", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("LIC", "HIC")),
-                selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
-                  "beef_lamb",
-                  "dairy",
-                  "pork",
-                  "othr_meat",
-                  "fish",
-                  "othr_ani",
-                  "rice",
-                  "grains",
-                  "fruit_veg",
-                  "oils",
-                  "sugar",
-                  "roots",
-                  "legumes",
-                  "nuts_seeds",
-                  "other")),
-                selectInput("age_7", "Select sociodemographic:", choices = setdiff(unique(df_trs_category$age), c("all-a", "all-e", "BTH", "all-u")), multiple = TRUE, selected = c(
-                  "low",
-                  "medium",
-                  "high",
-                  "urban",
-                  "rural",
-                  "FML",
-                  "MLE",
-                  "0-9",
-                  "10-19",
-                  "20-39",
-                  "40-64",
-                  "65+")),
-                downloadButton("download_csv_sociodem", "Download table"),
-                downloadButton("download_plot_sociodem", "Download plot")
-              ),
+                width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
+               fluidRow(
+                 column(4,
+                        selectInput("dmd_scn_7", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "Actual Demand"),
+                        selectInput("measure_7", "Select Measure:", choices = c("Absolute","Per capita"), selected = "Per capita"),
+                        downloadButton("download_csv_sociodem", "Download table"),
+                        downloadButton("download_plot_sociodem", "Download plot")
+                        ),
+                 column(4,
+                        selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "Average"), selected = "GHG (Mt CO2eq)"),
+                        selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
+                          "beef_lamb",
+                          "dairy",
+                          "pork",
+                          "othr_meat",
+                          "fish",
+                          "othr_ani",
+                          "rice",
+                          "grains",
+                          "fruit_veg",
+                          "oils",
+                          "sugar",
+                          "roots",
+                          "legumes",
+                          "nuts_seeds",
+                          "other"))
+                        ),
+                 column(4,
+                        selectInput("region_7", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC")),
+                        selectInput("age_7", "Select sociodemographic:", choices = setdiff(unique(df_trs_category$age), c("all-a", "all-e", "BTH", "all-u")), multiple = TRUE, selected = c(
+                          "low",
+                          "medium",
+                          "high",
+                          "urban",
+                          "rural",
+                          "FML",
+                          "MLE",
+                          "0-9",
+                          "10-19",
+                          "20-39",
+                          "40-64",
+                          "65+"))
+                 )
+               )
+              ),  
               box(
-                width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
                 tabsetPanel(
                   tabPanel("Plot", plotOutput("plot_sociodem"
                                               #, height = 400
@@ -300,50 +323,58 @@ ui <- dashboardPage(skin = "black",
         tabsetPanel(
           tabPanel("About", box(
             title = "About this data",HTML(
-              "These tabs allow you to compare absolute and per capita diet-related environmental footprints of diets across income and geographical regions.<br><br>
+              "These tabs allow you to compare absolute and per capita diet-related environmental footprints of diets across income regions and geographical regions.<br><br>
                       In both tabs, you can see how much each food group contributes to the environmental footprint across six different dimensions: GHG (Mt CO2eq) emissions, Eutrophication, Land Use, Land Use - Pasture, Land Use - Crops,
                       Freshwater Withdrawals.<br><br> If you want to 
                       compare across income regions (Low Income Countries, Low-Middle Income Countries, Upper-Middle Income Countries, High Income Countries), open the first tab. Explore the second tab instead
-                      if your focus is on geographic groupings."
+                      if your focus is on geographical groupings."
             )
           )),
           tabPanel(
             #Region ----
             "Impacts by income region",
-            fluidRow(
+            fluidPage(title = "Compare footprints across income regions",
               box(
-                width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",  
-                selectInput("cns_prsp_1", "Select Demand Perspective:", choices = unique(df$cns_prsp), selected = "Actual Demand"),
-                selectInput("measure_1", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita"),
-                selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"),multiple = TRUE, selected = c(
-                  #"GHG (Mt CO2eq)",
-                  #"Land use (thousands of Km2)",
-                  "Water use (millions of m3)",
-                  "Eutrophication pot. (kt PO4eq)"
-                  )),
-                selectInput("food_group_1", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c(
-                  "beef_lamb",
-                  "dairy",
-                  "pork",
-                  "othr_meat",
-                  "fish",
-                  "othr_ani",
-                  "rice",
-                  "grains",
-                  "fruit_veg",
-                  "oils",
-                  "sugar",
-                  "roots",
-                  "legumes",
-                  "nuts_seeds",
-                  "other"
-                )),
-                selectInput("region_1", "Select Region:", choices = c("LIC", "LMC", "UMC", "HIC", "WLD"), multiple = TRUE, selected = c("LIC", "LMC", "UMC", "HIC")),
-                downloadButton("download_csv_region", "Download table"),
-                downloadButton("download_plot_region", "Download plot")
+                width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
+               fluidRow(
+                 column(4,
+                        selectInput("dmd_scn_1", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "Actual Demand"),
+                        selectInput("measure_1", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita")
+                        ),
+                 column(4,
+                        selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"),multiple = TRUE, selected = c(
+                          "GHG (Mt CO2eq)",
+                          "Land use (thousands of km2)",
+                          "Water use (thousands of km3)",
+                          "Eutrophication pot. (kt PO4eq)"
+                        )),
+                        selectInput("region_1", "Select Region:", choices = c("LIC", "LMC", "UMC", "HIC", "WLD"), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
+                        ),
+                 column(4,
+                        selectInput("food_group_1", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c(
+                          "beef_lamb",
+                          "dairy",
+                          "pork",
+                          "othr_meat",
+                          "fish",
+                          "othr_ani",
+                          "rice",
+                          "grains",
+                          "fruit_veg",
+                          "oils",
+                          "sugar",
+                          "roots",
+                          "legumes",
+                          "nuts_seeds",
+                          "other"
+                        )),
+                        downloadButton("download_csv_region", "Download table"),
+                        downloadButton("download_plot_region", "Download plot")
+                 )
+               )
               ),
               box(
-                width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
                 tabsetPanel(
                   tabPanel("Plot", plotOutput("plot_region"
                                               #, height = 400
@@ -356,46 +387,57 @@ ui <- dashboardPage(skin = "black",
           tabPanel(
             #Regiongeo ----
             "Impacts by geographical region",
-            fluidRow(
+            fluidPage(title = "Compare footprints across geographical regions",
               box(
-                width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_5", "Select Demand Perspective:", choices = unique(df$cns_prsp), selected = "Actual Demand"),
-                selectInput("measure_5", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita"),
-                selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"),multiple = TRUE, selected = c(
-                  "GHG (Mt CO2eq)",
-                  "Land use (thousands of Km2)"
-                )),
-                selectInput("food_group_5", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c(
-                  "beef_lamb",
-                  "dairy",
-                  "pork",
-                  "othr_meat",
-                  "fish",
-                  "othr_ani",
-                  "rice",
-                  "grains",
-                  "fruit_veg",
-                  "oils",
-                  "sugar",
-                  "roots",
-                  "legumes",
-                  "nuts_seeds",
-                  "other"
-                )),
-                selectInput("region_5", "Select Region:", choices = c("NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF", "WLD"), multiple = TRUE, selected = c(
-                  "NAC",
-                  "SAS",
-                  "SSF",
-                  "LCN",
-                  "ECS",
-                  "MEA",
-                  "EAS"
-                  )),
-                downloadButton("download_csv_regiongeo", "Download table"),
-                downloadButton("download_plot_regiongeo", "Download plot")
+                width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
+               fluidRow(
+                 column(4,
+                        selectInput("dmd_scn_5", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "Actual Demand"),
+                        selectInput("measure_5", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita")
+                        ),
+                 column(4,
+                        selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"),multiple = TRUE, selected = c(
+                          "GHG (Mt CO2eq)",
+                          "Land use (thousands of km2)",
+                          "Water use (thousands of km3)",
+                          "Eutrophication pot. (kt PO4eq)"
+                        )),
+                        selectInput("region_5", "Select Region:", choices = c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF"), multiple = TRUE, selected = c(
+                          "WLD",
+                          "NAC",
+                          "SAS",
+                          "SSF",
+                          "LCN",
+                          "ECS",
+                          "MEA",
+                          "EAS"
+                        ))
+                        ),
+                 column(4,
+                        selectInput("food_group_5", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c(
+                          "beef_lamb",
+                          "dairy",
+                          "pork",
+                          "othr_meat",
+                          "fish",
+                          "othr_ani",
+                          "rice",
+                          "grains",
+                          "fruit_veg",
+                          "oils",
+                          "sugar",
+                          "roots",
+                          "legumes",
+                          "nuts_seeds",
+                          "other"
+                        )),
+                        downloadButton("download_csv_regiongeo", "Download table"),
+                        downloadButton("download_plot_regiongeo", "Download plot")
+                 )
+               )
               ),
               box(
-                width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
                 tabsetPanel(
                   tabPanel("Plot", plotOutput("plot_regiongeo"
                                               #, height = 400
@@ -423,35 +465,43 @@ ui <- dashboardPage(skin = "black",
           tabPanel(
             #Category ----
             "Impacts by food group",
-            fluidRow(
+            fluidPage(title = "Compare footprints by individual food groups",
               box(
-                width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_4", "Select Demand Perspective:", choices = unique(df$cns_prsp), selected = "Actual Demand"),
-                selectInput("measure_4", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Absolute"),
-                selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"), selected = "GHG (Mt CO2eq)"),
-                selectInput("food_group_4", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c(
-                  "beef_lamb",
-                  "dairy",
-                  "pork",
-                  "othr_meat",
-                  "fish",
-                  "othr_ani",
-                  "rice",
-                  "grains",
-                  "fruit_veg",
-                  "oils",
-                  "sugar",
-                  "roots",
-                  "legumes",
-                  "nuts_seeds",
-                  "other"
-                )),
-                selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = "WLD"),
-                downloadButton("download_csv_category", "Download table"),
-                downloadButton("download_plot_category", "Download plot")
-              ),
+                width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
+               fluidRow(
+                 column(4,
+                        selectInput("dmd_scn_4", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "Actual Demand"),
+                        selectInput("measure_4", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita"),
+                        ),
+                 column(4,
+                        selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"), selected = "GHG (Mt CO2eq)"),
+                        selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
+                        ),
+                 column(4,
+                        selectInput("food_group_4", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c(
+                          "beef_lamb",
+                          "dairy",
+                          "pork",
+                          "othr_meat",
+                          "fish",
+                          "othr_ani",
+                          "rice",
+                          "grains",
+                          "fruit_veg",
+                          "oils",
+                          "sugar",
+                          "roots",
+                          "legumes",
+                          "nuts_seeds",
+                          "other"
+                        )),
+                        downloadButton("download_csv_category", "Download table"),
+                        downloadButton("download_plot_category", "Download plot")
+                 )
+               )
+              ), 
               box(
-                width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
                 tabsetPanel(
                   tabPanel("Plot", plotOutput("plot_category"
                                               #, height = 400
@@ -460,40 +510,47 @@ ui <- dashboardPage(skin = "black",
                 )
               )
             )
-          ),
+        ),
           tabPanel(
             #Categorymacro ----
             "Impacts by food category",
-            fluidRow(
+            fluidPage(title = "Compare footprints by food macro-categories",
               box(
-                width = 3, collapsible = T, title = "Select parameters", solidHeader = TRUE, status = "primary",
-                selectInput("cns_prsp_6", "Select Demand Perspective:", choices = unique(df$cns_prsp), selected = "Actual Demand"),
-                selectInput("measure_6", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Absolute"),
-                selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("Average", "Land use, pasture (thousands of Km2)", "Land use, crops (thousands of Km2)")), selected = "GHG (Mt CO2eq)"),
-                selectInput("food_group_6", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c(
-                  "beef_lamb",
-                  "dairy",
-                  "pork",
-                  "othr_meat",
-                  "fish",
-                  "othr_ani",
-                  "rice",
-                  "grains",
-                  "fruit_veg",
-                  "oils",
-                  "sugar",
-                  "roots",
-                  "legumes",
-                  "nuts_seeds",
-                  "other"
-                )),
-                #selectInput("category_6", "Select Food Category:", choices = setdiff(unique(df_trs_macrof$macrofoods), "Total"), multiple = TRUE),
-                selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("LIC", "HIC", "LMC", "UMC")),
-                downloadButton("download_csv_categorymacro", "Download table"),
-                downloadButton("download_plot_categorymacro", "Download plot")
+                width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
+               fluidRow(
+                 column(4,
+                        selectInput("dmd_scn_6", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "Actual Demand"),
+                        selectInput("measure_6", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita")
+                        ),
+                 column(4,
+                        selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("Average", "Land use, pasture (thousands of km2)", "Land use, crops (thousands of km2)")), selected = "GHG (Mt CO2eq)"),
+                        selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
+                        ),
+                 column(4,
+                        selectInput("food_group_6", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c(
+                          "beef_lamb",
+                          "dairy",
+                          "pork",
+                          "othr_meat",
+                          "fish",
+                          "othr_ani",
+                          "rice",
+                          "grains",
+                          "fruit_veg",
+                          "oils",
+                          "sugar",
+                          "roots",
+                          "legumes",
+                          "nuts_seeds",
+                          "other"
+                        )),
+                        downloadButton("download_csv_categorymacro", "Download table"),
+                        downloadButton("download_plot_categorymacro", "Download plot")
+                 )
+               )
               ),
               box(
-                width = 9, collapsible = T, solidHeader = FALSE, status = "primary",
+                width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
                 tabsetPanel(
                   tabPanel("Plot", plotOutput("plot_categorymacro"
                                               #, height = 400
@@ -513,28 +570,21 @@ ui <- dashboardPage(skin = "black",
             title = "ReadMe",
             div(
               HTML(
-                "This dashboard offers users the chance to explore data on the composition of global diets, and on their related environmental footprints. 
-                        It uses new datasets and estimates, developed by Prof. Marco Springmann at the London School of Hygiene and Tropical Medicine, and is divided in two main sections. One focuses on Demand
-                        data, expressed in daily intakes, and the other on diet-related environmental footprints.<br><br> 
+                        "This dashboard allows you to explore data on the environmental footprints of global diets. 
+                        It uses new datasets and estimates, developed by Prof. Marco Springmann at the London School of Hygiene and Tropical Medicine.<br><br> 
                         The data can be filtered by region, country, and by characteristics such as Sex, Age Group, Education Level, etc.
                         To better manage the level of detail available in these new estimates, we have divided the dashboard in 
                         distinct sections that focus on a specific number of dimensions at a time. Within each section,
                         the user is free to choose among several combinations of filters and generate plots of their interest.
-                        All data can be visualised as a plot or a table; data can be downloaded in table format as a .csv file and is usable/reproducible, as long as their source is clearly and correctly cited.<br><br>
-                        We hope that this tool can be useful to all who wish to know more about how diets differ among peoples, and what impact they have on the environment. For feedback or
-                        questions please contact Sebastiano Caleffi at sebastiano.caleffi@lshtm.ac.uk",
+                        All data can be visualised and downloaded as both a plot or a table. Plots and tables are reproducible, as long as their source is clearly and correctly cited.<br><br>
+                        For feedback or
+                        questions please contact Sebastiano Caleffi at sebastiano.caleffi@lshtm.ac.uk"
               )
               #style = "width:100%;"
               
             )
           )
         )
-        #   box(
-        #     title = "ReadMe",
-        #     "This dashboard offers users the chance to explore data on the environmental footprints generated by global diets. All data refers to the year 2018 (CHECK!)
-        #     and is built on the most comprehensive estimates of daily intakes and average footprints by food group currently available. Etc Etc Etc"
-        #   )
-        # )
       )
     )
   )
@@ -548,7 +598,8 @@ server <- function(input, output) {
   #NOTE: The filters need to be coherent with the options for data selection given to users in the UI using the command 'selectInput'. If the user is
   #given the freedom to choose specific inputs in the UI, but then the corresponding filters are not set appropriately in the Server, 
   #the app may work but it won't display any plots, or the plots may be empty. So if plots are not showing or not showing correctly, first ensure that
-  #the inputs available to the user in the UI correctly match the corresponding filters in the Server function.
+  #the inputs available to the user in the UI correctly match the corresponding filters in the Server function. Users should be given
+  #the option to only choose inputs that are included in the subset created for that tab through the filters.
   
   
   
@@ -560,7 +611,7 @@ server <- function(input, output) {
   
   filtered_data_sexage <- reactive({
     # For debugging purposes: Print out the values of the reactive function to check that they are as expected 
-    # print(input$cns_prsp_2)
+    # print(input$dmd_scn_2)
     # print(input$measure_2)
     # print(input$env_dimensions_2)
     # print(input$region_2)
@@ -574,7 +625,7 @@ server <- function(input, output) {
              box == "age-sex",
              age.education %in% input$age.education_2,
              sex.urbanisation %in% input$sex.urbanisation_2,
-             cns_prsp == input$cns_prsp_2,
+             dmd_scn == input$dmd_scn_2,
              region %in% input$region_2)
   })
   
@@ -586,7 +637,7 @@ server <- function(input, output) {
              box == "edu-urb",
              age.education %in% input$age.education_3,
              sex.urbanisation %in% input$sex.urbanisation_3,
-             cns_prsp == input$cns_prsp_3,
+             dmd_scn == input$dmd_scn_3,
              region %in% input$region_3)
   })
   
@@ -596,7 +647,7 @@ server <- function(input, output) {
              env_itm %in% input$env_dimensions_7,
              food_group %in% input$food_group_7,
              age %in% input$age_7,
-             cns_prsp == input$cns_prsp_7,
+             dmd_scn == input$dmd_scn_7,
              region %in% input$region_7)
   })
   
@@ -611,7 +662,7 @@ server <- function(input, output) {
              box == "age-sex",
              age.education == "all-a",
              sex.urbanisation == "BTH",
-             cns_prsp == input$cns_prsp_1,
+             dmd_scn == input$dmd_scn_1,
              region %in% input$region_1)
   })
   
@@ -623,7 +674,7 @@ server <- function(input, output) {
              box == "age-sex",
              age.education == "all-a",
              sex.urbanisation == "BTH",
-             cns_prsp == input$cns_prsp_5,
+             dmd_scn == input$dmd_scn_5,
              region %in% input$region_5)
   })
   
@@ -636,7 +687,7 @@ server <- function(input, output) {
              env_itm %in% input$env_dimensions_4,
              food_group %in% input$food_group_4,
              age == "all-a",
-             cns_prsp == input$cns_prsp_4,
+             dmd_scn == input$dmd_scn_4,
              region %in% input$region_4,
              #macrofoods %in% c("ASF", "Staples", "Other")
       )
@@ -648,68 +699,11 @@ server <- function(input, output) {
              env_itm %in% input$env_dimensions_6,
              food_group %in% input$food_group_6,
              age == "all-a",
-             cns_prsp == input$cns_prsp_6,
+             dmd_scn == input$dmd_scn_6,
              region %in% input$region_6
              #macrofoods %in% c("ASF", "Staples", "Other")
       )
   })
-  
-  
-  
-  # ##Create filters for tabs in the fourth menu item, 'Demand data'----
-  # 
-  # filtered_data_Demand <- reactive({
-  #   df_cons %>%
-  #     filter(Measure == input$measure_8,
-  #            Indicator %in% input$indicator_8,
-  #            Region %in% input$region_8,
-  #            Food.group %in% input$food_group_8,
-  #            Stats == input$stats_8,
-  #            Year == "2015"
-  #     )
-  # })
-  # 
-  # ##Create filters for tabs in the fifth menu item, 'FBS socio intake data'----
-  # 
-  # filtered_data_FBSintake <- reactive({
-  #   df_FBSintake %>%
-  #     filter(Unit == input$unit_9,
-  #            Food.group %in% input$food_group_9,
-  #            Region %in% input$region_9,
-  #            Age == "all-a",
-  #            Sex %in% input$sex_9,
-  #            Urbanisation %in% input$urbanisation_9,
-  #            Education %in% input$education_9,
-  #            Year == "2020"
-  #     )
-  # })
-  # 
-  # filtered_data_FBSintake_fg <- reactive({
-  #   df_FBSintake %>%
-  #     filter(Unit == input$unit_10,
-  #            Food.group %in% input$food_group_10,
-  #            Region %in% input$region_10,
-  #            Age == "all-a",
-  #            Sex %in% input$sex_10,
-  #            Urbanisation %in% input$urbanisation_10,
-  #            Education %in% input$education_10,
-  #            Year == "2020"
-  #     )
-  # })
-  # 
-  # filtered_data_FBSintake_fg_socio <- reactive({
-  #   df_FBSintake %>%
-  #     filter(Unit == input$unit_11,
-  #            Food.group %in% input$food_group_11,
-  #            Region %in% input$region_11,
-  #            Age == "all-a",
-  #            Sex %in% input$sex_11,
-  #            Urbanisation %in% input$urbanisation_11,
-  #            Education %in% input$education_11,
-  #            Year == "2020"
-  #     )
-  # })
-  # 
   
   #Prepare graphic objects and labels that will be used to create the plots below ----
   
@@ -764,20 +758,77 @@ server <- function(input, output) {
      "oils" = "#abebc6")
   
   # Create a vector to rename facet plots with the full names of the environmental dimensions
-  env_itm.labs <- c("GHG (Mt CO2eq)", "Freshwater use (millions of m3)", "Eutrophication pot. (Mt PO4eq)", "Land use (thousands of Km2)", "Land use_pasture (thousands of Km2)", "Land use_crops (thousands of Km2)")
-  names(env_itm.labs) <- c("GHG (Mt CO2eq)", "Water use (millions of m3)", "Eutrophication pot. (kt PO4eq)", "Land use (thousands of Km2)", "Land use, pasture (thousands of Km2)", "Land use, crops (thousands of Km2)")
+  env_itm.labs <- c("GHG (Mt CO2eq)", "Freshwater use (thousands of km3)", "Eutrophication pot. (Mt PO4eq)", "Land use (thousands of km2)", "Land use_pasture (thousands of km2)", "Land use_crops (thousands of km2)")
+  names(env_itm.labs) <- c("GHG (Mt CO2eq)", "Water use (thousands of km3)", "Eutrophication pot. (kt PO4eq)", "Land use (thousands of km2)", "Land use, pasture (thousands of km2)", "Land use, crops (thousands of km2)")
   
   # env_itm == "GHG" ~ "GHG (kt CO2eq)",
-  # env_itm == "water" ~ "Water use (millions of m3)",
-  # env_itm == "land" ~ "Land use (thousands of Km2)",
-  # env_itm == "land_crop" ~ "Land use,crops (thousands of Km2)",
-  # env_itm == "land_pstr" ~ "Land use,pasture (thousands of Km2)",
+  # env_itm == "water" ~ "Water use (thousands of km3)",
+  # env_itm == "land" ~ "Land use (thousands of km2)",
+  # env_itm == "land_crop" ~ "Land use,crops (thousands of km2)",
+  # env_itm == "land_pstr" ~ "Land use,pasture (thousands of km2)",
   # env_itm == "eutr" ~ "Eutrophication pot. (kt PO4eq)",
   
   
   # Create a vector to rename facet plots with the full names of the regions
-  region.labs <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "East Asia and Pacific", "Europe & C. Asia", "Latin America & Caribbean", "Middle East and North Africa", "North America", "South Asia", "Sub-Saharan Africa", "World")
-  names(region.labs) <- c("LIC", "LMC", "UMC", "HIC", "EAS", "ECS", "LCN", "MEA", "NAC", "SAS", "SSF", "WLD")
+  region.labs <-
+    c(
+      "World",
+      "Low Income",
+      "Lower Middle Income",
+      "Upper Middle Income",
+      "High Income",
+      "East Asia and Pacific",
+      "Europe & C. Asia",
+      "Latin America & Caribbean",
+      "Middle East and North Africa",
+      "North America",
+      "South Asia",
+      "Sub-Saharan Africa"
+    )
+  names(region.labs) <-
+    c("WLD",
+      "LIC",
+      "LMC",
+      "UMC",
+      "HIC",
+      "EAS",
+      "ECS",
+      "LCN",
+      "MEA",
+      "NAC",
+      "SAS",
+      "SSF"
+      )
+  
+  custom_order_region <-
+    c("WLD",
+      "HIC",
+      "UMC",
+      "LMC",
+      "LIC",
+      "ECS",
+      "MEA",
+      "EAS",
+      "SAS",
+      "NAC",
+      "LCN",
+      "SSF")
+  
+  custom_labels_region <-
+    c(
+      "World",
+      "High Income",
+      "Upper Middle Income",
+      "Lower Middle Income",
+      "Low Income",
+      "Europe & C. Asia",
+      "Middle East & N. Africa",
+      "E. Asia & Pacific",
+      "South Asia",
+      "North America",
+      "Latin Am. & Caribbean",
+      "Sub-Saharan Africa"
+    )
   
   
   ##Draw plots for tabs in the first item (sociodem) ----
@@ -791,9 +842,6 @@ server <- function(input, output) {
 #months), and likely streamlines the execution of the code as well.
   reactive_plot_sexage <- reactive({
     data <- filtered_data_sexage()
-    
-    custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
-    custom_labels_region <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "Europe & C. Asia", "Middle East & N. Africa", "E. Asia & Pacific", "South Asia", "North America", "Latin Am. & Caribbean", "Sub-Saharan Africa", "World")
     
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
@@ -816,7 +864,7 @@ server <- function(input, output) {
                         name = "Sex:") +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
-      facet_wrap( ~ region_custom, ncol = 4,
+      facet_wrap( ~ region_custom, ncol = 5,
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
                   )+
       geom_hline(yintercept = 100, alpha = 0.3) +
@@ -842,9 +890,6 @@ server <- function(input, output) {
   reactive_plot_eduurb <- reactive({
     data <- filtered_data_eduurb()
     
-    custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
-    custom_labels_region <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "Europe & C. Asia", "Middle East & N. Africa", "E. Asia & Pacific", "South Asia", "North America", "Latin Am. & Caribbean", "Sub-Saharan Africa", "World")
-    
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
     p_eduurb <- ggplot(data,
@@ -864,7 +909,7 @@ server <- function(input, output) {
                          name = "Urbanisation:") +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
-      facet_wrap( ~ region_custom, ncol = 4, 
+      facet_wrap( ~ region_custom, ncol = 5, 
                   labeller = labeller(region_custom = label_wrap_gen(width = 15)) 
                   ) +
       geom_hline(yintercept = 100, alpha = 0.3) +
@@ -894,9 +939,6 @@ server <- function(input, output) {
   reactive_plot_sociodem <- reactive({
     data <- filtered_data_sociodem()
     
-    custom_order_region <- c("LIC", "LMC", "UMC", "HIC", "ECS", "MEA", "EAS", "SAS", "NAC", "LCN", "SSF", "WLD")
-    custom_labels_region <- c("Low Income", "Lower Middle Income", "Upper Middle Income", "High Income", "Europe & C. Asia", "Middle East & N. Africa", "E. Asia & Pacific", "South Asia", "North America", "Latin Am. & Caribbean", "Sub-Saharan Africa", "World")
-
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
     selected_env_itm <- input$env_dimensions_7
@@ -951,7 +993,8 @@ server <- function(input, output) {
       #the graph with the impacts on the y axis and the sociodem/age variables on the x axis, comment the coord_flip() call, AND switch the arguments in facet_grid to scales = "free_x", space = "free", switch = "x".
       coord_flip() +
       facet_grid(category ~ region_custom, scales = "free_y", space = "free", switch = "y",
-                 labeller = labeller(region_custom = label_wrap_gen(width = 15))
+                 labeller = labeller(region_custom = label_wrap_gen(width = 15),
+                                     category = label_wrap_gen(width = 5))
                  ) +
       theme_linedraw() +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
@@ -982,7 +1025,7 @@ server <- function(input, output) {
   reactive_plot_region <- reactive({
     data <- filtered_data_region()
     p_region <- ggplot(data, aes(
-      x = factor(region, level = c("LIC", "LMC", "UMC", "HIC", "WLD")),
+      x = factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
       y = value,
       fill = factor(
         food_group,
@@ -1010,19 +1053,19 @@ server <- function(input, output) {
       scale_fill_manual(values = colors_food) +
       scale_x_discrete(
         labels = c(
-          "Low Income",
-          "Lower Middle Income",
-          "Upper Middle Income",
+          "World",
           "High Income",
-          "World"
+          "Upper Middle Income",
+          "Lower Middle Income",
+          "Low Income"
         )
       ) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
       facet_wrap(
         ~ env_itm,
         scales = "free_y",
-        ncol = 2,
-        labeller = labeller(env_itm = label_wrap_gen(width = 15))
+        ncol = 4,
+        labeller = labeller(env_itm = label_wrap_gen(width = 20))
       ) +
       labs(x = "Income Region" , y = "Impact",
            fill = "Food group") +
@@ -1051,7 +1094,19 @@ server <- function(input, output) {
   reactive_plot_regiongeo <- reactive({
     data <- filtered_data_regiongeo()
     p_regiongeo <- ggplot(data, aes(
-      x = region,
+      x = factor(
+        region,
+        level = c(
+          "WLD", 
+          "NAC", 
+          "ECS", 
+          "LCN", 
+          "MEA",
+          "EAS",
+          "SAS", 
+          "SSF"
+        )
+      ),
       y = value,
       fill = factor(
         food_group,
@@ -1078,23 +1133,23 @@ server <- function(input, output) {
       geom_col(color = "white", width = 0.6) +
       scale_fill_manual(values = colors_food) +
       scale_x_discrete(
-        breaks = c("EAS", "ECS", "LCN", "MEA", "NAC", "SAS", "SSF", "WLD"),
+        breaks = c("WLD", "NAC", "ECS", "LCN", "MEA", "EAS", "SAS", "SSF"),
         labels = c(
-          "E. Asia & Pacific",
+          "World",
+          "North America",
           "Europe & C. Asia",
           "Latin Am. & Caribbean",
           "Middle East & N. Africa",
-          "North America",
+          "E. Asia & Pacific",
           "South Asia",
-          "Sub-Saharan Africa",
-          "World"
+          "Sub-Saharan Africa"
         )
       ) +
       facet_wrap(
         ~ env_itm,
         scales = "free_y",
-        ncol = 2,
-        labeller = labeller(env_itm = label_wrap_gen(width = 15))
+        ncol = 4,
+        labeller = labeller(env_itm = label_wrap_gen(width = 20))
       ) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
       labs(x = "Geographical Region" , y = "Impact",
@@ -1129,35 +1184,6 @@ server <- function(input, output) {
     
     data <- filtered_data_category()
     
-    custom_order_region <-
-      c("LIC",
-        "LMC",
-        "UMC",
-        "HIC",
-        "ECS",
-        "MEA",
-        "EAS",
-        "SAS",
-        "NAC",
-        "LCN",
-        "SSF",
-        "WLD")
-    custom_labels_region <-
-      c(
-        "Low Income",
-        "Lower Middle Income",
-        "Upper Middle Income",
-        "High Income",
-        "Europe & C. Asia",
-        "Middle East & N. Africa",
-        "E. Asia & Pacific",
-        "South Asia",
-        "North America",
-        "Latin Am. & Caribbean",
-        "Sub-Saharan Africa",
-        "World"
-      )
-    
     data$region_custom <-
       factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
@@ -1187,8 +1213,8 @@ server <- function(input, output) {
       fill = macrofoods
     )) +
       geom_col(color = "white", width = 0.6) +
-      scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
-      facet_wrap( ~ region_custom, ncol = 2,
+      #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+      facet_wrap( ~ region_custom, ncol = 5,
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
                   ) +
       scale_fill_manual(values = colors_macro, breaks = c("ASF", "Staples", "Other")) +
@@ -1201,7 +1227,10 @@ server <- function(input, output) {
         strip.text.x = element_text(size = 12, face = "bold"),
         strip.text.y = element_text(size = 12, face = "bold"),
         axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(size=12),
+        axis.text.x = element_text(
+          size=12,
+          angle = 45,
+          hjust = 1),
         legend.position = "top",
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 12, face = "bold")
@@ -1219,35 +1248,6 @@ server <- function(input, output) {
     selected_env_itm <- input$env_dimensions_6
     
     data <- filtered_data_categorymacro()
-    
-    custom_order_region <-
-      c("LIC",
-        "LMC",
-        "UMC",
-        "HIC",
-        "ECS",
-        "MEA",
-        "EAS",
-        "SAS",
-        "NAC",
-        "LCN",
-        "SSF",
-        "WLD")
-    custom_labels_region <-
-      c(
-        "Low Income",
-        "Lower Middle Income",
-        "Upper Middle Income",
-        "High Income",
-        "Europe & C. Asia",
-        "Middle East & N. Africa",
-        "E. Asia & Pacific",
-        "South Asia",
-        "North America",
-        "Latin Am. & Caribbean",
-        "Sub-Saharan Africa",
-        "World"
-      )
     
     data$region_custom <-
       factor(data$region, levels = custom_order_region, labels = custom_labels_region)
@@ -1279,7 +1279,7 @@ server <- function(input, output) {
     )) +
       geom_col(color = "white", width = 0.6) +
       scale_x_discrete(guide = guide_axis(n.dodge=2)) +
-      facet_wrap( ~ region_custom , ncol = 4,
+      facet_wrap( ~ region_custom , ncol = 5,
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
                   ) +
       scale_fill_manual(values = colors_food) +
@@ -1302,8 +1302,7 @@ server <- function(input, output) {
   output$plot_categorymacro <- renderPlot({
     print(reactive_plot_categorymacro())
   })
-  
-  ##Draw plots for tabs in the fourth item (cons proxy) ----
+
   
   
   
@@ -1327,7 +1326,7 @@ server <- function(input, output) {
     #both HIC and LIC in the region column. Creating a unique identifier that is formed by the values taken by each variable in each occurrence ensures
     #that we can generate a table in which duplicate values are presented in distinct rows.
     data <- data %>%
-      mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
+      mutate(unique_id = paste(measure, env_itm, dmd_scn, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
     
     #Pivot the data to long format including the facet variable 'region'. This basically means expanding the number of
     #rows in the data selection. The table is a reactive element that follows the inputs
@@ -1407,7 +1406,7 @@ server <- function(input, output) {
   eduurb_table <- reactive({
     data <- filtered_data_eduurb()
     data <- data %>%
-      mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
+      mutate(unique_id = paste(measure, env_itm, dmd_scn, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
     
     data_long <- data %>%
       pivot_longer(cols = c(sex.urbanisation, region),
@@ -1464,7 +1463,7 @@ server <- function(input, output) {
   sociodem_table <- reactive({
     data <- filtered_data_sociodem()
     data <- data %>%
-      mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, region, age, category, sep = "_"))
+      mutate(unique_id = paste(measure, env_itm, dmd_scn, food_group, region, age, category, sep = "_"))
     
     data_long <- data %>%
       pivot_longer(cols = c(food_group, region),
@@ -1521,7 +1520,7 @@ server <- function(input, output) {
   region_table <- reactive({
     data <- filtered_data_region()
     data <- data %>%
-      mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
+      mutate(unique_id = paste(measure, env_itm, dmd_scn, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
     
     data_long <- data %>%
       pivot_longer(cols = c(env_itm, food_group),
@@ -1579,7 +1578,7 @@ server <- function(input, output) {
   regiongeo_table <- reactive({
     data <- filtered_data_regiongeo()
     data <- data %>%
-      mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
+      mutate(unique_id = paste(measure, env_itm, dmd_scn, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
     
     data_long <- data %>%
       pivot_longer(cols = c(env_itm, food_group),
@@ -1637,7 +1636,7 @@ server <- function(input, output) {
   category_table <- reactive({
     data <- filtered_data_category()
     data <- data %>%
-      mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, region, age, macrofoods, sep = "_"))
+      mutate(unique_id = paste(measure, env_itm, dmd_scn, food_group, region, age, macrofoods, sep = "_"))
     
     data_long <- data %>%
       pivot_longer(cols = c(region, macrofoods),
@@ -1694,7 +1693,7 @@ server <- function(input, output) {
   categorymacro_table <- reactive({
     data <- filtered_data_categorymacro()
     data <- data %>%
-      mutate(unique_id = paste(measure, env_itm, cns_prsp, food_group, region, age, macrofoods, sep = "_"))
+      mutate(unique_id = paste(measure, env_itm, dmd_scn, food_group, region, age, macrofoods, sep = "_"))
     
     data_long <- data %>%
       pivot_longer(cols = c(region, food_group),
