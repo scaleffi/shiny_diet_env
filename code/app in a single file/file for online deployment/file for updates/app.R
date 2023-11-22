@@ -4,6 +4,7 @@ library(ggrepel)
 library(DT)
 library(rsconnect)
 library(shiny)
+library(scales)
 #library(shinythemes)
 #library(periscope)
 
@@ -40,7 +41,7 @@ df <- df %>%
     env_itm == "land_crop" ~ "Land use, crops (thousands of km2)",
     env_itm == "land_pstr" ~ "Land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "Eutrophication pot. (kt PO4eq)",
-    env_itm == "avg" ~ "Average",
+    env_itm == "avg" ~ "Average environmental impact",
     TRUE ~ env_itm  # Keep the original value if it doesn't match any condition
   ),
           dmd_scn = case_when(
@@ -81,7 +82,7 @@ df_trs_category <- df_trs_category %>%
     env_itm == "land_crop" ~ "Land use, crops (thousands of km2)",
     env_itm == "land_pstr" ~ "Land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "Eutrophication pot. (kt PO4eq)",
-    env_itm == "avg" ~ "Average",
+    env_itm == "avg" ~ "Average environmental impact",
     TRUE ~ env_itm),
     dmd_scn = case_when(
       dmd_scn == "actl" ~ "Actual Demand",
@@ -126,7 +127,7 @@ df_trs_macrof <- df_trs_macrof %>%
     env_itm == "land_crop" ~ "Land use, crops (thousands of km2)",
     env_itm == "land_pstr" ~ "Land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "Eutrophication pot. (kt PO4eq)",
-    env_itm == "avg" ~ "Average",
+    env_itm == "avg" ~ "Average environmental impact",
     TRUE ~ env_itm),
     dmd_scn = case_when(
       dmd_scn == "actl" ~ "Actual Demand",
@@ -197,7 +198,7 @@ ui <- dashboardPage(skin = "black",
                                selectInput("measure_2", "Select Measure:", choices = c("Ratio to World average (capita)","Ratio to Regional average (capita)"), selected = "Ratio to World average (capita)")
                         ),
                           column(4,
-                               selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average"),
+                               selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average environmental impact"),
                                selectInput("region_2", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
                           column(4,
@@ -231,7 +232,7 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_3", "Select Measure:", choices = c("Ratio to World average (capita)","Ratio to Regional average (capita)"), selected = "Ratio to World average (capita)")
                         ),
                  column(4,
-                        selectInput("env_dimensions_3", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average"),
+                        selectInput("env_dimensions_3", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average environmental impact"),
                         selectInput("region_3", "Select Region:", choices = unique(df$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
                  column(4,
@@ -267,7 +268,7 @@ ui <- dashboardPage(skin = "black",
                         downloadButton("download_plot_sociodem", "Download plot")
                         ),
                  column(4,
-                        selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "Average"), selected = "GHG (Mt CO2eq)"),
+                        selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "Average environmental impact"), selected = "GHG (Mt CO2eq)"),
                         selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
                           "beef_lamb",
                           "dairy",
@@ -342,11 +343,11 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_1", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita")
                         ),
                  column(4,
-                        selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"),multiple = TRUE, selected = c(
-                          "GHG (Mt CO2eq)",
-                          "Land use (thousands of km2)",
-                          "Water use (thousands of km3)",
-                          "Eutrophication pot. (kt PO4eq)"
+                        selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average environmental impact"),multiple = TRUE, selected = c(
+                          "GHG (Mt CO2eq)"
+                          #"Land use (thousands of km2)",
+                          #"Water use (thousands of km3)",
+                          #"Eutrophication pot. (kt PO4eq)"
                         )),
                         selectInput("region_1", "Select Region:", choices = c("LIC", "LMC", "UMC", "HIC", "WLD"), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
@@ -396,11 +397,11 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_5", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita")
                         ),
                  column(4,
-                        selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"),multiple = TRUE, selected = c(
-                          "GHG (Mt CO2eq)",
-                          "Land use (thousands of km2)",
-                          "Water use (thousands of km3)",
-                          "Eutrophication pot. (kt PO4eq)"
+                        selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average environmental impact"),multiple = TRUE, selected = c(
+                          "GHG (Mt CO2eq)"
+                          #"Land use (thousands of km2)",
+                          #"Water use (thousands of km3)",
+                          #"Eutrophication pot. (kt PO4eq)"
                         )),
                         selectInput("region_5", "Select Region:", choices = c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF"), multiple = TRUE, selected = c(
                           "WLD",
@@ -474,7 +475,7 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_4", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita"),
                         ),
                  column(4,
-                        selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average"), selected = "GHG (Mt CO2eq)"),
+                        selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "Average environmental impact"), selected = "GHG (Mt CO2eq)"),
                         selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
                  column(4,
@@ -523,7 +524,7 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_6", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita")
                         ),
                  column(4,
-                        selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("Average", "Land use, pasture (thousands of km2)", "Land use, crops (thousands of km2)")), selected = "GHG (Mt CO2eq)"),
+                        selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("Average environmental impact", "Land use, pasture (thousands of km2)", "Land use, crops (thousands of km2)")), selected = "GHG (Mt CO2eq)"),
                         selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
                  column(4,
@@ -845,6 +846,9 @@ server <- function(input, output) {
     
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
+    selected_measure <- input$measure_2
+    selected_env_itm_s <- input$env_dimensions_2
+    
     p_sexage <- ggplot(
       data,
       aes(
@@ -863,20 +867,31 @@ server <- function(input, output) {
                                    "Both"),
                         name = "Sex:") +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
-      scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+      #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 5,
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
-                  )+
+                  ) +
       geom_hline(yintercept = 100, alpha = 0.3) +
       theme_linedraw() +
-      labs(x = "Age group", y = "Diet-related env. impact expressed relative\nto global average  (100 = world average)") +
+      labs(x = "Age group", y = paste(
+        "Diet-related",
+        selected_env_itm_s,
+        "expressed as\n",
+        selected_measure,
+        #"(100 = world or regional average)",
+        sep = " "
+        )) +
       theme(
         axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
         axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
         strip.text.x = element_text(size = 12, face = "bold"),
         strip.text.y = element_text(size = 12, face = "bold"),
         axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(size = 12),
+        axis.text.x = element_text(size = 12,
+                                   angle = 35,
+                                   #vjust = 0.5,
+                                   hjust = 1
+                                   ),
         legend.position = "top",
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 12, face = "bold")
@@ -891,6 +906,9 @@ server <- function(input, output) {
     data <- filtered_data_eduurb()
     
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
+    
+    selected_measure <- input$measure_3
+    selected_env_itm_u <- input$env_dimensions_3
     
     p_eduurb <- ggplot(data,
            aes(
@@ -908,17 +926,27 @@ server <- function(input, output) {
                                     ),
                          name = "Urbanisation:") +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
-      scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+      #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 5, 
                   labeller = labeller(region_custom = label_wrap_gen(width = 15)) 
                   ) +
       geom_hline(yintercept = 100, alpha = 0.3) +
-      labs(x = "Education level", y = "Diet-related env. impact expressed relative\nto global average  (100 = world average)") +
+      labs(x = "Education level", y = paste(
+               "Diet-related",
+               selected_env_itm_u,
+               "expressed as\n",
+               selected_measure,
+               #"(100 = world or regional average)",
+               sep = " "
+             )) +
       theme_linedraw() +
       theme(
         axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
         axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
-        axis.text.x = element_text(size = 12),
+        axis.text.x = element_text(size = 12,
+                                   angle = 35,
+                                   vjust = 0.5,
+                                   hjust = 0.5),
         axis.text.y = element_text(size = 12),
         strip.text.x = element_text(size = 12, face = "bold"),
         strip.text.y = element_text(size = 12, face = "bold"),
@@ -1001,8 +1029,12 @@ server <- function(input, output) {
       #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
       scale_fill_manual(values = colors_food) +
       labs(x = NULL, y = paste(selected_env_itm), fill = "Food group") +
-      scale_y_continuous(guide = guide_axis(n.dodge=2)) +
-      theme(axis.text.x = element_text(size=12), 
+      #scale_y_continuous(guide = guide_axis(n.dodge=2)) +
+      theme(axis.text.x = element_text(size=12,
+                                       angle = 35,
+                                       #vjust = 0.5,
+                                       hjust = 1
+                                       ), 
             axis.title.y = element_text(size = 12, face = "bold"),
             axis.title.x = element_text(size = 12, face = "bold"),
             strip.text.x = element_text(size = 12, face = "bold"),
@@ -1050,6 +1082,7 @@ server <- function(input, output) {
       )
     )) +
       geom_col(color = "white", width = 0.6) +
+      #coord_flip() +
       scale_fill_manual(values = colors_food) +
       scale_x_discrete(
         labels = c(
@@ -1058,8 +1091,7 @@ server <- function(input, output) {
           "Upper Middle Income",
           "Lower Middle Income",
           "Low Income"
-        )
-      ) +
+        )) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
       facet_wrap(
         ~ env_itm,
@@ -1077,7 +1109,7 @@ server <- function(input, output) {
         strip.text.y = element_text(size = 12, face = "bold"),
         axis.text.x = element_text(
           size = 12,
-          angle = 45,
+          angle = 35,
           hjust = 1
         ),
         axis.text.y = element_text(size = 12),
@@ -1213,8 +1245,11 @@ server <- function(input, output) {
       fill = macrofoods
     )) +
       geom_col(color = "white", width = 0.6) +
+      coord_flip() +
       #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
-      facet_wrap( ~ region_custom, ncol = 5,
+      facet_wrap( ~ region_custom, 
+                  ncol = 5,
+                  #scales = "free_x",
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
                   ) +
       scale_fill_manual(values = colors_macro, breaks = c("ASF", "Staples", "Other")) +
@@ -1230,7 +1265,8 @@ server <- function(input, output) {
         axis.text.x = element_text(
           size=12,
           angle = 45,
-          hjust = 1),
+          hjust = 1
+          ),
         legend.position = "top",
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 12, face = "bold")
@@ -1278,7 +1314,7 @@ server <- function(input, output) {
       )
     )) +
       geom_col(color = "white", width = 0.6) +
-      scale_x_discrete(guide = guide_axis(n.dodge=2)) +
+      #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
       facet_wrap( ~ region_custom , ncol = 5,
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
                   ) +
@@ -1292,7 +1328,10 @@ server <- function(input, output) {
         strip.text.x = element_text(size = 12, face = "bold"),
         strip.text.y = element_text(size = 12, face = "bold"),
         axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(size=12),
+        axis.text.x = element_text(size=12,
+                                   angle = 35,
+                                   hjust = 1
+                                   ),
         legend.position = "right",
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 12, face = "bold")
@@ -1755,43 +1794,43 @@ server <- function(input, output) {
   output$download_plot_sexage <- downloadHandler(
     filename = function() { paste("plot_sexage", '.png', sep='') },
     content = function(file) { ggsave(file, plot = reactive_plot_sexage(),
-                                        device = "png", width = 10) }  
+                                        device = "png", width = 12) }  
   )
   
   output$download_plot_eduurb <- downloadHandler(
     filename = function() { paste("plot_eduurb", '.png', sep='') },
     content = function(file) { ggsave(file, plot = reactive_plot_eduurb(),
-                                      device = "png", width = 10) }  
+                                      device = "png", width = 12) }  
   )
   
   output$download_plot_sociodem <- downloadHandler(
     filename = function() { paste("plot_sociodem", '.png', sep='') },
     content = function(file) { ggsave(file, plot = reactive_plot_sociodem(),
-                                      device = "png", width = 10) } 
+                                      device = "png", width = 12) } 
   )
   
   output$download_plot_region <- downloadHandler(
     filename = function() { paste("plot_region", '.png', sep='') },
     content = function(file) { ggsave(file, plot = reactive_plot_region(),
-                                      device = "png", width = 10) } 
+                                      device = "png", width = 12) } 
   )
   
   output$download_plot_regiongeo <- downloadHandler(
     filename = function() { paste("plot_regiongeo", '.png', sep='') },
     content = function(file) { ggsave(file, plot = reactive_plot_regiongeo(),
-                                      device = "png", width = 10) } 
+                                      device = "png", width = 12) } 
   )
   
   output$download_plot_category <- downloadHandler(
     filename = function() { paste("plot_category", '.png', sep='') },
     content = function(file) { ggsave(file, plot = reactive_plot_category(),
-                                      device = "png", width = 10) } 
+                                      device = "png", width = 12) } 
   )
   
   output$download_plot_categorymacro <- downloadHandler(
     filename = function() { paste("plot_categorymacro", '.png', sep='') },
     content = function(file) { ggsave(file, plot = reactive_plot_categorymacro(),
-                                      device = "png", width = 10) } 
+                                      device = "png", width = 12) } 
   )
   
   
