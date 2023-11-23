@@ -165,10 +165,26 @@ ui <- dashboardPage(skin = "black",
   # titlePanel("The environmental footprints of global diets"),----
   dashboardSidebar(
     sidebarMenu(
-               menuItem("Compare by socio-demographic", tabName = "sociodem", icon = icon("person-half-dress")),
-               menuItem("Compare by region", tabName = "food_groups", icon = icon("earth-africa")),
-               menuItem("Compare by food group", tabName = "categories", icon = icon("wheat-awn")),
-               menuItem("ReadMe", tabName = "readme", icon = icon("info-circle")
+               menuItem("View by sociodemographic", 
+                        #tabName = "sociodem",
+                        tabName = NULL,
+                        icon = icon("person-half-dress"),
+                        menuSubItem("About this data", tabName = "about_sociodem", icon = icon("person-half-dress")),
+                        menuSubItem("Sex and age", tabName = "sexage", icon = icon("person-half-dress")),
+                        menuSubItem("Edu. and urb.", tabName = "eduurb", icon = icon("person-half-dress")),
+                        menuSubItem("Sociodem and food groups ", tabName = "multisociodem", icon = icon("person-half-dress"))
+                        ),
+               menuItem("View by region", tabName = NULL, icon = icon("earth-africa"),
+                        menuSubItem("About this data", tabName = "about_region", icon = icon("earth-africa")),
+                        menuSubItem("Income regions", tabName = "region", icon = icon("earth-africa")),
+                        menuSubItem("Geographical regions", tabName = "regiongeo", icon = icon("earth-africa"))
+                        ),
+               menuItem("View by food group", tabName = NULL, icon = icon("wheat-awn"),
+                        menuSubItem("About this data", tabName = "about_categories",icon = icon("wheat-awn")),
+                        menuSubItem("Food groups", tabName = "foodgroups", icon = icon("wheat-awn")),
+                        menuSubItem("Food macrocategories", tabName = "foodmacro", icon = icon("wheat-awn"))
+                        ),
+               menuItem("Info", tabName = "readme", icon = icon("info-circle")
                         , selected = TRUE
                         ) 
     ), collapsed = FALSE
@@ -178,37 +194,55 @@ ui <- dashboardPage(skin = "black",
     tabItems(
       ###First item----
       tabItem(
-        tabName = "sociodem",
-        tabsetPanel(
-          tabPanel("About", box(
+        #tabName = "sociodem",
+        # tabItem(
+        tabName = "about_sociodem", 
+          box(width = 8,
             title = "About this data", HTML(
-              "These tabs allow you to compare diet-related environmental footprints across different sociodemographics.<br><br>
-                      Use the first tab, 'Sex-age', if you want to explore how diet-related environmental footprints differ among sexes and age groups. Open the second tab instead, 'Edu-urb', if you want
-                      to explore how the footprints change across education and urbanisation levels. <br><br>
-                      If you are interested in seeing how absolute and per capita impacts differ across sociodemographics, regions, and environmental dimensions, open the third tab, 'Sociodem'.")
-          )),
-          tabPanel(
+              "These tabs allow you to compare diet-related environmental footprints across different sociodemographics.
+              Use the first tab, 'Sex and age', if you want to explore how diet-related environmental footprints differ among sexes and age groups, relative to the global
+              or regional average. Open the second tab instead, 'Edu-urb', if you want to explore how the footprints change across education and urbanisation levels, 
+              relative to the global or regional average. In both tabs, the values can be interpreted as percentages which show how much higher or lower the impact of a 
+              specific group is, compared to a global or regional average set at 100%.<br><br>
+              If you are interested in seeing how absolute and per capita impacts differ across sociodemographics, regions, and environmental dimensions, open the third tab, 'Sociodem and food groups'.<br><br>
+              In all tabs, you can visualise the data through two measures: Actual Demand, or Demand normalised to 2,000 kcal/day. The first measure, Actual Demand, shows the footprints
+              based on the real demand estimated for the underlying food. But comparing environmental footprints across sociodemographics using only this measure
+              may be misleading: children, for example, eat less than adults in absolute terms, making their footprints invariably smaller in absolute terms. To control for these biophysical factors, we also calculated footprints
+              based on demand normalised to 2,000 kcal/day for all groups, while maintaining dietary composition. This means that by selecting this second
+              measure in the input parameters, users can, for example, compare the diet-related environmental footprints of children between 0-10 and adults
+              aged 20-39 as if they were both eating 2,000 kcal/day - but maintaining their respective proportional dietary compositions. Many large differences across sexes and age groups
+              disappear or lose significance when using this measure of normalised demand, suggesting that they may simply be driven by the different
+              energy requirements of individuals in each group. 
+              ")
+          )
+          #)
+        ),
+          tabItem(
+            tabName = "sexage",
             #Sexage----
-            "Sex-age",
             fluidPage(title = "Compare footprints by sex and age group",
                       box(width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
                         fluidRow(
-                          column(4,
+                          column(3,
                                selectInput("dmd_scn_2", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "Actual Demand"),
                                selectInput("measure_2", "Select Measure:", choices = c("Ratio to World average (capita)","Ratio to Regional average (capita)"), selected = "Ratio to World average (capita)")
                         ),
-                          column(4,
+                          column(3,
                                selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average environmental impact"),
                                selectInput("region_2", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
-                          column(4,
+                          column(3,
                                selectInput("age.education_2", "Select age group:", choices = c("0-9", "10-19", "20-39", "40-64", "65+", "all-a"), multiple = TRUE, selected = c("0-9", "10-19", "20-39", "40-64", "65+")),
-                               selectInput("sex.urbanisation_2", "Select sex:", choices = c("MLE", "FML", "BTH"), multiple = TRUE, selected = c("MLE", "FML")),
+                               selectInput("sex.urbanisation_2", "Select sex:", choices = c("MLE", "FML", "BTH"), multiple = TRUE, selected = c("MLE", "FML"))
+                               ),
+                        column(3,
                                downloadButton("download_csv_sexage", "Download table"),
+                               br(),
+                               br(),
                                downloadButton("download_plot_sexage", "Download plot")
                         )
-                      )
-                      ),
+                        )
+                      ), 
                       box(
                         width = 12, title = "Output" , collapsible = T, solidHeader = TRUE, status = "primary",
                         tabsetPanel(
@@ -220,29 +254,33 @@ ui <- dashboardPage(skin = "black",
                       )
                     )
           ),
-          tabPanel(
+          tabItem(
+            tabName = "eduurb",
             #Eduurb ----
-            "Edu-urb",
             fluidPage(title = "Compare footprints by urbanisation and education levels",
               box(
                 width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
                fluidRow(
-                 column(4,
+                 column(3,
                         selectInput("dmd_scn_3", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "Actual Demand"),
                         selectInput("measure_3", "Select Measure:", choices = c("Ratio to World average (capita)","Ratio to Regional average (capita)"), selected = "Ratio to World average (capita)")
                         ),
-                 column(4,
+                 column(3,
                         selectInput("env_dimensions_3", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "Average environmental impact"),
                         selectInput("region_3", "Select Region:", choices = unique(df$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
-                 column(4,
+                 column(3,
                         selectInput("age.education_3", "Select education level:", choices = c("low", "medium", "high"), multiple = TRUE, selected = c("low", "medium", "high")),
-                        selectInput("sex.urbanisation_3", "Select urbanisation level:", choices = c("urban", "rural"), multiple = TRUE, selected = c("urban", "rural")),
+                        selectInput("sex.urbanisation_3", "Select urbanisation level:", choices = c("urban", "rural"), multiple = TRUE, selected = c("urban", "rural"))
+                        ),
+                 column(3,
                         downloadButton("download_csv_eduurb", "Download table"),
+                        br(),
+                        br(),
                         downloadButton("download_plot_eduurb", "Download plot")
-                        )
-                      )
-                ),
+                 )
+               )
+              ), 
               box(
                 width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
                 tabsetPanel(
@@ -254,20 +292,18 @@ ui <- dashboardPage(skin = "black",
               )
             )
           ),
-          tabPanel(
+          tabItem(
+            tabName = "multisociodem",
             #Sociodem ----
-            "Sociodem",
             fluidPage(title = "Compare footprints across multiple dimensions",
               box(
                 width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
                fluidRow(
-                 column(4,
+                 column(3,
                         selectInput("dmd_scn_7", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "Actual Demand"),
-                        selectInput("measure_7", "Select Measure:", choices = c("Absolute","Per capita"), selected = "Per capita"),
-                        downloadButton("download_csv_sociodem", "Download table"),
-                        downloadButton("download_plot_sociodem", "Download plot")
+                        selectInput("measure_7", "Select Measure:", choices = c("Absolute","Per capita"), selected = "Per capita")
                         ),
-                 column(4,
+                 column(3,
                         selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "Average environmental impact"), selected = "GHG (Mt CO2eq)"),
                         selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
                           "beef_lamb",
@@ -286,7 +322,7 @@ ui <- dashboardPage(skin = "black",
                           "nuts_seeds",
                           "other"))
                         ),
-                 column(4,
+                 column(3,
                         selectInput("region_7", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC")),
                         selectInput("age_7", "Select sociodemographic:", choices = setdiff(unique(df_trs_category$age), c("all-a", "all-e", "BTH", "all-u")), multiple = TRUE, selected = c(
                           "low",
@@ -301,6 +337,12 @@ ui <- dashboardPage(skin = "black",
                           "20-39",
                           "40-64",
                           "65+"))
+                 ),
+                 column(3,
+                        downloadButton("download_csv_sociodem", "Download table"),
+                        br(),
+                        br(),
+                        downloadButton("download_plot_sociodem", "Download plot")
                  )
                )
               ),  
@@ -315,25 +357,22 @@ ui <- dashboardPage(skin = "black",
                 )
               )
             )
-          )
-        )
       ),
       tabItem(
         ###Second item ----
-        tabName = "food_groups",
-        tabsetPanel(
-          tabPanel("About", box(
+        tabName = "about_region",
+          box(width = 8,
             title = "About this data",HTML(
-              "These tabs allow you to compare absolute and per capita diet-related environmental footprints of diets across income regions and geographical regions.<br><br>
-                      In both tabs, you can see how much each food group contributes to the environmental footprint across six different dimensions: GHG (Mt CO2eq) emissions, Eutrophication, Land Use, Land Use - Pasture, Land Use - Crops,
-                      Freshwater Withdrawals.<br><br> If you want to 
-                      compare across income regions (Low Income Countries, Low-Middle Income Countries, Upper-Middle Income Countries, High Income Countries), open the first tab. Explore the second tab instead
-                      if your focus is on geographical groupings."
+              "These tabs allow you to compare absolute and per capita diet-related environmental footprints across income regions and geographical regions.<br><br>
+              In both tabs, you can also see how much each food group contributes to the environmental footprint across the six different dimensions.<br><br> 
+              If you want to compare across income regions (Low Income Countries, Low-Middle Income Countries, Upper-Middle Income Countries, High Income Countries), open the first tab. Explore the second tab instead
+              if your focus is on geographical groupings."
             )
-          )),
-          tabPanel(
+          )
+        ),
+          tabItem(
             #Region ----
-            "Impacts by income region",
+            tabName = "region",
             fluidPage(title = "Compare footprints across income regions",
               box(
                 width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
@@ -385,9 +424,9 @@ ui <- dashboardPage(skin = "black",
               )
             )
           ),
-          tabPanel(
+          tabItem(
             #Regiongeo ----
-            "Impacts by geographical region",
+            tabName = "regiongeo",
             fluidPage(title = "Compare footprints across geographical regions",
               box(
                 width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
@@ -447,25 +486,22 @@ ui <- dashboardPage(skin = "black",
                 )
               )  
             )
-          )
-        )
       ),
       tabItem(
         ###Third item ----
-        tabName = "categories",
-        tabsetPanel(
-          tabPanel("About", box(
+        tabName = "about_categories",
+          box(width = 8,
             title = "About this data", HTML(
-              "These tabs allow you to compare absolute and per capita environmental footprints associated with Demand of fifteen food groups and three macrocategories, across regions.<br><br>
-                      We grouped the fifteen food groups into three macrocategories: Animal Source Foods (ASF), Staples, and Other. This is an arbitrary classification made for the
-                      purpose of this dashboard, with the goal of making it easier for the user to make comparisons at a glance. By combining information on both the food group
-                      and the macrocategory, the user can explore how different categories of food impact each environmental dimension, while also seeing how individual food groups contribute within each category.<br><br>
-                      Open the first tab if you want to focus on the fifteen separate food groups, and compare their impacts across regions. Select the second tab if instead you want to focus on the three macrocategories."
+              "These tabs allow you to compare absolute and per capita environmental footprints associated with the estimated demand of fifteen food groups, across regions.<br><br>
+              We also grouped the fifteen food groups into three macrocategories: Animal Source Foods (ASF), Staples, and Other. This is an arbitrary classification made for the
+              purpose of this dashboard, with the goal of making it easier for the user to make comparisons at a glance. By combining information on both the food group
+              and the macrocategory, the user can explore how different categories of food impact each environmental dimension, while also seeing how individual food groups contribute within each macrocategory.<br><br>
+              Open the first tab if you want to focus on the fifteen separate food groups, and compare their impacts across regions. Select the second tab if instead you want to focus on the three macrocategories."
             )
           )),
-          tabPanel(
+          tabItem(
             #Category ----
-            "Impacts by food group",
+            tabName = "foodgroups",
             fluidPage(title = "Compare footprints by individual food groups",
               box(
                 width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
@@ -512,9 +548,9 @@ ui <- dashboardPage(skin = "black",
               )
             )
         ),
-          tabPanel(
+          tabItem(
             #Categorymacro ----
-            "Impacts by food category",
+            tabName = "foodmacro",
             fluidPage(title = "Compare footprints by food macro-categories",
               box(
                 width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
@@ -559,27 +595,24 @@ ui <- dashboardPage(skin = "black",
                   tabPanel("Table",tableOutput("categorymacro_table"))
                 )
               )
-            )
-          )
         )
       ),
       tabItem(
         ###Fourth item ----
         tabName = "readme",
         fluidRow(
-          box(
+          box(width = 8,
             title = "ReadMe",
             div(
               HTML(
-                        "This dashboard allows you to explore data on the environmental footprints of global diets. 
-                        It uses new datasets and estimates, developed by Prof. Marco Springmann at the London School of Hygiene and Tropical Medicine.<br><br> 
-                        The data can be filtered by region, country, and by characteristics such as Sex, Age Group, Education Level, etc.
-                        To better manage the level of detail available in these new estimates, we have divided the dashboard in 
-                        distinct sections that focus on a specific number of dimensions at a time. Within each section,
-                        the user is free to choose among several combinations of filters and generate plots of their interest.
-                        All data can be visualised and downloaded as both a plot or a table. Plots and tables are reproducible, as long as their source is clearly and correctly cited.<br><br>
-                        For feedback or
-                        questions please contact Sebastiano Caleffi at sebastiano.caleffi@lshtm.ac.uk"
+                    "This dashboard allows you to explore and compare data on the environmental footprints of global diets. 
+                    It uses new datasets and estimates, developed by Prof. Marco Springmann at the London School of Hygiene and Tropical Medicine.<br><br> 
+                    The data can be filtered by region, country, and by characteristics such as sex, age Group, education Level, etc.
+                    To better manage the level of detail available in these new estimates, we have divided the dashboard in 
+                    distinct sections that focus on a specific number of dimensions at a time. Within each section,
+                    the user is free to choose among several combinations of filters and generate plots of their interest.
+                    All data can be visualised and downloaded as both a plot or a table. Plots and tables are reproducible, as long as their source is clearly and correctly cited.<br><br>
+                    For feedback or questions please contact Sebastiano Caleffi at sebastiano.caleffi@lshtm.ac.uk"
               )
               #style = "width:100%;"
               
@@ -590,6 +623,8 @@ ui <- dashboardPage(skin = "black",
     )
   )
 )
+  
+
 
 #SERVER ----
 
@@ -873,7 +908,11 @@ server <- function(input, output) {
                   ) +
       geom_hline(yintercept = 100, alpha = 0.3) +
       theme_linedraw() +
-      labs(x = "Age group", y = paste(
+      labs(
+        #title = "Relative diet-related environmental footprints across sex and age groups",
+        caption = "LSHTM - Centre for Climate Change and Planetary Health",
+        x = "Age group",
+        y = paste(
         "Diet-related",
         selected_env_itm_s,
         "expressed as\n",
@@ -931,7 +970,10 @@ server <- function(input, output) {
                   labeller = labeller(region_custom = label_wrap_gen(width = 15)) 
                   ) +
       geom_hline(yintercept = 100, alpha = 0.3) +
-      labs(x = "Education level", y = paste(
+      labs(
+        caption = "LSHTM - Centre for Climate Change and Planetary Health",
+        x = "Education level",
+        y = paste(
                "Diet-related",
                selected_env_itm_u,
                "expressed as\n",
@@ -1028,7 +1070,12 @@ server <- function(input, output) {
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
       #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
       scale_fill_manual(values = colors_food) +
-      labs(x = NULL, y = paste(selected_env_itm), fill = "Food group") +
+      labs(
+        caption = "LSHTM - Centre for Climate Change and Planetary Health",
+        x = NULL,
+        y = paste(selected_env_itm),
+        fill = "Food group"
+      ) +
       #scale_y_continuous(guide = guide_axis(n.dodge=2)) +
       theme(axis.text.x = element_text(size=12,
                                        angle = 35,
@@ -1099,7 +1146,9 @@ server <- function(input, output) {
         ncol = 4,
         labeller = labeller(env_itm = label_wrap_gen(width = 20))
       ) +
-      labs(x = "Income Region" , y = "Impact",
+      labs(caption = "LSHTM - Centre for Climate Change and Planetary Health",
+           x = "Income Region" , 
+           y = "Impact",
            fill = "Food group") +
       theme_linedraw() +
       theme(
@@ -1184,7 +1233,9 @@ server <- function(input, output) {
         labeller = labeller(env_itm = label_wrap_gen(width = 20))
       ) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = "Geographical Region" , y = "Impact",
+      labs(caption = "LSHTM - Centre for Climate Change and Planetary Health",
+           x = "Geographical Region",
+           y = "Impact",
            fill = "Food group") +
       theme_linedraw() +
       theme(
@@ -1254,7 +1305,10 @@ server <- function(input, output) {
                   ) +
       scale_fill_manual(values = colors_macro, breaks = c("ASF", "Staples", "Other")) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = "Food Group", y = paste(selected_env_itm), fill = "Category:") +
+      labs(caption = "LSHTM - Centre for Climate Change and Planetary Health",
+           x = "Food Group",
+           y = paste(selected_env_itm),
+           fill = "Category:") +
       theme_linedraw() +
       theme(
         axis.title.y = element_text(size = 12, face = "bold"),
@@ -1320,7 +1374,10 @@ server <- function(input, output) {
                   ) +
       scale_fill_manual(values = colors_food) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(x = "Food Category", y = paste(selected_env_itm), fill = "Food group:") +
+      labs(caption = "LSHTM - Centre for Climate Change and Planetary Health",
+           x = "Food Category",
+           y = paste(selected_env_itm),
+           fill = "Food group:") +
       theme_linedraw() +
       theme(
         axis.title.y = element_text(size = 12, face = "bold"),
