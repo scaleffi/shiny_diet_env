@@ -50,8 +50,8 @@ df <- df %>%
     TRUE ~ dmd_scn
           ),
           measure = case_when(
-    measure == "abs" ~ "Absolute",
-    measure == "cap" ~ "Per capita",
+    measure == "abs" ~ "absolute",
+    measure == "cap" ~ "per capita",
     measure == "pct_abs_WLD" ~ "ratio to world average (absolute)",
     measure == "pct_abs_RGS" ~ "ratio to regional average (absolute)",
     measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
@@ -90,8 +90,8 @@ df_trs_category <- df_trs_category %>%
       TRUE ~ dmd_scn
     ),
     measure = case_when(
-      measure == "abs" ~ "Absolute",
-      measure == "cap" ~ "Per capita",
+      measure == "abs" ~ "absolute",
+      measure == "cap" ~ "per capita",
       measure == "pct_abs_WLD" ~ "ratio to world average (absolute)",
       measure == "pct_abs_RGS" ~ "ratio to regional average (absolute)",
       measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
@@ -135,8 +135,8 @@ df_trs_macrof <- df_trs_macrof %>%
       TRUE ~ dmd_scn
     ),
     measure = case_when(
-      measure == "abs" ~ "Absolute",
-      measure == "cap" ~ "Per capita",
+      measure == "abs" ~ "absolute",
+      measure == "cap" ~ "per capita",
       measure == "pct_abs_WLD" ~ "ratio to world average (absolute)",
       measure == "pct_abs_RGS" ~ "ratio to regional average (absolute)",
       measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
@@ -225,7 +225,7 @@ ui <- dashboardPage(skin = "black",
                         fluidRow(
                           column(3,
                                selectInput("dmd_scn_2", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
-                               selectInput("measure_2", "Select Measure:", choices = c("ratio to global avg. (cap.)","ratio to regional avg. (cap.)"), selected = "ratio to global avg. (cap.)")
+                               selectInput("measure_2", "Select Measure:", choices = c("ratio to global avg. (cap.)","ratio to regional avg. (cap.)", "ratio to world average (absolute)"), selected = "ratio to global avg. (cap.)")
                         ),
                           column(3,
                                selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "average env. impact"),
@@ -301,7 +301,7 @@ ui <- dashboardPage(skin = "black",
                fluidRow(
                  column(3,
                         selectInput("dmd_scn_7", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
-                        selectInput("measure_7", "Select Measure:", choices = c("Absolute","Per capita"), selected = "Per capita")
+                        selectInput("measure_7", "Select Measure:", choices = c("absolute","per capita"), selected = "per capita")
                         ),
                  column(3,
                         selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "average env. impact"), selected = "GHG (Mt CO2eq)"),
@@ -324,7 +324,7 @@ ui <- dashboardPage(skin = "black",
                         ),
                  column(3,
                         selectInput("region_7", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC")),
-                        selectInput("age_7", "Select sociodemographic:", choices = setdiff(unique(df_trs_category$age), c("all-a", "all-e", "BTH", "all-u")), multiple = TRUE, selected = c(
+                        selectInput("age_7", "Select sociodemographic:", choices = unique(df_trs_category$age), multiple = TRUE, selected = c(
                           "low",
                           "medium",
                           "high",
@@ -379,7 +379,7 @@ ui <- dashboardPage(skin = "black",
                fluidRow(
                  column(4,
                         selectInput("dmd_scn_1", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
-                        selectInput("measure_1", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita")
+                        selectInput("measure_1", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
                         ),
                  column(4,
                         selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "average env. impact"),multiple = TRUE, selected = c(
@@ -433,7 +433,7 @@ ui <- dashboardPage(skin = "black",
                fluidRow(
                  column(4,
                         selectInput("dmd_scn_5", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
-                        selectInput("measure_5", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita")
+                        selectInput("measure_5", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
                         ),
                  column(4,
                         selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "average env. impact"),multiple = TRUE, selected = c(
@@ -508,7 +508,7 @@ ui <- dashboardPage(skin = "black",
                fluidRow(
                  column(4,
                         selectInput("dmd_scn_4", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
-                        selectInput("measure_4", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita"),
+                        selectInput("measure_4", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita"),
                         ),
                  column(4,
                         selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "average env. impact"), selected = "GHG (Mt CO2eq)"),
@@ -557,7 +557,7 @@ ui <- dashboardPage(skin = "black",
                fluidRow(
                  column(4,
                         selectInput("dmd_scn_6", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
-                        selectInput("measure_6", "Select Measure:", choices = c("Absolute", "Per capita"), selected = "Per capita")
+                        selectInput("measure_6", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
                         ),
                  column(4,
                         selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average env. impact", "land use, pasture (thousands of km2)", "land use, crops (thousands of km2)")), selected = "GHG (Mt CO2eq)"),
@@ -607,10 +607,10 @@ ui <- dashboardPage(skin = "black",
               HTML(
                     "This dashboard allows you to explore and compare data on the environmental footprints of global diets in 2020. 
                     It uses new datasets and estimates, developed by Prof. Marco Springmann at the London School of Hygiene and Tropical Medicine.<br><br> 
-                    The data can be filtered by region, country, and by characteristics such as sex, age Group, education Level, etc.
-                    To better manage the level of detail available in these new estimates, we have divided the dashboard in 
-                    distinct sections that focus on a specific number of dimensions at a time. Within each section,
-                    the user is free to choose among several combinations of filters and generate plots of their interest.
+                    The data can be filtered by region, country, and by characteristics such as sex, age group, education level, etc.
+                    The dashboard is divided in three sections: the first one focuses on how footprints differ across sociodemographics; the second one on how
+                    they differ across regions, both income and geographic; the third one on how they differ across food groups and macrocategories. Within each section,
+                    you can build plots and data tables by choosing among several filters and inputs. 
                     All data can be visualised and downloaded as both a plot or a table. Plots and tables are reproducible, as long as their source is clearly and correctly cited.<br><br>
                     For feedback or questions please contact Sebastiano Caleffi at sebastiano.caleffi@lshtm.ac.uk"
               )
@@ -770,7 +770,8 @@ server <- function(input, output) {
    
   colors_urban <- c(
     "urban" = "#D95F02",
-    "rural" = "#66A61E"
+    "rural" = "#66A61E",
+    "all-u" = "#f4d03f"
   )
   
   #Create a vector with specific color assigned to each food group
@@ -917,12 +918,9 @@ server <- function(input, output) {
                       selected_measure,
                       #"(100 = world or regional average)",
                       sep = " "),
-          #"Diet-related environmental footprints, compared to the average",
-        # subtitle = paste("Note: all data is based on ",
-        #                  selected_dmd_scn, ". In the plot, average is set equal to 100.", sep = "") ,
-        caption = paste("Note: all data is based on ",
-                        selected_dmd_scn, 
-                        ". In the plot, average is set equal to 100. LSHTM - Centre for Climate Change and Planetary Health" , sep = ""),
+        subtitle = paste("Note: all data is based on ",
+                          selected_dmd_scn, ".\nIn the plot, average is set equal to 100.", sep = "") ,
+        caption = "LSHTM - Centre for Climate Change and Planetary Health",
         x = "Age group",
         y = paste(selected_env_itm_s,
                   " as\n",
@@ -952,7 +950,7 @@ server <- function(input, output) {
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 12, face = "bold"),
         plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        plot.subtitle = element_text(size = 12, face = "italic")
+        plot.subtitle = element_text(size = 12, face = "bold")
       )
   })
   
@@ -970,17 +968,19 @@ server <- function(input, output) {
     
     p_eduurb <- ggplot(data,
            aes(
-             x = factor(age.education, level = c("low", "medium", "high")),
+             x = factor(age.education, level = c("all-e" ,"low", "medium", "high")),
              y = value,
              color = sex.urbanisation,
            )) +
       geom_point(size = 3) +
       scale_color_manual(values = colors_urban,
                          breaks = c("urban",
-                                    "rural"
+                                    "rural",
+                                    "all-u"
                                     ),
                          labels = c("Urban",
-                                    "Rural"
+                                    "Rural",
+                                    "all-u"
                                     ),
                          name = "Urbanisation:") +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
@@ -1040,16 +1040,20 @@ server <- function(input, output) {
         level = c(
           "MLE",
           "FML",
+          "BTH",
           "0-9",
           "10-19",
           "20-39",
           "40-64",
           "65+",
+          "all-a",
           "low",
           "medium",
           "high",
+          "all-e",
           "urban",
-          "rural"
+          "rural",
+          "all-u"
         )
       ),
       y = value,
@@ -1082,7 +1086,7 @@ server <- function(input, output) {
       #coord_flip() is an easy way to swtich the x and y axis. Depending on what we want the user to focus on, each vis has its advantages. To see
       #the graph with the impacts on the y axis and the sociodem/age variables on the x axis, comment the coord_flip() call, AND switch the arguments in facet_grid to scales = "free_x", space = "free", switch = "x".
       coord_flip() +
-      facet_grid(category ~ region_custom, scales = "free_y", space = "free", switch = "y",
+      facet_grid(category ~ region_custom, scales = "free", space = "free_y", switch = "y", shrink = FALSE,
                  labeller = labeller(region_custom = label_wrap_gen(width = 15),
                                      category = label_wrap_gen(width = 5))
                  ) +
@@ -1126,6 +1130,7 @@ server <- function(input, output) {
     data <- filtered_data_region()
     
     selected_dmd_scn <- input$dmd_scn_1
+    selected_measure <- input$measure_1
     
     p_region <- ggplot(data, aes(
       x = factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
@@ -1172,8 +1177,8 @@ server <- function(input, output) {
         strip.position = "top"
       ) +
       labs(caption = "LSHTM - Centre for Climate Change and Planetary Health",
-           title = paste("Diet-related environmental impact based on",
-                         selected_dmd_scn,", in 2020", sep = " "),
+           title = paste("Diet-related environmental impact from\n",
+                         selected_dmd_scn,", in 2020 (", selected_measure, ")", sep = ""),
            x = "Income Region" , 
            #y = "Diet-related environmental impact in 2020",
            y = NULL,
@@ -1263,7 +1268,7 @@ server <- function(input, output) {
         scales = "free_x",
         ncol = 4,
         labeller = labeller(env_itm = label_wrap_gen(width = 15)),
-        strip.position = "top"
+        strip.position = "bottom"
       ) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
       labs(caption = "LSHTM - Centre for Climate Change and Planetary Health",
