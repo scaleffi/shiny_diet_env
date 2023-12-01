@@ -5,7 +5,7 @@ account: sebacaleffi
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10203471
-bundleId: 7973480
+bundleId: 7995216
 url: https://sebacaleffi.shinyapps.io/dashboard_test2/
 version: 1
 asMultiple: FALSE

@@ -36,7 +36,7 @@ df <- data_box
 df <- df %>%
   mutate(env_itm = case_when(
     env_itm == "GHG" ~ "GHG (Mt CO2eq)",
-    env_itm == "water" ~ "water use (thousands of km3)",
+    env_itm == "water" ~ "water use (km3)",
     env_itm == "land" ~ "land use (thousands of km2)",
     env_itm == "land_crop" ~ "land use, crops (thousands of km2)",
     env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
@@ -77,7 +77,7 @@ df_trs_category <- data_trs_category
 df_trs_category <- df_trs_category %>%
   mutate(env_itm = case_when(
     env_itm == "GHG" ~ "GHG (Mt CO2eq)",
-    env_itm == "water" ~ "water use (thousands of km3)",
+    env_itm == "water" ~ "water use (km3)",
     env_itm == "land" ~ "land use (thousands of km2)",
     env_itm == "land_crop" ~ "land use, crops (thousands of km2)",
     env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
@@ -122,7 +122,7 @@ df_trs_macrof <- df_trs %>%
 df_trs_macrof <- df_trs_macrof %>%
   mutate(env_itm = case_when(
     env_itm == "GHG" ~ "GHG (Mt CO2eq)",
-    env_itm == "water" ~ "water use (thousands of km3)",
+    env_itm == "water" ~ "water use (km3)",
     env_itm == "land" ~ "land use (thousands of km2)",
     env_itm == "land_crop" ~ "land use, crops (thousands of km2)",
     env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
@@ -447,7 +447,7 @@ ui <- dashboardPage(skin = "black",
                         selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "average env. impact"),multiple = TRUE, selected = c(
                           "GHG (Mt CO2eq)",
                           "land use (thousands of km2)",
-                          "water use (thousands of km3)",
+                          "water use (km3)",
                           "eutrophication pot. (kt PO4eq)"
                         )),
                         selectInput("region_1", "Select Region:", choices = c("LIC", "LMC", "UMC", "HIC", "WLD"), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
@@ -501,7 +501,7 @@ ui <- dashboardPage(skin = "black",
                         selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "average env. impact"),multiple = TRUE, selected = c(
                           "GHG (Mt CO2eq)",
                           "land use (thousands of km2)",
-                          "water use (thousands of km3)",
+                          "water use (km3)",
                           "eutrophication pot. (kt PO4eq)"
                         )),
                         selectInput("region_5", "Select Region:", choices = c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF"), multiple = TRUE, selected = c(
@@ -895,11 +895,11 @@ server <- function(input, output) {
      "oils" = "#abebc6")
   
   # Create a vector to rename facet plots with the full names of the environmental dimensions
-  env_itm.labs <- c("GHG (Mt CO2eq)", "Freshwater use (thousands of km3)", "Eutrophication pot. (Mt PO4eq)", "land use (thousands of km2)", "Land use_pasture (thousands of km2)", "Land use_crops (thousands of km2)")
-  names(env_itm.labs) <- c("GHG (Mt CO2eq)", "water use (thousands of km3)", "eutrophication pot. (kt PO4eq)", "land use (thousands of km2)", "land use, pasture (thousands of km2)", "land use, crops (thousands of km2)")
+  env_itm.labs <- c("GHG (Mt CO2eq)", "Freshwater use (km3)", "Eutrophication pot. (Mt PO4eq)", "land use (thousands of km2)", "Land use_pasture (thousands of km2)", "Land use_crops (thousands of km2)")
+  names(env_itm.labs) <- c("GHG (Mt CO2eq)", "water use (km3)", "eutrophication pot. (kt PO4eq)", "land use (thousands of km2)", "land use, pasture (thousands of km2)", "land use, crops (thousands of km2)")
   
   # env_itm == "GHG" ~ "GHG (kt CO2eq)",
-  # env_itm == "water" ~ "water use (thousands of km3)",
+  # env_itm == "water" ~ "water use (km3)",
   # env_itm == "land" ~ "land use (thousands of km2)",
   # env_itm == "land_crop" ~ "Land use,crops (thousands of km2)",
   # env_itm == "land_pstr" ~ "Land use,pasture (thousands of km2)",
@@ -1151,6 +1151,8 @@ server <- function(input, output) {
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
     selected_env_itm <- input$env_dimensions_7
+    selected_dmd_scn <- input$dmd_scn_7
+    selected_measure <- input$measure_7
     
     p_sociodem <- ggplot(data, 
                 aes(
@@ -1213,7 +1215,16 @@ server <- function(input, output) {
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
       #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
       scale_fill_manual(values = colors_food) +
-      labs(
+      labs(title = paste(selected_measure,
+                         " diet-related ",
+                         selected_env_itm,
+                         " in 2020,\n",
+                         " by sociodemographic",
+                         " (",   
+                         selected_dmd_scn,
+                         ")\n",
+                         sep = "") ,
+           subtitle ="Note: value ranges along the x-axis differ across plots" ,
         caption = "LSHTM - Centre for Climate Change and Planetary Health",
         x = NULL,
         y = paste(selected_env_itm,
@@ -1232,6 +1243,8 @@ server <- function(input, output) {
             strip.text.x = element_text(size = 12, face = "bold"),
             strip.text.y = element_text(size = 12, face = "bold"),
             axis.text.y = element_text(size = 12),
+            plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
+            plot.subtitle = element_text(size = 12, face = "bold"),
             legend.position = "right",
             legend.text = element_text(size = 12),
             legend.title = element_text(size = 12, face = "bold"))
@@ -1249,6 +1262,8 @@ server <- function(input, output) {
     data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
     
     selected_env_itm <- input$env_dimensions_8
+    selected_dmd_scn <- input$dmd_scn_8
+    selected_measure <- input$measure_8
     
     p_sociodem_rel <- ggplot(data, 
                          aes(
@@ -1292,9 +1307,17 @@ server <- function(input, output) {
     #   #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
       scale_fill_manual(values = colors_sociodem) +
        labs(
+         title = paste("Relative diet-related ",
+                               selected_env_itm,
+                               " in 2020,\n",
+                               " by sociodemographic",
+                               " (",   
+                               selected_dmd_scn,
+                               ")\n",
+                               sep = "") ,
          caption = "LSHTM - Centre for Climate Change and Planetary Health",
          x = NULL,
-         y = "Y",
+         y = paste("% contribution to diet-related ",selected_env_itm, "\nas ", selected_measure, sep = ""),
          fill = "Sociodemographic:"
        ) +
     
@@ -1308,7 +1331,9 @@ server <- function(input, output) {
       axis.title.x = element_text(size = 12, face = "bold"),
       strip.text.x = element_text(size = 12, face = "bold"),
       strip.text.y = element_text(size = 12, face = "bold"),
-      axis.text.y = element_blank(), 
+      axis.text.y = element_blank(),
+      plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
+      plot.subtitle = element_text(size = 12, face = "bold"),
         #element_text(size = 12),
       legend.position = "right",
       legend.text = element_text(size = 12),
@@ -1375,7 +1400,7 @@ server <- function(input, output) {
       ) +
       labs(caption = "LSHTM - Centre for Climate Change and Planetary Health",
            title = paste("Diet-related environmental impact from\n",
-                         selected_dmd_scn,", in 2020 (", selected_measure, ")", sep = ""),
+                         selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
            x = "Income Region" , 
            #y = "Diet-related environmental impact in 2020",
            y = NULL,
@@ -1407,6 +1432,11 @@ server <- function(input, output) {
   
   reactive_plot_regiongeo <- reactive({
     data <- filtered_data_regiongeo()
+    
+    selected_env_itm <- input$env_dimensions_5
+    selected_dmd_scn <- input$dmd_scn_5
+    selected_measure <- input$measure_5
+    
     p_regiongeo <- ggplot(data, aes(
       x = factor(
         region,
@@ -1468,7 +1498,9 @@ server <- function(input, output) {
         strip.position = "top"
       ) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(caption = "LSHTM - Centre for Climate Change and Planetary Health",
+      labs(title = paste("Diet-related environmental impact from\n",
+                                 selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
+           caption = "LSHTM - Centre for Climate Change and Planetary Health",
            x = "Geographical Region",
            #y = "Impact",
            y = NULL,
@@ -1488,6 +1520,7 @@ server <- function(input, output) {
         axis.text.y = element_text(size = 12),
         legend.position = "right",
         legend.text = element_text(size = 12),
+        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
         legend.title = element_text(size = 12, face = "bold")
       )
   })
@@ -1501,6 +1534,8 @@ server <- function(input, output) {
   reactive_plot_category <- reactive({
     
     selected_env_itm <- input$env_dimensions_4
+    selected_dmd_scn <- input$dmd_scn_4
+    selected_measure <- input$measure_4
     
     data <- filtered_data_category()
     
@@ -1537,12 +1572,17 @@ server <- function(input, output) {
       #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, 
                   ncol = 5,
-                  #scales = "free_x",
+                  scales = "free_x",
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
                   ) +
       scale_fill_manual(values = colors_macro, breaks = c("ASF", "Staples", "Other")) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(caption = "LSHTM - Centre for Climate Change and Planetary Health",
+      labs(title = paste("Diet-related ",
+                         selected_env_itm,
+                         " from\n",
+                         selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
+           subtitle = "Note: value ranges along the x-axis differ across plots",
+           caption = "LSHTM - Centre for Climate Change and Planetary Health",
            x = "Food Group",
            y = paste(selected_env_itm),
            fill = "Category:") +
@@ -1552,6 +1592,8 @@ server <- function(input, output) {
         axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
         strip.text.x = element_text(size = 12, face = "bold"),
         strip.text.y = element_text(size = 12, face = "bold"),
+        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
+        plot.subtitle = element_text(size = 12, face = "bold"),
         axis.text.y = element_text(size = 12),
         axis.text.x = element_text(
           size=12,
@@ -1573,6 +1615,8 @@ server <- function(input, output) {
   reactive_plot_categorymacro <- reactive({
     
     selected_env_itm <- input$env_dimensions_6
+    selected_dmd_scn <- input$dmd_scn_6
+    selected_measure <- input$measure_6
     
     data <- filtered_data_categorymacro()
     
@@ -1593,10 +1637,10 @@ server <- function(input, output) {
           "othr_ani",
           "rice",
           "grains",
+          "roots",
           "fruit_veg",
           "oils",
           "sugar",
-          "roots",
           "legumes",
           "nuts_seeds",
           "other",
@@ -1605,13 +1649,19 @@ server <- function(input, output) {
       )
     )) +
       geom_col(color = "white", width = 0.6) +
+      #coord_flip() +
       #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
-      facet_wrap( ~ region_custom , ncol = 5,
+      facet_wrap( ~ region_custom , ncol = 5, scales = "free_x",
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
                   ) +
       scale_fill_manual(values = colors_food) +
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      labs(caption = "LSHTM - Centre for Climate Change and Planetary Health",
+      labs(title = paste("Diet-related ", 
+                         selected_env_itm,
+                         " from\n",
+                         selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
+           #subtitle = "Note: value ranges along the x-axis differ across plots",
+           caption = "LSHTM - Centre for Climate Change and Planetary Health",
            x = "Food Category",
            y = paste(selected_env_itm),
            fill = "Food group:") +
@@ -1621,6 +1671,8 @@ server <- function(input, output) {
         axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
         strip.text.x = element_text(size = 12, face = "bold"),
         strip.text.y = element_text(size = 12, face = "bold"),
+        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
+        plot.subtitle = element_text(size = 12, face = "bold"),
         axis.text.y = element_text(size = 12),
         axis.text.x = element_text(size=12,
                                    angle = 35,
