@@ -854,6 +854,40 @@ server <- function(input, output) {
   
   #Prepare graphic objects and labels that will be used to create the plots below ----
   
+  #Create custom theme as a function, which can be applied to each plot without having to manually edit each of them to
+  #obtain the required look
+  
+  lshtm_theme_few <- function(){
+    theme_few() +
+    #%+replace%
+      theme(
+        axis.title.x = element_text(
+          vjust = -1,
+          size = 12,
+          face = "bold"),
+        axis.title.y = element_text(size = 12,
+                                    face = "bold",
+                                    #angle = 90
+                                    vjust = 1.5
+                                    ),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        panel.spacing = unit(0,"lines"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 12,
+                                   angle = 35,
+                                   vjust = 0.5,
+                                   #hjust = 1
+        ),
+        legend.position = "top",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold"),
+        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
+        plot.subtitle = element_text(size = 12, face = "bold"),
+        panel.grid.major.x = element_line(colour = "gray", linetype = "dotted"),
+        panel.grid.major.y = element_line(colour = "gray", linetype = "dotted")
+      )
+  }
   
   # #Control shading by setting alpha values through a new vector named alpha_vals; changing the range of shading helps with displaying some images that have several colors.
   # alpha_max <- 1
@@ -1021,7 +1055,7 @@ server <- function(input, output) {
       )
     ) +
       geom_point(size = 3) +
-      coord_flip() +
+      #coord_flip() +
       scale_color_manual(values = colors_sex,
                         breaks = c("MLE",
                                    "FML",
@@ -1030,6 +1064,7 @@ server <- function(input, output) {
                                    "Female",
                                    "Both"),
                         name = "Sex:") +
+      scale_y_continuous(breaks = c(0, 50, 75, 100, 125, 150, 200)) +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 5,
@@ -1037,7 +1072,7 @@ server <- function(input, output) {
                   ) +
       geom_hline(yintercept = 100, alpha = 0.3) +
       #theme_linedraw() +
-      theme_few() +
+      #theme_few() +
       labs(
         title = paste("Diet-related",
                       selected_env_itm_s,
@@ -1054,10 +1089,10 @@ server <- function(input, output) {
         caption = "LSHTM - Centre for Climate Change and Planetary Health",
         x = "Age",
         y = paste(selected_env_itm_s,
-                  " as ",
-                  selected_measure,
-                  ", with average set to 100",
-                  sep = "")
+            " as\n",
+            selected_measure,
+            ", with average set to 100",
+            sep = "")
         #   paste(
         # "Diet-related",
         # selected_env_itm_s,
@@ -1067,26 +1102,27 @@ server <- function(input, output) {
         # #"(100 = world or regional average)",
         # sep = " ")
        ) +
-      theme(
-        axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
-        axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
-        strip.text.x = element_text(size = 12, face = "bold"),
-        panel.spacing = unit(0
-                             ,"lines"
-        ),
-        strip.text.y = element_text(size = 12, face = "bold"),
-        axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(size = 12,
-                                   angle = 35,
-                                   #vjust = 0.5,
-                                   hjust = 1
-                                   ),
-        legend.position = "top",
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 12, face = "bold"),
-        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        plot.subtitle = element_text(size = 12, face = "bold")
-      )
+      lshtm_theme_few()
+      # theme(
+      #   axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
+      #   axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
+      #   strip.text.x = element_text(size = 12, face = "bold"),
+      #   panel.spacing = unit(0
+      #                        ,"lines"
+      #   ),
+      #   strip.text.y = element_text(size = 12, face = "bold"),
+      #   axis.text.y = element_text(size = 12),
+      #   axis.text.x = element_text(size = 12,
+      #                              angle = 35,
+      #                              #vjust = 0.5,
+      #                              hjust = 1
+      #                              ),
+      #   legend.position = "top",
+      #   legend.text = element_text(size = 12),
+      #   legend.title = element_text(size = 12, face = "bold"),
+      #   plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
+      #   plot.subtitle = element_text(size = 12, face = "bold")
+      # )
   })
   
   output$plot_sexage <- renderPlot({
@@ -1109,7 +1145,7 @@ server <- function(input, output) {
              color = sex.urbanisation,
            )) +
       geom_point(size = 3) +
-      coord_flip() +
+      #coord_flip() +
       scale_color_manual(values = colors_urban,
                          breaks = c("urban",
                                     "rural",
@@ -1120,6 +1156,7 @@ server <- function(input, output) {
                                     "all-u"
                                     ),
                          name = "Urbanisation:") +
+      scale_y_continuous(breaks = c(0, 50, 75, 100, 125, 150, 175, 200)) +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 5, 
@@ -1147,25 +1184,26 @@ server <- function(input, output) {
                       ", with average set to 100",
                       sep = "")
              ) +
-      theme_linedraw() +
-      theme(
-        axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
-        axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
-        axis.text.x = element_text(size = 12,
-                                   angle = 35,
-                                   vjust = 0.5,
-                                   hjust = 0.5),
-        axis.text.y = element_text(size = 12),
-        strip.text.x = element_text(size = 12, face = "bold"),
-        strip.text.y = element_text(size = 12, face = "bold"),
-        legend.position = "top",
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 12, face = "bold"),
-        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        plot.subtitle = element_text(size = 12, face = "bold")
-        )
+      lshtm_theme_few()
+      # theme_linedraw() +
+      # theme(
+      #   axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
+      #   axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
+      #   axis.text.x = element_text(size = 12,
+      #                              angle = 35,
+      #                              vjust = 0.5,
+      #                              hjust = 0.5),
+      #   axis.text.y = element_text(size = 12),
+      #   strip.text.x = element_text(size = 12, face = "bold"),
+      #   strip.text.y = element_text(size = 12, face = "bold"),
+      #   legend.position = "top",
+      #   legend.text = element_text(size = 12),
+      #   legend.title = element_text(size = 12, face = "bold"),
+      #   plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
+      #   plot.subtitle = element_text(size = 12, face = "bold")
+      #   )
       
-    return(p_eduurb)
+    #return(p_eduurb)
     #theme(axis.title.x = element_text(vjust = -1),axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
     #theme(plot.title=element_text(hjust = 0.5, size = 20), axis.title.x = element_text(face = "bold"), strip.text = element_text(size=12), legend.position = "top", legend.text = element_text(size = 15), axis.text.x = element_text(face = "bold"))
   })
@@ -1363,7 +1401,8 @@ server <- function(input, output) {
       #theme_minimal() +
       #theme_classic() +
       #theme_clean() +
-      theme_few() +
+      #theme_few() +
+    
     
       #geom_text_repel(aes(label = value), show.legend = FALSE) 
     #   #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
@@ -1382,30 +1421,33 @@ server <- function(input, output) {
          y = paste("% contribution to diet-related ",selected_env_itm, "\nas ", selected_measure, sep = ""),
          fill = NULL
        ) +
+      lshtm_theme_few()+
+      theme(legend.position = "right",
+            strip.placement = "outside")
     
     #   #scale_y_continuous(guide = guide_axis(n.dodge=2)) +
-      theme(axis.text.x = element_text(size=12,
-                                       angle = 35,
-                                       #vjust = 0.5,
-                                       hjust = 1
-      ),
-      axis.title.y = element_text(size = 12, face = "bold"),
-      axis.title.x = element_text(size = 12, face = "bold"),
-      strip.placement = "outside",
-      # strip.background = element_rect(fill = "white"),
-      panel.spacing = unit(0
-                           ,"lines"
-                           ),
-      strip.text.x = element_text(size = 12, face = "bold"),
-      strip.text.y = element_text(size = 12, face = "bold"),
-      axis.text.y = element_text(size = 12),
-      plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-      plot.subtitle = element_text(size = 12, face = "bold"),
-        #element_text(size = 12),
-      legend.position = "right",
-      legend.text = element_text(size = 12),
-      legend.title = element_text(size = 12, face = "bold"))
-    return(p_sociodem_rel)
+    #   theme(axis.text.x = element_text(size=12,
+    #                                    angle = 35,
+    #                                    #vjust = 0.5,
+    #                                    hjust = 1
+    #   ),
+    #   axis.title.y = element_text(size = 12, face = "bold"),
+    #   axis.title.x = element_text(size = 12, face = "bold"),
+    #   strip.placement = "outside",
+    #   # strip.background = element_rect(fill = "white"),
+    #   panel.spacing = unit(0
+    #                        ,"lines"
+    #                        ),
+    #   strip.text.x = element_text(size = 12, face = "bold"),
+    #   strip.text.y = element_text(size = 12, face = "bold"),
+    #   axis.text.y = element_text(size = 12),
+    #   plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
+    #   plot.subtitle = element_text(size = 12, face = "bold"),
+    #     #element_text(size = 12),
+    #   legend.position = "right",
+    #   legend.text = element_text(size = 12),
+    #   legend.title = element_text(size = 12, face = "bold"))
+    # return(p_sociodem_rel)
   })
   
   output$plot_sociodem_rel <- renderPlot({
