@@ -9,7 +9,8 @@ library(scales)
 #library(periscope)
 
 #library(gghighlight)
-#library(ggthemes)
+library(ggthemes)
+library(ggsci)
 #library(patchwork)
 #library(thematic)
 #library(plotly)
@@ -52,8 +53,8 @@ df <- df %>%
           measure = case_when(
     measure == "abs" ~ "absolute",
     measure == "cap" ~ "per capita",
-    measure == "pct_abs_WLD" ~ "ratio to world average (absolute)",
-    measure == "pct_abs_RGS" ~ "ratio to regional average (absolute)",
+    measure == "pct_abs_WLD" ~ "ratio to global avg (abs.)",
+    measure == "pct_abs_RGS" ~ "ratio to regional avg (abs.)",
     measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
     measure == "pct_cap_WLD" ~ "ratio to global avg. (cap.)",
     TRUE ~ measure
@@ -69,7 +70,7 @@ data_trs_category <- data_trs %>%
     age %in% c("FML", "MLE", "BTH") ~ "Sex",
     age %in% c("low", "medium", "high", "all-e") ~ "Edu. level",
     age %in% c("rural", "urban", "all-u") ~ "Urb. level",
-    age %in% c("0-9", "10-19", "20-39", "40-64", "65+", "all-a") ~ "Age group"
+    age %in% c("0-9", "10-19", "20-39", "40-64", "65+", "all-a") ~ "Age"
   ))
 
 df_trs_category <- data_trs_category
@@ -92,8 +93,8 @@ df_trs_category <- df_trs_category %>%
     measure = case_when(
       measure == "abs" ~ "absolute",
       measure == "cap" ~ "per capita",
-      measure == "pct_abs_WLD" ~ "ratio to world average (absolute)",
-      measure == "pct_abs_RGS" ~ "ratio to regional average (absolute)",
+      measure == "pct_abs_WLD" ~ "ratio to global avg (abs.)",
+      measure == "pct_abs_RGS" ~ "ratio to regional avg (abs.)",
       measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
       measure == "pct_cap_WLD" ~ "ratio to global avg. (cap.)",
       TRUE ~ measure
@@ -137,8 +138,8 @@ df_trs_macrof <- df_trs_macrof %>%
     measure = case_when(
       measure == "abs" ~ "absolute",
       measure == "cap" ~ "per capita",
-      measure == "pct_abs_WLD" ~ "ratio to world average (absolute)",
-      measure == "pct_abs_RGS" ~ "ratio to regional average (absolute)",
+      measure == "pct_abs_WLD" ~ "ratio to global avg (abs.)",
+      measure == "pct_abs_RGS" ~ "ratio to regional avg (abs.)",
       measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
       measure == "pct_cap_WLD" ~ "ratio to global avg. (cap.)",
       TRUE ~ measure# Keep the original value if it doesn't match any condition
@@ -302,10 +303,14 @@ ui <- dashboardPage(skin = "black",
                fluidRow(
                  column(3,
                         selectInput("dmd_scn_7", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
-                        selectInput("measure_7", "Select Measure:", choices = c("absolute","per capita"), selected = "per capita")
+                        selectInput("measure_7", "Select Measure:", 
+                                    choices = c("absolute","per capita"),
+                                    selected = "per capita")
                         ),
                  column(3,
-                        selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "average env. impact"), selected = "GHG (Mt CO2eq)"),
+                        selectInput("env_dimensions_7", "Select Environmental Dimensions:", 
+                                    choices = setdiff(unique(df_trs_category$env_itm), "average env. impact"),
+                                    selected = "GHG (Mt CO2eq)"),
                         selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
                           "beef_lamb",
                           "dairy",
@@ -368,38 +373,56 @@ ui <- dashboardPage(skin = "black",
                     fluidRow(
                       column(3,
                              selectInput("dmd_scn_8", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
-                             selectInput("measure_8", "Select Measure:", choices = c("ratio to world average (absolute)", "ratio to regional average (absolute)"), selected = "ratio to regional average (absolute)")
+                             selectInput("measure_8", "Select Measure:", choices = c(
+                               "ratio to global avg (abs.)", 
+                               "ratio to regional avg (abs.)",
+                               "ratio to regional avg. (cap.)",
+                               "ratio to global avg. (cap.)"),
+                               selected = "ratio to regional avg (abs.)")
                       ),
                       column(3,
                              selectInput("env_dimensions_8", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), selected = "average env. impact"),
-                             selectInput("category_8", "Select sociodem category:", choices = unique(df_trs_category$category), multiple = TRUE, selected = c(
-                               "Age group",
-                               "Sex",
-                               "Edu. level",
-                               "Urb. level"
-                             ))
-                             #selectInput("food_group_8", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
-                              # "total"
-                               # "beef_lamb",
-                               # "dairy",
-                               # "pork",
-                               # "othr_meat",
-                               # "fish",
-                               # "othr_ani",
-                               # "rice",
-                               # "grains",
-                               # "fruit_veg",
-                               # "oils",
-                               # "sugar",
-                               # "roots",
-                               # "legumes",
-                               # "nuts_seeds",
-                               # "other"
-                              # ))
+                             selectInput("age_8", "Select sociodemographic:", choices = unique(df_trs_category$age), multiple = TRUE, selected = c(
+                               "low",
+                               "medium",
+                               "high",
+                               "urban",
+                               "rural",
+                               "FML",
+                               "MLE",
+                               "0-9",
+                               "10-19",
+                               "20-39",
+                               "40-64",
+                               "65+"))
+                             # selectInput("category_8", "Select sociodem category:", choices = unique(df_trs_category$category), multiple = TRUE, selected = c(
+                             #   "Age",
+                             #   "Sex",
+                             #   "Edu. level",
+                             #   "Urb. level"
+                             # ))
+                             
                       ),
                       column(3,
-                             selectInput("region_8", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC")
-                      )),
+                             selectInput("region_8", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC")),
+                             selectInput("food_group_8", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
+                                         "beef_lamb",
+                                         "dairy",
+                                         "pork",
+                                         "othr_meat",
+                                         "fish",
+                                         "othr_ani",
+                                         "rice",
+                                         "grains",
+                                         "fruit_veg",
+                                         "oils",
+                                         "sugar",
+                                         "roots",
+                                         "legumes",
+                                         "nuts_seeds",
+                                         "other"
+                                         ))
+                      ),
                       column(3,
                              downloadButton("download_csv_sociodem_rel", "Download table"),
                              br(),
@@ -753,24 +776,27 @@ server <- function(input, output) {
     df_trs_category %>%
       filter(measure == input$measure_8,
              env_itm %in% input$env_dimensions_8,
-             food_group == "total",
-             category %in% input$category_8,
+             food_group %in% input$food_group_8,
+             #food_group == "total",
+             #category %in% input$category_8,
              dmd_scn == input$dmd_scn_8,
              region %in% input$region_8,
-             age %in% c(
-               "MLE",
-               "FML",
-               "0-9",
-               "10-19",
-               "20-39",
-               "40-64",
-               "65+",
-               "low",
-               "medium",
-               "high",
-               "urban",
-               "rural"
-             ))
+             age %in% input$age_8
+             # age %in% c(
+             #   "MLE",
+             #   "FML",
+             #   "0-9",
+             #   "10-19",
+             #   "20-39",
+             #   "40-64",
+             #   "65+",
+             #   "low",
+             #   "medium",
+             #   "high",
+             #   "urban",
+             #   "rural"
+             # )
+             )
   })
   
   ##Create filters for tabs in the second menu item, 'compare by region'----
@@ -1010,7 +1036,8 @@ server <- function(input, output) {
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
                   ) +
       geom_hline(yintercept = 100, alpha = 0.3) +
-      theme_linedraw() +
+      #theme_linedraw() +
+      theme_few() +
       labs(
         title = paste("Diet-related",
                       selected_env_itm_s,
@@ -1025,7 +1052,7 @@ server <- function(input, output) {
                          #".\nIn the plot, average is set equal to 100.", 
                          sep = "") ,
         caption = "LSHTM - Centre for Climate Change and Planetary Health",
-        x = "Age group",
+        x = "Age",
         y = paste(selected_env_itm_s,
                   " as ",
                   selected_measure,
@@ -1044,6 +1071,9 @@ server <- function(input, output) {
         axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
         axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
         strip.text.x = element_text(size = 12, face = "bold"),
+        panel.spacing = unit(0
+                             ,"lines"
+        ),
         strip.text.y = element_text(size = 12, face = "bold"),
         axis.text.y = element_text(size = 12),
         axis.text.x = element_text(size = 12,
@@ -1266,31 +1296,57 @@ server <- function(input, output) {
     selected_measure <- input$measure_8
     
     p_sociodem_rel <- ggplot(data, 
-                         aes(
-                           x = category,
-                           y = value,
-                           # label = value
-                         )) +
+                           aes(
+                             x = factor(
+                               age,
+                               level = c(
+                                 "MLE",
+                                 "FML",
+                                 "BTH",
+                                 "0-9",
+                                 "10-19",
+                                 "20-39",
+                                 "40-64",
+                                 "65+",
+                                 "all-a",
+                                 "low",
+                                 "medium",
+                                 "high",
+                                 "all-e",
+                                 "urban",
+                                 "rural",
+                                 "all-u"
+                               )
+                             ),
+                             y = value,
+                             label = value
+                           )) +
       #fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")))) +
-      geom_bar(aes(fill = factor(
-        age,
+      geom_col(aes(fill = factor(
+        food_group,
         level = c(
-          "65+",
-          "40-64",
-          "20-39",
-          "10-19",
-          "0-9",
-          "high",
-          "medium",
-          "low",
-          "FML",
-          "MLE",
-          "urban",
-          "rural"
+          "beef_lamb",
+          "dairy",
+          "pork",
+          "othr_meat",
+          "fish",
+          "othr_ani",
+          "rice",
+          "grains",
+          "fruit_veg",
+          "oils",
+          "sugar",
+          "roots",
+          "legumes",
+          "nuts_seeds",
+          "other",
+          "total"
         )
-      )), stat = "identity", color = "white") +
+      )), color = "white") +
       coord_flip() +
-      facet_grid(category ~ region_custom, scales = "free", space = "free_y", switch = "y", shrink = FALSE,
+      facet_grid(category ~ region_custom, 
+                 scales = "free_y", 
+                 space = "free_y", switch = "y", shrink = FALSE,
                  labeller = labeller(region_custom = label_wrap_gen(width = 15),
                                      category = label_wrap_gen(width = 5))
       ) +
@@ -1302,12 +1358,18 @@ server <- function(input, output) {
     #              labeller = labeller(region_custom = label_wrap_gen(width = 15),
     #                                  category = label_wrap_gen(width = 5))
     #   ) +
-      theme_linedraw() +
+      #theme_linedraw() +
+      #theme_light() +
+      #theme_minimal() +
+      #theme_classic() +
+      #theme_clean() +
+      theme_few() +
+    
       #geom_text_repel(aes(label = value), show.legend = FALSE) 
     #   #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
-      scale_fill_manual(values = colors_sociodem) +
+      scale_fill_manual(values = colors_food) +
        labs(
-         title = paste("Relative diet-related ",
+         title = paste("diet-related ",
                                selected_env_itm,
                                " in 2020,\n",
                                " by sociodemographic",
@@ -1318,7 +1380,7 @@ server <- function(input, output) {
          caption = "LSHTM - Centre for Climate Change and Planetary Health",
          x = NULL,
          y = paste("% contribution to diet-related ",selected_env_itm, "\nas ", selected_measure, sep = ""),
-         fill = "Sociodemographic:"
+         fill = NULL
        ) +
     
     #   #scale_y_continuous(guide = guide_axis(n.dodge=2)) +
@@ -1329,9 +1391,14 @@ server <- function(input, output) {
       ),
       axis.title.y = element_text(size = 12, face = "bold"),
       axis.title.x = element_text(size = 12, face = "bold"),
+      strip.placement = "outside",
+      # strip.background = element_rect(fill = "white"),
+      panel.spacing = unit(0
+                           ,"lines"
+                           ),
       strip.text.x = element_text(size = 12, face = "bold"),
       strip.text.y = element_text(size = 12, face = "bold"),
-      axis.text.y = element_blank(),
+      axis.text.y = element_text(size = 12),
       plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
       plot.subtitle = element_text(size = 12, face = "bold"),
         #element_text(size = 12),
