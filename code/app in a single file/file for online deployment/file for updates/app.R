@@ -478,7 +478,7 @@ ui <- dashboardPage(skin = "black",
       ),
       tabItem(
         tabName = "all_sociodem",
-        #Sociodem_rel ----
+        #Sociodem_all ----
         fluidPage(title = "Compare footprints across all dimensions",
                   box(
                     width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
@@ -496,7 +496,7 @@ ui <- dashboardPage(skin = "black",
                                # selected = "absolute")
                       ),
                       column(3,
-                             selectInput("env_dimensions_9", "Select Environmental Dimensions:", choices = unique(df_sel$env_itm), selected = "average env. impact"),
+                             selectInput("env_dimensions_9", "Select Environmental Dimensions:", choices = unique(df_sel$env_itm), selected = "GHG (Mt CO2eq)"),
                              selectInput("age_9", "Select age:", choices = unique(df_sel$age), multiple = TRUE, selected = c(
                                "0-9",
                                "10-19",
@@ -883,6 +883,15 @@ server <- function(input, output) {
   })
   
   filtered_data_all_sociodem <- reactive({
+    # print(input$measure_9)
+    # print(input$env_dimensions_9)
+    # print(input$dmd_scn_9)
+    # print(input$region_9)
+    # print(input$age_9)
+    # print(input$urban_9)
+    # print(input$education_9)
+    # print(input$sex_9)
+    
     df_sel %>%
       filter(measure == input$measure_9,
              env_itm %in% input$env_dimensions_9,
@@ -892,7 +901,7 @@ server <- function(input, output) {
              dmd_scn == input$dmd_scn_9,
              region %in% input$region_9,
              age %in% input$age_9,
-             urban %in% input$urban_9,
+             urban %in% input$urbanisation_9,
              edu %in% input$education_9,
              sex %in% input$sex_9
       )
@@ -1440,12 +1449,18 @@ server <- function(input, output) {
     data <- filtered_data_all_sociodem()
     
     p_all_sociodem <- ggplot(data, 
-                             aes(x = region,
+                             aes(x = age,
                                  y = value,
                                  label = value)) +
-      geom_col()
-      #facet_wrap(urban ~ edu, ncol = 2) +
-      #lshtm_theme_few()
+      geom_col(
+        aes(
+          fill = sex
+          ),
+        position = "stack"
+        ) +
+      coord_flip() +
+      facet_grid(region ~ edu + urban) +
+      lshtm_theme_few()
   })
   
   output$plot_all_sociodem <- renderPlot({
