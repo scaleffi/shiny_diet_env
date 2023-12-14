@@ -206,8 +206,8 @@ ui <- dashboardPage(skin = "black",
                         menuSubItem("Sex and age", tabName = "sexage", icon = icon("person-half-dress")),
                         menuSubItem("Edu. and urb.", tabName = "eduurb", icon = icon("person-half-dress")),
                         menuSubItem("Absolute impacts, by sociodem", tabName = "multisociodem", icon = icon("person-half-dress")),
-                        menuSubItem("Relative impacts, by sociodem", tabName = "multisociodem_rel", icon = icon("person-half-dress")),
-                        menuSubItem("All sociodem", tabName = "all_sociodem", icon = icon("person-half-dress"))
+                        menuSubItem("Relative impacts, by sociodem", tabName = "multisociodem_rel", icon = icon("person-half-dress"))
+                        #menuSubItem("All sociodem", tabName = "all_sociodem", icon = icon("person-half-dress"))
                         ),
                menuItem("View by region", tabName = NULL, icon = icon("earth-africa"),
                         menuSubItem("About this data", tabName = "about_region", icon = icon("earth-africa")),

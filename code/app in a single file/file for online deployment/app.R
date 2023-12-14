@@ -9,7 +9,8 @@ library(scales)
 #library(periscope)
 
 #library(gghighlight)
-#library(ggthemes)
+library(ggthemes)
+library(ggsci)
 #library(patchwork)
 #library(thematic)
 #library(plotly)
@@ -27,6 +28,7 @@ rm(list = ls()) #clear the environment
 #csv_file_trs <- "report_env_trs_053123.csv"
 csv_file_trs <- "report_env_trs_110423.csv"
 csv_file_box <- "report_env_box_110423.csv" 
+csv_file_sel <- "report_env_sel_110423.csv"
 
 data_box <- read.csv(csv_file_box)
 data_box$value <- round(data_box$value, 2)
@@ -52,8 +54,8 @@ df <- df %>%
           measure = case_when(
     measure == "abs" ~ "absolute",
     measure == "cap" ~ "per capita",
-    measure == "pct_abs_WLD" ~ "ratio to world average (absolute)",
-    measure == "pct_abs_RGS" ~ "ratio to regional average (absolute)",
+    measure == "pct_abs_WLD" ~ "ratio to global avg (abs.)",
+    measure == "pct_abs_RGS" ~ "ratio to regional avg (abs.)",
     measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
     measure == "pct_cap_WLD" ~ "ratio to global avg. (cap.)",
     TRUE ~ measure
@@ -69,7 +71,7 @@ data_trs_category <- data_trs %>%
     age %in% c("FML", "MLE", "BTH") ~ "Sex",
     age %in% c("low", "medium", "high", "all-e") ~ "Edu. level",
     age %in% c("rural", "urban", "all-u") ~ "Urb. level",
-    age %in% c("0-9", "10-19", "20-39", "40-64", "65+", "all-a") ~ "Age group"
+    age %in% c("0-9", "10-19", "20-39", "40-64", "65+", "all-a") ~ "Age"
   ))
 
 df_trs_category <- data_trs_category
@@ -92,8 +94,8 @@ df_trs_category <- df_trs_category %>%
     measure = case_when(
       measure == "abs" ~ "absolute",
       measure == "cap" ~ "per capita",
-      measure == "pct_abs_WLD" ~ "ratio to world average (absolute)",
-      measure == "pct_abs_RGS" ~ "ratio to regional average (absolute)",
+      measure == "pct_abs_WLD" ~ "ratio to global avg (abs.)",
+      measure == "pct_abs_RGS" ~ "ratio to regional avg (abs.)",
       measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
       measure == "pct_cap_WLD" ~ "ratio to global avg. (cap.)",
       TRUE ~ measure
@@ -137,12 +139,43 @@ df_trs_macrof <- df_trs_macrof %>%
     measure = case_when(
       measure == "abs" ~ "absolute",
       measure == "cap" ~ "per capita",
-      measure == "pct_abs_WLD" ~ "ratio to world average (absolute)",
-      measure == "pct_abs_RGS" ~ "ratio to regional average (absolute)",
+      measure == "pct_abs_WLD" ~ "ratio to global avg (abs.)",
+      measure == "pct_abs_RGS" ~ "ratio to regional avg (abs.)",
       measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
       measure == "pct_cap_WLD" ~ "ratio to global avg. (cap.)",
       TRUE ~ measure# Keep the original value if it doesn't match any condition
   ))
+
+
+data_sel <- read.csv(csv_file_sel)
+data_sel$value <- round(data_sel$value, 2)
+df_sel <- data_sel
+
+df_sel <- df_sel %>%
+  mutate(env_itm = case_when(
+    env_itm == "GHG" ~ "GHG (Mt CO2eq)",
+    env_itm == "water" ~ "water use (km3)",
+    env_itm == "land" ~ "land use (thousands of km2)",
+    env_itm == "land_crop" ~ "land use, crops (thousands of km2)",
+    env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
+    env_itm == "eutr" ~ "eutrophication pot. (kt PO4eq)",
+    env_itm == "avg" ~ "average env. impact",
+    TRUE ~ env_itm),
+    dmd_scn = case_when(
+      dmd_scn == "actl" ~ "actual demand",
+      dmd_scn == "norm" ~ "demand normalised to 2,000 kcal/day",
+      TRUE ~ dmd_scn
+    ),
+    measure = case_when(
+      measure == "abs" ~ "absolute",
+      #measure == "cap" ~ "per capita",
+      measure == "pct_abs_WLD" ~ "ratio to global avg (abs.)",
+      measure == "pct_abs_RGS" ~ "ratio to regional avg (abs.)",
+      #measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
+      #measure == "pct_cap_WLD" ~ "ratio to global avg. (cap.)",
+      TRUE ~ measure# Keep the original value if it doesn't match any condition
+    ))
+
 
 
 # data_cons <- read.csv(csv_file_cons)
@@ -174,6 +207,7 @@ ui <- dashboardPage(skin = "black",
                         menuSubItem("Edu. and urb.", tabName = "eduurb", icon = icon("person-half-dress")),
                         menuSubItem("Absolute impacts, by sociodem", tabName = "multisociodem", icon = icon("person-half-dress")),
                         menuSubItem("Relative impacts, by sociodem", tabName = "multisociodem_rel", icon = icon("person-half-dress"))
+                        #menuSubItem("All sociodem", tabName = "all_sociodem", icon = icon("person-half-dress"))
                         ),
                menuItem("View by region", tabName = NULL, icon = icon("earth-africa"),
                         menuSubItem("About this data", tabName = "about_region", icon = icon("earth-africa")),
@@ -302,10 +336,14 @@ ui <- dashboardPage(skin = "black",
                fluidRow(
                  column(3,
                         selectInput("dmd_scn_7", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
-                        selectInput("measure_7", "Select Measure:", choices = c("absolute","per capita"), selected = "per capita")
+                        selectInput("measure_7", "Select Measure:", 
+                                    choices = c("absolute","per capita"),
+                                    selected = "per capita")
                         ),
                  column(3,
-                        selectInput("env_dimensions_7", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), "average env. impact"), selected = "GHG (Mt CO2eq)"),
+                        selectInput("env_dimensions_7", "Select Environmental Dimensions:", 
+                                    choices = setdiff(unique(df_trs_category$env_itm), "average env. impact"),
+                                    selected = "GHG (Mt CO2eq)"),
                         selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
                           "beef_lamb",
                           "dairy",
@@ -368,38 +406,56 @@ ui <- dashboardPage(skin = "black",
                     fluidRow(
                       column(3,
                              selectInput("dmd_scn_8", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
-                             selectInput("measure_8", "Select Measure:", choices = c("ratio to world average (absolute)", "ratio to regional average (absolute)"), selected = "ratio to regional average (absolute)")
+                             selectInput("measure_8", "Select Measure:", choices = c(
+                               "ratio to global avg (abs.)", 
+                               "ratio to regional avg (abs.)",
+                               "ratio to regional avg. (cap.)",
+                               "ratio to global avg. (cap.)"),
+                               selected = "ratio to regional avg (abs.)")
                       ),
                       column(3,
                              selectInput("env_dimensions_8", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), selected = "average env. impact"),
-                             selectInput("category_8", "Select sociodem category:", choices = unique(df_trs_category$category), multiple = TRUE, selected = c(
-                               "Age group",
-                               "Sex",
-                               "Edu. level",
-                               "Urb. level"
-                             ))
-                             #selectInput("food_group_8", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
-                              # "total"
-                               # "beef_lamb",
-                               # "dairy",
-                               # "pork",
-                               # "othr_meat",
-                               # "fish",
-                               # "othr_ani",
-                               # "rice",
-                               # "grains",
-                               # "fruit_veg",
-                               # "oils",
-                               # "sugar",
-                               # "roots",
-                               # "legumes",
-                               # "nuts_seeds",
-                               # "other"
-                              # ))
+                             selectInput("age_8", "Select sociodemographic:", choices = unique(df_trs_category$age), multiple = TRUE, selected = c(
+                               "low",
+                               "medium",
+                               "high",
+                               "urban",
+                               "rural",
+                               "FML",
+                               "MLE",
+                               "0-9",
+                               "10-19",
+                               "20-39",
+                               "40-64",
+                               "65+"))
+                             # selectInput("category_8", "Select sociodem category:", choices = unique(df_trs_category$category), multiple = TRUE, selected = c(
+                             #   "Age",
+                             #   "Sex",
+                             #   "Edu. level",
+                             #   "Urb. level"
+                             # ))
+                             
                       ),
                       column(3,
-                             selectInput("region_8", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC")
-                      )),
+                             selectInput("region_8", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC")),
+                             selectInput("food_group_8", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
+                                         "beef_lamb",
+                                         "dairy",
+                                         "pork",
+                                         "othr_meat",
+                                         "fish",
+                                         "othr_ani",
+                                         "rice",
+                                         "grains",
+                                         "fruit_veg",
+                                         "oils",
+                                         "sugar",
+                                         "roots",
+                                         "legumes",
+                                         "nuts_seeds",
+                                         "other"
+                                         ))
+                      ),
                       column(3,
                              downloadButton("download_csv_sociodem_rel", "Download table"),
                              br(),
@@ -415,6 +471,70 @@ ui <- dashboardPage(skin = "black",
                                                   #, height = 400
                       )),
                       tabPanel("Table",tableOutput("sociodem_rel_table"))
+                      
+                    )
+                  )
+        )
+      ),
+      tabItem(
+        tabName = "all_sociodem",
+        #Sociodem_all ----
+        fluidPage(title = "Compare footprints across all dimensions",
+                  box(
+                    width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
+                    fluidRow(
+                      column(3,
+                             selectInput("dmd_scn_9", "Select Demand Perspective:", choices = unique(df_sel$dmd_scn), selected = "actual demand"),
+                             selectInput("measure_9", "Select Measure:", choices = unique(df_sel$measure), selected = "absolute")
+                               #             c(
+                               # "ratio to global avg (abs.)", 
+                               # "ratio to regional avg (abs.)",
+                               # "ratio to regional avg. (cap.)",
+                               # "ratio to global avg. (cap.)",
+                               # "absolute",
+                               # "per capita"),
+                               # selected = "absolute")
+                      ),
+                      column(3,
+                             selectInput("env_dimensions_9", "Select Environmental Dimensions:", choices = unique(df_sel$env_itm), selected = "GHG (Mt CO2eq)"),
+                             selectInput("age_9", "Select age:", choices = unique(df_sel$age), multiple = TRUE, selected = c(
+                               "0-9",
+                               "10-19",
+                               "20-39",
+                               "40-64",
+                               "65+")),
+                             selectInput("sex_9", "Select sex:", choices = unique(df_sel$sex), multiple = TRUE, selected = c(
+                               "MLE",
+                               "FML"
+                               )),
+                             ),
+                      column(3,
+                             selectInput("region_9", "Select region:", choices = unique(df_sel$region), multiple = TRUE, selected = c("WLD")),
+                             selectInput("urbanisation_9", "Select urbanicity:", choices = unique(df_sel$urban), multiple = TRUE, selected = c(
+                               "urban",
+                               "rural"
+                             )),
+                             selectInput("education_9", "Select education:", choices = unique(df_sel$edu), multiple = TRUE, selected = c(
+                               "low",
+                               "medium",
+                               "high"
+                             ))
+                      ),
+                      column(3,
+                             downloadButton("download_csv_all_sociodem", "Download table"),
+                             br(),
+                             br(),
+                             downloadButton("download_plot_all_sociodem", "Download plot")
+                      )
+                    )
+                  ),  
+                  box(
+                    width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
+                    tabsetPanel(
+                      tabPanel("Plot", plotOutput("plot_all_sociodem"
+                                                  #, height = 400
+                      )),
+                      tabPanel("Table",tableOutput("all_sociodem_table"))
                       
                     )
                   )
@@ -753,24 +873,38 @@ server <- function(input, output) {
     df_trs_category %>%
       filter(measure == input$measure_8,
              env_itm %in% input$env_dimensions_8,
-             food_group == "total",
-             category %in% input$category_8,
+             food_group %in% input$food_group_8,
+             #food_group == "total",
+             #category %in% input$category_8,
              dmd_scn == input$dmd_scn_8,
              region %in% input$region_8,
-             age %in% c(
-               "MLE",
-               "FML",
-               "0-9",
-               "10-19",
-               "20-39",
-               "40-64",
-               "65+",
-               "low",
-               "medium",
-               "high",
-               "urban",
-               "rural"
-             ))
+             age %in% input$age_8
+             )
+  })
+  
+  filtered_data_all_sociodem <- reactive({
+    # print(input$measure_9)
+    # print(input$env_dimensions_9)
+    # print(input$dmd_scn_9)
+    # print(input$region_9)
+    # print(input$age_9)
+    # print(input$urban_9)
+    # print(input$education_9)
+    # print(input$sex_9)
+    
+    df_sel %>%
+      filter(measure == input$measure_9,
+             env_itm %in% input$env_dimensions_9,
+             #food_group == "total",
+             #food_group == "total",
+             #category %in% input$category_8,
+             dmd_scn == input$dmd_scn_9,
+             region %in% input$region_9,
+             age %in% input$age_9,
+             urban %in% input$urbanisation_9,
+             edu %in% input$education_9,
+             sex %in% input$sex_9
+      )
   })
   
   ##Create filters for tabs in the second menu item, 'compare by region'----
@@ -828,6 +962,41 @@ server <- function(input, output) {
   
   #Prepare graphic objects and labels that will be used to create the plots below ----
   
+  #Create custom theme as a function, which can be applied to each plot without having to manually edit each of them to
+  #obtain the required look
+  
+  lshtm_theme_few <- function(){
+    theme_few() +
+    #%+replace%
+      theme(
+        axis.title.x = element_text(
+          vjust = -1,
+          size = 12,
+          face = "bold"),
+        axis.title.y = element_text(size = 12,
+                                    face = "bold",
+                                    #angle = 90
+                                    vjust = 1.5
+                                    ),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        panel.spacing = unit(0,"lines"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 12,
+                                   angle = 45,
+                                   #vjust = 0.5,
+                                   hjust = 1
+        ),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold"),
+        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
+        plot.subtitle = element_text(size = 12, face = "bold"),
+        panel.grid.major.x = element_line(colour = "gray", linetype = "dotted"),
+        panel.grid.major.y = element_line(colour = "gray", linetype = "dotted"),
+        strip.placement = "outside"
+      )
+  }
   
   # #Control shading by setting alpha values through a new vector named alpha_vals; changing the range of shading helps with displaying some images that have several colors.
   # alpha_max <- 1
@@ -995,7 +1164,7 @@ server <- function(input, output) {
       )
     ) +
       geom_point(size = 3) +
-      coord_flip() +
+      #coord_flip() +
       scale_color_manual(values = colors_sex,
                         breaks = c("MLE",
                                    "FML",
@@ -1004,13 +1173,13 @@ server <- function(input, output) {
                                    "Female",
                                    "Both"),
                         name = "Sex:") +
+      scale_y_continuous(breaks = c(0, 50, 75, 100, 125, 150, 200)) +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 5,
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
                   ) +
       geom_hline(yintercept = 100, alpha = 0.3) +
-      theme_linedraw() +
       labs(
         title = paste("Diet-related",
                       selected_env_itm_s,
@@ -1024,39 +1193,15 @@ server <- function(input, output) {
                          ".",
                          #".\nIn the plot, average is set equal to 100.", 
                          sep = "") ,
-        caption = "LSHTM - Centre for Climate Change and Planetary Health",
-        x = "Age group",
+        #caption = "LSHTM - Centre for Climate Change and Planetary Health",
+        x = "Age",
         y = paste(selected_env_itm_s,
-                  " as ",
-                  selected_measure,
-                  ", with average set to 100",
-                  sep = "")
-        #   paste(
-        # "Diet-related",
-        # selected_env_itm_s,
-        # "in 2020,",
-        # "expressed as\n",
-        # selected_measure,
-        # #"(100 = world or regional average)",
-        # sep = " ")
+            " as\n",
+            selected_measure,
+            ", with average set to 100",
+            sep = "")
        ) +
-      theme(
-        axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
-        axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
-        strip.text.x = element_text(size = 12, face = "bold"),
-        strip.text.y = element_text(size = 12, face = "bold"),
-        axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(size = 12,
-                                   angle = 35,
-                                   #vjust = 0.5,
-                                   hjust = 1
-                                   ),
-        legend.position = "top",
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 12, face = "bold"),
-        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        plot.subtitle = element_text(size = 12, face = "bold")
-      )
+      lshtm_theme_few()
   })
   
   output$plot_sexage <- renderPlot({
@@ -1079,7 +1224,6 @@ server <- function(input, output) {
              color = sex.urbanisation,
            )) +
       geom_point(size = 3) +
-      coord_flip() +
       scale_color_manual(values = colors_urban,
                          breaks = c("urban",
                                     "rural",
@@ -1090,6 +1234,7 @@ server <- function(input, output) {
                                     "all-u"
                                     ),
                          name = "Urbanisation:") +
+      scale_y_continuous(breaks = c(0, 50, 75, 100, 125, 150, 175, 200)) +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 5, 
@@ -1109,7 +1254,7 @@ server <- function(input, output) {
                          ".",
                          #".\nIn the plot, average is set equal to 100.", 
                          sep = "") ,
-        caption = "LSHTM - Centre for Climate Change and Planetary Health",
+        #caption = "LSHTM - Centre for Climate Change and Planetary Health",
         x = "Education level",
         y = paste(selected_env_itm_u,
                       " as ",
@@ -1117,27 +1262,7 @@ server <- function(input, output) {
                       ", with average set to 100",
                       sep = "")
              ) +
-      theme_linedraw() +
-      theme(
-        axis.title.x = element_text(vjust = -1, size = 12, face = "bold"),
-        axis.title.y = element_text(size = 12, face = "bold", vjust = 1.5),
-        axis.text.x = element_text(size = 12,
-                                   angle = 35,
-                                   vjust = 0.5,
-                                   hjust = 0.5),
-        axis.text.y = element_text(size = 12),
-        strip.text.x = element_text(size = 12, face = "bold"),
-        strip.text.y = element_text(size = 12, face = "bold"),
-        legend.position = "top",
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 12, face = "bold"),
-        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        plot.subtitle = element_text(size = 12, face = "bold")
-        )
-      
-    return(p_eduurb)
-    #theme(axis.title.x = element_text(vjust = -1),axis.text.x = element_text(size=12), axis.title.y = element_text(size = 12, face = "bold"), strip.text.x = element_text(size = 12), axis.text.y = element_text(size = 12), legend.position = "right", legend.text = element_text(size = 12), legend.title = element_text(size = 12, face = "bold"))
-    #theme(plot.title=element_text(hjust = 0.5, size = 20), axis.title.x = element_text(face = "bold"), strip.text = element_text(size=12), legend.position = "top", legend.text = element_text(size = 15), axis.text.x = element_text(face = "bold"))
+      lshtm_theme_few()
   })
   
   output$plot_eduurb <- renderPlot({
@@ -1202,8 +1327,6 @@ server <- function(input, output) {
           "total"
         )
       )), color = "white") +
-      #facet_wrap(~ factor(region, levels=c("LIC","LMC","UMC","HIC","ECS","MEA","EAS","SAS","NAC","LCN","SSF","WLD")),ncol = 4) +
-      
       #coord_flip() is an easy way to swtich the x and y axis. Depending on what we want the user to focus on, each vis has its advantages. To see
       #the graph with the impacts on the y axis and the sociodem/age variables on the x axis, comment the coord_flip() call, AND switch the arguments in facet_grid to scales = "free_x", space = "free", switch = "x".
       coord_flip() +
@@ -1211,9 +1334,6 @@ server <- function(input, output) {
                  labeller = labeller(region_custom = label_wrap_gen(width = 15),
                                      category = label_wrap_gen(width = 5))
                  ) +
-      theme_linedraw() +
-      #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
       scale_fill_manual(values = colors_food) +
       labs(title = paste(selected_measure,
                          " diet-related ",
@@ -1225,30 +1345,14 @@ server <- function(input, output) {
                          ")\n",
                          sep = "") ,
            subtitle ="Note: value ranges along the x-axis differ across plots" ,
-        caption = "LSHTM - Centre for Climate Change and Planetary Health",
+        #caption = "LSHTM - Centre for Climate Change and Planetary Health",
         x = NULL,
         y = paste(selected_env_itm,
                   "in 2020",
                   sep = " "),
-        fill = "Food group:"
+        fill = NULL
       ) +
-      #scale_y_continuous(guide = guide_axis(n.dodge=2)) +
-      theme(axis.text.x = element_text(size=12,
-                                       angle = 35,
-                                       #vjust = 0.5,
-                                       hjust = 1
-                                       ), 
-            axis.title.y = element_text(size = 12, face = "bold"),
-            axis.title.x = element_text(size = 12, face = "bold"),
-            strip.text.x = element_text(size = 12, face = "bold"),
-            strip.text.y = element_text(size = 12, face = "bold"),
-            axis.text.y = element_text(size = 12),
-            plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-            plot.subtitle = element_text(size = 12, face = "bold"),
-            legend.position = "right",
-            legend.text = element_text(size = 12),
-            legend.title = element_text(size = 12, face = "bold"))
-    return(p_sociodem)
+      lshtm_theme_few()
   })
   
   output$plot_sociodem <- renderPlot({
@@ -1266,48 +1370,62 @@ server <- function(input, output) {
     selected_measure <- input$measure_8
     
     p_sociodem_rel <- ggplot(data, 
-                         aes(
-                           x = category,
-                           y = value,
-                           # label = value
-                         )) +
-      #fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")))) +
-      geom_bar(aes(fill = factor(
-        age,
+                           aes(
+                             x = factor(
+                               age,
+                               level = c(
+                                 "MLE",
+                                 "FML",
+                                 "BTH",
+                                 "0-9",
+                                 "10-19",
+                                 "20-39",
+                                 "40-64",
+                                 "65+",
+                                 "all-a",
+                                 "low",
+                                 "medium",
+                                 "high",
+                                 "all-e",
+                                 "urban",
+                                 "rural",
+                                 "all-u"
+                               )
+                             ),
+                             y = value,
+                             label = value
+                           )) +
+      geom_col(aes(fill = factor(
+        food_group,
         level = c(
-          "65+",
-          "40-64",
-          "20-39",
-          "10-19",
-          "0-9",
-          "high",
-          "medium",
-          "low",
-          "FML",
-          "MLE",
-          "urban",
-          "rural"
+          "beef_lamb",
+          "dairy",
+          "pork",
+          "othr_meat",
+          "fish",
+          "othr_ani",
+          "rice",
+          "grains",
+          "fruit_veg",
+          "oils",
+          "sugar",
+          "roots",
+          "legumes",
+          "nuts_seeds",
+          "other",
+          "total"
         )
-      )), stat = "identity", color = "white") +
+      )), color = "white") +
       coord_flip() +
-      facet_grid(category ~ region_custom, scales = "free", space = "free_y", switch = "y", shrink = FALSE,
+      facet_grid(category ~ region_custom, 
+                 scales = "free_y", 
+                 space = "free_y", switch = "y", shrink = FALSE,
                  labeller = labeller(region_custom = label_wrap_gen(width = 15),
                                      category = label_wrap_gen(width = 5))
       ) +
-      
-      #coord_flip() is an easy way to swtich the x and y axis. Depending on what we want the user to focus on, each vis has its advantages. To see
-      #the graph with the impacts on the y axis and the sociodem/age variables on the x axis, comment the coord_flip() call, AND switch the arguments in facet_grid to scales = "free_x", space = "free", switch = "x".
-    #   coord_flip() +
-    #   facet_grid(category ~ region_custom, scales = "free", space = "free_y", switch = "y", shrink = FALSE,
-    #              labeller = labeller(region_custom = label_wrap_gen(width = 15),
-    #                                  category = label_wrap_gen(width = 5))
-    #   ) +
-      theme_linedraw() +
-      #geom_text_repel(aes(label = value), show.legend = FALSE) 
-    #   #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
-      scale_fill_manual(values = colors_sociodem) +
+      scale_fill_manual(values = colors_food) +
        labs(
-         title = paste("Relative diet-related ",
+         title = paste("diet-related ",
                                selected_env_itm,
                                " in 2020,\n",
                                " by sociodemographic",
@@ -1315,34 +1433,38 @@ server <- function(input, output) {
                                selected_dmd_scn,
                                ")\n",
                                sep = "") ,
-         caption = "LSHTM - Centre for Climate Change and Planetary Health",
+         #caption = "LSHTM - Centre for Climate Change and Planetary Health",
          x = NULL,
          y = paste("% contribution to diet-related ",selected_env_itm, "\nas ", selected_measure, sep = ""),
-         fill = "Sociodemographic:"
+         fill = NULL
        ) +
-    
-    #   #scale_y_continuous(guide = guide_axis(n.dodge=2)) +
-      theme(axis.text.x = element_text(size=12,
-                                       angle = 35,
-                                       #vjust = 0.5,
-                                       hjust = 1
-      ),
-      axis.title.y = element_text(size = 12, face = "bold"),
-      axis.title.x = element_text(size = 12, face = "bold"),
-      strip.text.x = element_text(size = 12, face = "bold"),
-      strip.text.y = element_text(size = 12, face = "bold"),
-      axis.text.y = element_blank(),
-      plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-      plot.subtitle = element_text(size = 12, face = "bold"),
-        #element_text(size = 12),
-      legend.position = "right",
-      legend.text = element_text(size = 12),
-      legend.title = element_text(size = 12, face = "bold"))
-    return(p_sociodem_rel)
+      lshtm_theme_few()
   })
   
   output$plot_sociodem_rel <- renderPlot({
     print(reactive_plot_sociodem_rel())
+  })
+  
+  reactive_plot_all_sociodem <- reactive({
+    data <- filtered_data_all_sociodem()
+    
+    p_all_sociodem <- ggplot(data, 
+                             aes(x = age,
+                                 y = value,
+                                 label = value)) +
+      geom_col(
+        aes(
+          fill = sex
+          ),
+        position = "stack"
+        ) +
+      coord_flip() +
+      facet_grid(region ~ edu + urban) +
+      lshtm_theme_few()
+  })
+  
+  output$plot_all_sociodem <- renderPlot({
+    print(reactive_plot_all_sociodem())
   })
   
   ##Draw plots for tabs in the second item (region) ----
@@ -1398,32 +1520,14 @@ server <- function(input, output) {
         labeller = labeller(env_itm = label_wrap_gen(width = 15)),
         strip.position = "top"
       ) +
-      labs(caption = "LSHTM - Centre for Climate Change and Planetary Health",
+      labs(#caption = "LSHTM - Centre for Climate Change and Planetary Health",
            title = paste("Diet-related environmental impact from\n",
                          selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
            x = "Income Region" , 
            #y = "Diet-related environmental impact in 2020",
            y = NULL,
-           fill = "Food group:") +
-      theme_linedraw() +
-      theme(
-        axis.title.y = element_text(size = 12, face = "bold", vjust = 1),
-        axis.title.x = element_text(size = 12, face = "bold", vjust = -0.5),
-        strip.text.x = element_text(size = 12, face = "bold"),
-        #strip.background = element_blank(),
-        strip.placement = "outside",
-        strip.text.y = element_text(size = 12, face = "bold"),
-        axis.text.x = element_text(
-          size = 12,
-          angle = 35,
-          hjust = 1
-        ),
-        axis.text.y = element_text(size = 12),
-        legend.position = "right",
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 12, face = "bold"),
-        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1)
-      )
+           fill = NULL) +
+      lshtm_theme_few()
   })
   
   output$plot_region <- renderPlot({
@@ -1500,29 +1604,12 @@ server <- function(input, output) {
       #geom_text_repel(aes(label = value), show.legend = FALSE) +
       labs(title = paste("Diet-related environmental impact from\n",
                                  selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
-           caption = "LSHTM - Centre for Climate Change and Planetary Health",
+           #caption = "LSHTM - Centre for Climate Change and Planetary Health",
            x = "Geographical Region",
            #y = "Impact",
            y = NULL,
-           fill = "Food group:") +
-      theme_linedraw() +
-      theme(
-        strip.placement = "outside",
-        axis.title.y = element_text(size = 12, face = "bold", vjust = 1),
-        axis.title.x = element_text(size = 12, face = "bold", vjust = -0.5),
-        strip.text.x = element_text(size = 12, face = "bold"),
-        strip.text.y = element_text(size = 12, face = "bold"),
-        axis.text.x = element_text(
-          size = 12,
-          angle = 45,
-          hjust = 1
-        ),
-        axis.text.y = element_text(size = 12),
-        legend.position = "right",
-        legend.text = element_text(size = 12),
-        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        legend.title = element_text(size = 12, face = "bold")
-      )
+           fill = NULL) +
+      lshtm_theme_few()
   })
   
   output$plot_regiongeo <- renderPlot({
@@ -1576,34 +1663,16 @@ server <- function(input, output) {
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
                   ) +
       scale_fill_manual(values = colors_macro, breaks = c("ASF", "Staples", "Other")) +
-      #geom_text_repel(aes(label = value), show.legend = FALSE) +
       labs(title = paste("Diet-related ",
                          selected_env_itm,
                          " from\n",
                          selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
            subtitle = "Note: value ranges along the x-axis differ across plots",
-           caption = "LSHTM - Centre for Climate Change and Planetary Health",
+           #caption = "LSHTM - Centre for Climate Change and Planetary Health",
            x = "Food Group",
            y = paste(selected_env_itm),
-           fill = "Category:") +
-      theme_linedraw() +
-      theme(
-        axis.title.y = element_text(size = 12, face = "bold"),
-        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
-        strip.text.x = element_text(size = 12, face = "bold"),
-        strip.text.y = element_text(size = 12, face = "bold"),
-        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        plot.subtitle = element_text(size = 12, face = "bold"),
-        axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(
-          size=12,
-          angle = 45,
-          hjust = 1
-          ),
-        legend.position = "top",
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 12, face = "bold")
-      )
+           fill = NULL) +
+      lshtm_theme_few()
     
   })
   
@@ -1649,7 +1718,6 @@ server <- function(input, output) {
       )
     )) +
       geom_col(color = "white", width = 0.6) +
-      #coord_flip() +
       #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
       facet_wrap( ~ region_custom , ncol = 5, scales = "free_x",
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
@@ -1661,27 +1729,11 @@ server <- function(input, output) {
                          " from\n",
                          selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
            #subtitle = "Note: value ranges along the x-axis differ across plots",
-           caption = "LSHTM - Centre for Climate Change and Planetary Health",
+           #caption = "LSHTM - Centre for Climate Change and Planetary Health",
            x = "Food Category",
            y = paste(selected_env_itm),
-           fill = "Food group:") +
-      theme_linedraw() +
-      theme(
-        axis.title.y = element_text(size = 12, face = "bold"),
-        axis.title.x = element_text(size = 12, face = "bold", vjust = 0.5),
-        strip.text.x = element_text(size = 12, face = "bold"),
-        strip.text.y = element_text(size = 12, face = "bold"),
-        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        plot.subtitle = element_text(size = 12, face = "bold"),
-        axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(size=12,
-                                   angle = 35,
-                                   hjust = 1
-                                   ),
-        legend.position = "right",
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 12, face = "bold")
-      )
+           fill = NULL) +
+      lshtm_theme_few()
   })
   
   output$plot_categorymacro <- renderPlot({
