@@ -25,10 +25,15 @@ library(ggsci)
 rm(list = ls()) #clear the environment
 
 #Load files from Github repository ----
-#csv_file_trs <- "report_env_trs_053123.csv"
-csv_file_trs <- "report_env_trs_110423.csv"
-csv_file_box <- "report_env_box_110423.csv" 
-csv_file_sel <- "report_env_sel_110423.csv"
+# csv_file_trs <- "report_env_trs_110423.csv"
+# csv_file_box <- "report_env_box_110423.csv" 
+# csv_file_sel <- "report_env_sel_110423.csv"
+
+#Load files from Github repository ----
+csv_file_trs <- "report_env_trs_122623.csv"
+csv_file_box <- "report_env_box_122623.csv" 
+csv_file_sel <- "report_env_sel_122623.csv"
+
 
 data_box <- read.csv(csv_file_box)
 data_box$value <- round(data_box$value, 2)
@@ -44,6 +49,7 @@ df <- df %>%
     env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "eutrophication pot. (kt PO4eq)",
     env_itm == "avg" ~ "average env. impact",
+    env_itm == "avg_pb" ~ "average env. impact (pb weighted)",
     TRUE ~ env_itm  # Keep the original value if it doesn't match any condition
   ),
           dmd_scn = case_when(
@@ -85,6 +91,7 @@ df_trs_category <- df_trs_category %>%
     env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "eutrophication pot. (kt PO4eq)",
     env_itm == "avg" ~ "average env. impact",
+    env_itm == "avg_pb" ~ "average env. impact (pb weighted)",
     TRUE ~ env_itm),
     dmd_scn = case_when(
       dmd_scn == "actl" ~ "actual demand",
@@ -105,7 +112,7 @@ df_trs_category <- df_trs_category %>%
 # namely ASF, Staples, Other, Total. This dataset includes a column for the category, and a column for the macrofoods.
 data_trs_macrofoods <- data_trs_category %>%
   mutate(macrofoods = case_when(
-    food_group %in% c("beef_lamb", "dairy", "othr_ani", "othr_meat", "pork", "fish") ~ "ASF",
+    food_group %in% c("beef","lamb", "dairy", "othr_ani", "othr_meat", "pork", "fish") ~ "ASF",
     food_group %in% c("rice", "grains", "roots") ~ "Staples",
     food_group %in% c("fruit_veg", "oils", "sugar", "legumes", "nuts_seeds", "other") ~ "Other",
     food_group %in% c("total") ~ "Total"
@@ -115,7 +122,7 @@ data_trs_macrofoods <- data_trs_category %>%
 #interested in grouping sociodem categories
 df_trs_macrof <- df_trs %>%
   mutate(macrofoods = case_when(
-    food_group %in% c("beef_lamb", "dairy", "othr_ani", "othr_meat", "pork", "fish") ~ "ASF",
+    food_group %in% c("beef", "lamb", "dairy", "othr_ani", "othr_meat", "pork", "fish") ~ "ASF",
     food_group %in% c("rice", "grains", "roots") ~ "Staples",
     food_group %in% c("fruit_veg", "oils", "sugar", "legumes", "nuts_seeds", "other") ~ "Other",
     food_group %in% c("total") ~ "Total"
@@ -130,6 +137,7 @@ df_trs_macrof <- df_trs_macrof %>%
     env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "eutrophication pot. (kt PO4eq)",
     env_itm == "avg" ~ "average env. impact",
+    env_itm == "avg_pb" ~ "average env. impact (pb weighted)",
     TRUE ~ env_itm),
     dmd_scn = case_when(
       dmd_scn == "actl" ~ "actual demand",
@@ -160,6 +168,7 @@ df_sel <- df_sel %>%
     env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "eutrophication pot. (kt PO4eq)",
     env_itm == "avg" ~ "average env. impact",
+    env_itm == "avg_pb" ~ "average env. impact (pb weighted)",
     TRUE ~ env_itm),
     dmd_scn = case_when(
       dmd_scn == "actl" ~ "actual demand",
@@ -342,10 +351,11 @@ ui <- dashboardPage(skin = "black",
                         ),
                  column(3,
                         selectInput("env_dimensions_7", "Select Environmental Dimensions:", 
-                                    choices = setdiff(unique(df_trs_category$env_itm), "average env. impact"),
+                                    choices = setdiff(unique(df_trs_category$env_itm), c("average env. impact", "average env. impact (pb weighted)")),
                                     selected = "GHG (Mt CO2eq)"),
                         selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
-                          "beef_lamb",
+                          "beef",
+                          "lamb",
                           "dairy",
                           "pork",
                           "othr_meat",
@@ -439,7 +449,8 @@ ui <- dashboardPage(skin = "black",
                       column(3,
                              selectInput("region_8", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC")),
                              selectInput("food_group_8", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
-                                         "beef_lamb",
+                                         "beef",
+                                         "lamb",
                                          "dairy",
                                          "pork",
                                          "othr_meat",
@@ -496,7 +507,7 @@ ui <- dashboardPage(skin = "black",
                                # selected = "absolute")
                       ),
                       column(3,
-                             selectInput("env_dimensions_9", "Select Environmental Dimensions:", choices = unique(df_sel$env_itm), selected = "GHG (Mt CO2eq)"),
+                             selectInput("env_dimensions_9", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), c("average env. impact", "average env. impact (pb weighted)")), selected = "GHG (Mt CO2eq)"),
                              selectInput("age_9", "Select age:", choices = unique(df_sel$age), multiple = TRUE, selected = c(
                                "0-9",
                                "10-19",
@@ -561,10 +572,16 @@ ui <- dashboardPage(skin = "black",
                fluidRow(
                  column(4,
                         selectInput("dmd_scn_1", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
-                        selectInput("measure_1", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
+                        selectInput("measure_1", "Select Measure:", choices = c(
+                          "absolute", 
+                          "per capita",
+                          "ratio to global avg (abs.)", 
+                          "ratio to regional avg (abs.)",
+                          "ratio to regional avg. (cap.)",
+                          "ratio to global avg. (cap.)"), selected = "per capita")
                         ),
                  column(4,
-                        selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "average env. impact"),multiple = TRUE, selected = c(
+                        selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average env. impact", "average env. impact (pb weighted)")),multiple = TRUE, selected = c(
                           "GHG (Mt CO2eq)",
                           "land use (thousands of km2)",
                           "water use (km3)",
@@ -574,7 +591,8 @@ ui <- dashboardPage(skin = "black",
                         ),
                  column(4,
                         selectInput("food_group_1", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c(
-                          "beef_lamb",
+                          "beef",
+                          "lamb",
                           "dairy",
                           "pork",
                           "othr_meat",
@@ -618,7 +636,7 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_5", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
                         ),
                  column(4,
-                        selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "average env. impact"),multiple = TRUE, selected = c(
+                        selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average env. impact", "average env. impact (pb weighted)")),multiple = TRUE, selected = c(
                           "GHG (Mt CO2eq)",
                           "land use (thousands of km2)",
                           "water use (km3)",
@@ -637,7 +655,8 @@ ui <- dashboardPage(skin = "black",
                         ),
                  column(4,
                         selectInput("food_group_5", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c(
-                          "beef_lamb",
+                          "beef",
+                          "lamb",
                           "dairy",
                           "pork",
                           "othr_meat",
@@ -693,12 +712,13 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_4", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
                         ),
                  column(4,
-                        selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), "average env. impact"), selected = "GHG (Mt CO2eq)"),
+                        selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average env. impact", "average env. impact (pb weighted)")), selected = "GHG (Mt CO2eq)"),
                         selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
                  column(4,
                         selectInput("food_group_4", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c(
-                          "beef_lamb",
+                          "beef",
+                          "lamb",
                           "dairy",
                           "pork",
                           "othr_meat",
@@ -742,12 +762,13 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_6", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
                         ),
                  column(4,
-                        selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average env. impact", "land use, pasture (thousands of km2)", "land use, crops (thousands of km2)")), selected = "GHG (Mt CO2eq)"),
+                        selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average env. impact","average env. impact (pb weighted)", "land use, pasture (thousands of km2)", "land use, crops (thousands of km2)")), selected = "GHG (Mt CO2eq)"),
                         selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
                  column(4,
                         selectInput("food_group_6", "Select Food Group:", choices = setdiff(unique(df$food_group), "total"), multiple = TRUE, selected = c(
-                          "beef_lamb",
+                          "beef",
+                          "lamb",
                           "dairy",
                           "pork",
                           "othr_meat",
@@ -1051,7 +1072,8 @@ server <- function(input, output) {
      "roots" = "#eb984e",
      "sugar" = "#fad7a0",
      "legumes" = "#6e2c00",
-     "beef_lamb" = "#cb4335",
+     "beef" = "#cb4335",
+     "lamb" = "#ec7063",
      "othr_meat" = "#d98880",
      "pork" = "#f5a5b5",
      "othr_ani" = "#fae5d3",
@@ -1309,7 +1331,8 @@ server <- function(input, output) {
       geom_col(aes(fill = factor(
         food_group,
         level = c(
-          "beef_lamb",
+          "beef",
+          "lamb",
           "dairy",
           "pork",
           "othr_meat",
@@ -1398,7 +1421,8 @@ server <- function(input, output) {
       geom_col(aes(fill = factor(
         food_group,
         level = c(
-          "beef_lamb",
+          "beef",
+          "lamb",
           "dairy",
           "pork",
           "othr_meat",
@@ -1482,7 +1506,8 @@ server <- function(input, output) {
       fill = factor(
         food_group,
         level = c(
-          "beef_lamb",
+          "beef",
+          "lamb",
           "dairy",
           "pork",
           "othr_meat",
@@ -1559,7 +1584,8 @@ server <- function(input, output) {
       fill = factor(
         food_group,
         level = c(
-          "beef_lamb",
+          "beef",
+          "lamb",
           "dairy",
           "pork",
           "othr_meat",
@@ -1633,7 +1659,8 @@ server <- function(input, output) {
       x = factor(
         food_group,
         level = c(
-          "beef_lamb",
+          "beef",
+          "lamb",
           "dairy",
           "pork",
           "othr_meat",
@@ -1698,7 +1725,8 @@ server <- function(input, output) {
       fill = factor(
         food_group,
         level = c(
-          "beef_lamb",
+          "beef",
+          "lamb",
           "dairy",
           "pork",
           "othr_meat",
