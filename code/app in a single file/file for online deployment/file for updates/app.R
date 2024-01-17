@@ -25,11 +25,6 @@ library(ggsci)
 rm(list = ls()) #clear the environment
 
 #Load files from Github repository ----
-# csv_file_trs <- "report_env_trs_110423.csv"
-# csv_file_box <- "report_env_box_110423.csv" 
-# csv_file_sel <- "report_env_sel_110423.csv"
-
-#Load files from Github repository ----
 csv_file_trs <- "report_env_trs_122623.csv"
 csv_file_box <- "report_env_box_122623.csv" 
 csv_file_sel <- "report_env_sel_122623.csv"
@@ -228,6 +223,8 @@ ui <- dashboardPage(skin = "black",
                         menuSubItem("Food groups", tabName = "foodgroups", icon = icon("wheat-awn")),
                         menuSubItem("Food macrocategories", tabName = "foodmacro", icon = icon("wheat-awn"))
                         ),
+               menuItem("Plots for paper", tabName = NULL,
+               menuSubItem("Radar by region", tabName = "radar_region")),
                menuItem("Info", tabName = "readme", icon = icon("info-circle")
                         , selected = TRUE
                         ) 
@@ -800,8 +797,80 @@ ui <- dashboardPage(skin = "black",
               )
         )
       ),
+      # tabItem(
+      #   #Fourth item ----
+      #   tabName = "radar_region",
+      #   box(width = 8,
+      #       title = "About this data", HTML(
+      #         "These tabs allow you to compare absolute and per capita environmental footprints associated with the estimated demand of fifteen food groups, across regions.<br><br>
+      #         We also grouped the fifteen food groups into three macrocategories: Animal Source Foods (ASF), Staples, and Other. This is an arbitrary classification made for the
+      #         purpose of this dashboard, with the goal of making it easier for the user to make comparisons at a glance. By combining information on both the food group
+      #         and the macrocategory, the user can explore how different categories of food impact each environmental dimension, while also seeing how individual food groups contribute within each macrocategory.<br><br>
+      #         Open the first tab if you want to focus on the fifteen separate food groups, and compare their impacts across regions. Select the second tab if instead you want to focus on the three macrocategories."
+      #       )
+      #   )
+      #   ),
       tabItem(
-        ###Fourth item ----
+        tabName = "radar_region",
+        fluidPage(title = "Impact by income region (radar)",
+                  box(
+                    width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
+                    fluidRow(
+                      column(4,
+                             selectInput("dmd_scn_10", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
+                             selectInput("measure_10", "Select Measure:", choices = c(
+                               "ratio to regional avg. (cap.)",
+                               "ratio to global avg. (cap.)",
+                               "ratio to global avg (abs.)",
+                               "ratio to regional avg (abs.)"
+                               ),
+                               selected = "ratio to regional avg. (cap.)")
+                      ),
+                      column(4,
+                             selectInput("env_dimensions_10", "Select Environmental Dimensions:", choices = unique(df$env_itm), multiple = TRUE,
+                                           #c("average env. impact", "average env. impact (pb weighted)"), 
+                                         selected = "average env. impact"),
+                             selectInput("region_10", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
+                      ),
+                      column(4,
+                             #selectInput("category_10", "Select sociodem category:", choices = unique(df_trs_category$category), selected = "Age"),
+                             # selectInput("food_group_10", "Select Food Group:", choices = c("total"), multiple = FALSE, selected = c(
+                             #   "total"
+                             #   # "beef",
+                             #   # "lamb",
+                             #   # "dairy",
+                             #   # "pork",
+                             #   # "othr_meat",
+                             #   # "fish",
+                             #   # "othr_ani",
+                             #   # "rice",
+                             #   # "grains",
+                             #   # "fruit_veg",
+                             #   # "oils",
+                             #   # "sugar",
+                             #   # "roots",
+                             #   # "legumes",
+                             #   # "nuts_seeds",
+                             #   # "other"
+                             # )),
+                             downloadButton("download_csv_regionradar", "Download table"),
+                             downloadButton("download_plot_regionradar", "Download plot")
+                      )
+                    )
+                  ), 
+                  box(
+                    width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
+                    tabsetPanel(
+                      tabPanel("Plot", plotOutput("plot_regionradar"
+                                                  #, height = 400
+                      )),
+                      tabPanel("Table",tableOutput("regionradar_table"))
+                    )
+                  )
+        )
+      ),
+      tabItem(
+        ###Fifth item ----
         tabName = "readme",
         fluidRow(
           box(width = 8,
@@ -980,6 +1049,25 @@ server <- function(input, output) {
              #macrofoods %in% c("ASF", "Staples", "Other")
       )
   })
+  
+  ##Create filters for tabs in the fourth menu item, 'compare by region (radar)'----
+  
+  filtered_data_regionradar <- reactive({
+    df %>%
+      filter(measure == input$measure_10,
+             env_itm %in% input$env_dimensions_10,
+             food_group == "total",
+             # age != c("all-a", "all-e", "all-u", "BTH"),
+             #age == "all-a",
+             box == "age-sex",
+             age.education == "all-a",
+             sex.urbanisation == "BTH",
+             dmd_scn == input$dmd_scn_10,
+             region %in% input$region_10
+             #category == input$category_10
+             #macrofoods %in% c("ASF", "Staples", "Other")
+      )
+  })  
   
   #Prepare graphic objects and labels that will be used to create the plots below ----
   
@@ -1768,7 +1856,83 @@ server <- function(input, output) {
     print(reactive_plot_categorymacro())
   })
 
+
+  ##Draw plots for fourth item (radar) ----
   
+  reactive_plot_regionradar <- reactive({
+    
+    data <- filtered_data_regionradar()
+    
+    # selected_dmd_scn <- input$dmd_scn_10
+    # selected_measure <- input$measure_10
+    
+    p_regionradar <- ggplot(data, aes(
+      x = 
+        factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
+      y = value
+      #fill = food_group
+      #   factor(
+      #   food_group,
+      #   level = c(
+      #     "beef",
+      #     "lamb",
+      #     "dairy",
+      #     "pork",
+      #     "othr_meat",
+      #     "fish",
+      #     "othr_ani",
+      #     "rice",
+      #     "grains",
+      #     "fruit_veg",
+      #     "oils",
+      #     "sugar",
+      #     "roots",
+      #     "legumes",
+      #     "nuts_seeds",
+      #     "other",
+      #     "total"
+      #   )
+      # )
+    )) +
+      geom_col(color = "white", width = 0.6) +
+      coord_polar() +
+      #coord_flip() +
+      #scale_fill_manual(values = colors_food) +
+       scale_x_discrete(breaks = c("WLD", "HIC", "UMC", "LMC", "LIC"),
+                       labels = c(
+                         "World",
+                         "High Income",
+                         "Upper Middle Income",
+                         "Lower Middle Income",
+                         "Low Income"
+                       )) +
+      facet_wrap(~ env_itm,
+                 ncol = 4,
+                 strip.position = "top",
+                 labeller = labeller(env_itm = label_wrap_gen(width = 15))
+                 )
+    #+
+      #geom_text_repel(aes(label = value), show.legend = FALSE) +
+      # facet_wrap(
+      #   ~ env_itm,
+      #   scales = "free_x",
+      #   ncol = 4,
+      #   labeller = labeller(env_itm = label_wrap_gen(width = 15)),
+      #   strip.position = "top"
+      # ) +
+      # labs(#caption = "LSHTM - Centre for Climate Change and Planetary Health",
+      #   title = paste("Diet-related environmental impact from\n",
+      #                 selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
+      #   x = "Income Region" , 
+      #   #y = "Diet-related environmental impact in 2020",
+      #   y = NULL,
+      #   fill = NULL) +
+      #lshtm_theme_few()
+  })
+  
+  output$plot_regionradar <- renderPlot({
+    print(reactive_plot_regionradar())
+  })
   
   
   #Generate data tables ----
