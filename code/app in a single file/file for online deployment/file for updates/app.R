@@ -11,6 +11,7 @@ library(scales)
 #library(gghighlight)
 library(ggthemes)
 library(ggsci)
+library(geomtextpath)
 #library(patchwork)
 #library(thematic)
 #library(plotly)
@@ -833,26 +834,7 @@ ui <- dashboardPage(skin = "black",
                              selectInput("region_10", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                       ),
                       column(4,
-                             #selectInput("category_10", "Select sociodem category:", choices = unique(df_trs_category$category), selected = "Age"),
-                             # selectInput("food_group_10", "Select Food Group:", choices = c("total"), multiple = FALSE, selected = c(
-                             #   "total"
-                             #   # "beef",
-                             #   # "lamb",
-                             #   # "dairy",
-                             #   # "pork",
-                             #   # "othr_meat",
-                             #   # "fish",
-                             #   # "othr_ani",
-                             #   # "rice",
-                             #   # "grains",
-                             #   # "fruit_veg",
-                             #   # "oils",
-                             #   # "sugar",
-                             #   # "roots",
-                             #   # "legumes",
-                             #   # "nuts_seeds",
-                             #   # "other"
-                             # )),
+                             #selectInput("age.education_10", "Select age group:", choices = c("all-a", "0-9", "10-19", "20-39", "40-64", "65+"), multiple = TRUE, selected = "all-a"),
                              downloadButton("download_csv_regionradar", "Download table"),
                              downloadButton("download_plot_regionradar", "Download plot")
                       )
@@ -1866,68 +1848,48 @@ server <- function(input, output) {
     # selected_dmd_scn <- input$dmd_scn_10
     # selected_measure <- input$measure_10
     
+    segments_1 <- data.frame(
+      x1=rep(0,7),
+      x2=rep(5.5,7),
+      y1=c(0,25,50,75,100,125,150),
+      y2=c(0,25,50,75,100,125,150)
+    )
+    
+    labels_1 <- data.frame(
+      y=c(0,25,50,75,100,125,150),
+      x=rep(0.25,7)
+    )
+    
+    
     p_regionradar <- ggplot(data, aes(
-      x = 
+      x =
         factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
-      y = value
-      #fill = food_group
-      #   factor(
-      #   food_group,
-      #   level = c(
-      #     "beef",
-      #     "lamb",
-      #     "dairy",
-      #     "pork",
-      #     "othr_meat",
-      #     "fish",
-      #     "othr_ani",
-      #     "rice",
-      #     "grains",
-      #     "fruit_veg",
-      #     "oils",
-      #     "sugar",
-      #     "roots",
-      #     "legumes",
-      #     "nuts_seeds",
-      #     "other",
-      #     "total"
-      #   )
-      # )
+      y = value,
     )) +
-      geom_col(color = "white", width = 0.6) +
       coord_polar() +
-      #coord_flip() +
-      #scale_fill_manual(values = colors_food) +
-       scale_x_discrete(breaks = c("WLD", "HIC", "UMC", "LMC", "LIC"),
-                       labels = c(
-                         "World",
-                         "High Income",
-                         "Upper Middle Income",
-                         "Lower Middle Income",
-                         "Low Income"
-                       )) +
+      #lshtm_theme_few() +
+      theme_void() +
+      geom_textpath(inherit.aes = FALSE,
+                    mapping = aes(x= factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")), label = factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")), y =180),
+                    text_only = TRUE, upright = TRUE
+                    ) +
+      geom_segment(inherit.aes = FALSE,
+                   data = segments_1,
+                   mapping = aes(x=x1, xend=x2,y=y1,yend=y2), linewidth = 0.35) +
+      geom_col(color = "white",fill = "#4DAF4A", width = 0.6, show.legend = FALSE) +
+      scale_y_continuous(limits = c(-40,185)) +
+      geom_textsegment(inherit.aes = FALSE,
+                        data = labels_1,
+                        mapping = aes(x=5.5,xend=6.5,y=y,yend=y, label=y)
+                        #linewidth=0.35
+                        #size=2.5
+                       ) +
       facet_wrap(~ env_itm,
-                 ncol = 4,
-                 strip.position = "top",
-                 labeller = labeller(env_itm = label_wrap_gen(width = 15))
-                 )
-    #+
-      #geom_text_repel(aes(label = value), show.legend = FALSE) +
-      # facet_wrap(
-      #   ~ env_itm,
-      #   scales = "free_x",
-      #   ncol = 4,
-      #   labeller = labeller(env_itm = label_wrap_gen(width = 15)),
-      #   strip.position = "top"
-      # ) +
-      # labs(#caption = "LSHTM - Centre for Climate Change and Planetary Health",
-      #   title = paste("Diet-related environmental impact from\n",
-      #                 selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
-      #   x = "Income Region" , 
-      #   #y = "Diet-related environmental impact in 2020",
-      #   y = NULL,
-      #   fill = NULL) +
-      #lshtm_theme_few()
+                 ncol = 3
+      )
+    # #+ lshtm_theme_few()
+
+      
   })
   
   output$plot_regionradar <- renderPlot({
