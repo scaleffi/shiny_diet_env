@@ -7,14 +7,14 @@ library(shiny)
 library(scales)
 #library(shinythemes)
 #library(periscope)
-
+library(fmsb)
 #library(gghighlight)
 library(ggthemes)
 library(ggsci)
 library(geomtextpath)
 #library(patchwork)
 #library(thematic)
-#library(plotly)
+library(plotly)
 
 #logdebug("log", logger = "ss_userAction")
 
@@ -1843,14 +1843,47 @@ server <- function(input, output) {
   
   reactive_plot_regionradar <- reactive({
     
-    data <- filtered_data_regionradar()
+    data <- filtered_data_regionradar() 
+    # %>%
+    #   spread(key = region, value = value) %>%
+    #   select(-c(measure, env_itm, dmd_scn, food_group,box,age.education,sex.urbanisation))
+    # 
     
-    # selected_dmd_scn <- input$dmd_scn_10
-    # selected_measure <- input$measure_10
     
+    #THIS SECTION OF CODE works to generate individual spider plots using the fmsb package. Because it runs
+    #outside of ggplot2, it does not allow for faceting or saving using the existing code for the rest of the
+    #script
+    
+    #     # Extracting the data from reshaped_data
+    # radar_data <- as.data.frame(data)
+    # print(radar_data)
+    # # Add rows for max and min values
+    # max_values <- rep(150, ncol(radar_data))
+    # min_values <- rep(0, ncol(radar_data))
+    # # Bind the new max/min rows to the data - the radarchart() function needs this to work properly
+    # radar_data_maxmin <- rbind(min_values, max_values, radar_data)
+    # # Check the data is ok
+    # print(radar_data_maxmin)
+    # 
+    # # Create radar plot - WARNING: because this is not going through ggplot2, the resulting plots can't
+    # # be faceted, or easily customised using the same settings as in ggplot2
+    # p_regionradar <- radarchart(radar_data_maxmin, maxmin = TRUE) 
+    # 
+    # return(p_regionradar)
+    
+   
+    
+    # p_regionradar <- radarchart(reshaped_data, maxmin = FALSE
+    # )
+    #  print(reshaped_data)
+    # Print the result
+    # print("Reshaped Data:")
+    # print(reshaped_data)
+    
+    #I need to play around with these input data frames to rearrange the plot so that the scale is at the top
     segments_1 <- data.frame(
-      x1=rep(0,7),
-      x2=rep(5.5,7),
+      x1=rep(0.25,7),
+      x2=rep(5.75,7),
       y1=c(0,25,50,75,100,125,150),
       y2=c(0,25,50,75,100,125,150)
     )
@@ -1860,39 +1893,50 @@ server <- function(input, output) {
       x=rep(0.25,7)
     )
     
-    
     p_regionradar <- ggplot(data, aes(
-      x =
-        factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
+      x = region,
+        #factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
       y = value,
     )) +
       coord_polar() +
       #lshtm_theme_few() +
       theme_void() +
       geom_textpath(inherit.aes = FALSE,
-                    mapping = aes(x= factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")), label = factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")), y =180),
+                    # mapping = aes(x= factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
+                    # label = factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")), 
+                    mapping = aes(x = region,
+                    label = region,
+                    y =180),
                     text_only = TRUE, upright = TRUE
                     ) +
       geom_segment(inherit.aes = FALSE,
                    data = segments_1,
                    mapping = aes(x=x1, xend=x2,y=y1,yend=y2), linewidth = 0.35) +
-      geom_col(color = "white",fill = "#4DAF4A", width = 0.6, show.legend = FALSE) +
+      geom_col(
+        #color = "white",
+        fill = "#4DAF4A",
+        alpha = 0.8,
+        width = 0.8
+        # show.legend = FALSE
+        ) +
+      #geom_point() +
       scale_y_continuous(limits = c(-40,185)) +
       geom_textsegment(inherit.aes = FALSE,
                         data = labels_1,
-                        mapping = aes(x=5.5,xend=6.5,y=y,yend=y, label=y)
+                        mapping = aes(x=5.5,xend=6.25,y=y,yend=y, label=y)
                         #linewidth=0.35
                         #size=2.5
                        ) +
       facet_wrap(~ env_itm,
                  ncol = 3
       )
-    # #+ lshtm_theme_few()
+    # # #+ lshtm_theme_few()
 
       
   })
   
-  output$plot_regionradar <- renderPlot({
+  output$plot_regionradar <- 
+    renderPlot({
     print(reactive_plot_regionradar())
   })
   
@@ -2444,6 +2488,12 @@ server <- function(input, output) {
   output$download_plot_categorymacro <- downloadHandler(
     filename = function() { paste("plot_categorymacro", '.png', sep='') },
     content = function(file) { ggsave(file, plot = reactive_plot_categorymacro(),
+                                      device = "png", width = 12) } 
+  )
+  
+  output$download_plot_regionradar <- downloadHandler(
+    filename = function() { paste("plot_regionradar", '.png', sep='') },
+    content = function(file) { ggsave(file, plot = reactive_plot_regionradar(),
                                       device = "png", width = 12) } 
   )
   

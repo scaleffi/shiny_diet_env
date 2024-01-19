@@ -7,13 +7,13 @@ library(shiny)
 library(scales)
 #library(shinythemes)
 #library(periscope)
-
+library(fmsb)
 #library(gghighlight)
 library(ggthemes)
 library(ggsci)
 #library(patchwork)
 #library(thematic)
-#library(plotly)
+library(plotly)
 
 #logdebug("log", logger = "ss_userAction")
 
@@ -384,3 +384,24 @@ plot_radar1 <- ggplot(filtered_data,
   lshtm_theme_few()
 
 plot_radar1
+
+filtered_data_regionradar <- reactive({
+  df %>%
+    filter(measure == input$measure_10,
+           env_itm %in% input$env_dimensions_10,
+           food_group == "total",
+           box == "age-sex",
+           age.education == "all-a",
+           sex.urbanisation == "BTH",
+           dmd_scn == input$dmd_scn_10,
+           region %in% input$region_10
+    )
+})  
+
+p_regionradar <- plot_ly(
+  type = 'scatterpolar',
+  r = data$value,
+  theta = colnames(data),
+  fill = 'toself',
+  
+)
