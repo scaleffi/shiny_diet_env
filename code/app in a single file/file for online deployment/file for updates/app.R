@@ -515,7 +515,7 @@ ui <- dashboardPage(skin = "black",
                              selectInput("sex_9", "Select sex:", choices = unique(df_sel$sex), multiple = TRUE, selected = c(
                                "MLE",
                                "FML"
-                               )),
+                               ))
                              ),
                       column(3,
                              selectInput("region_9", "Select region:", choices = unique(df_sel$region), multiple = TRUE, selected = c("WLD")),
@@ -834,7 +834,24 @@ ui <- dashboardPage(skin = "black",
                              selectInput("region_10", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                       ),
                       column(4,
-                             #selectInput("age.education_10", "Select age group:", choices = c("all-a", "0-9", "10-19", "20-39", "40-64", "65+"), multiple = TRUE, selected = "all-a"),
+                             selectInput("food_group_10", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c(
+                               "beef",
+                               "lamb",
+                               "dairy",
+                               "pork",
+                               "othr_meat",
+                               "fish",
+                               "othr_ani",
+                               "rice",
+                               "grains",
+                               "roots",
+                               "fruit_veg",
+                               "oils",
+                               "sugar",
+                               "legumes",
+                               "nuts_seeds",
+                               "other"
+                             )),
                              downloadButton("download_csv_regionradar", "Download table"),
                              downloadButton("download_plot_regionradar", "Download plot")
                       )
@@ -1015,7 +1032,7 @@ server <- function(input, output) {
              food_group %in% input$food_group_4,
              age == "all-a",
              dmd_scn == input$dmd_scn_4,
-             region %in% input$region_4,
+             region %in% input$region_4
              #macrofoods %in% c("ASF", "Staples", "Other")
       )
   })
@@ -1035,22 +1052,34 @@ server <- function(input, output) {
   ##Create filters for tabs in the fourth menu item, 'compare by region (radar)'----
   
   filtered_data_regionradar <- reactive({
-    df %>%
+    #df %>%
+      
+      df_trs_macrof %>%
       filter(measure == input$measure_10,
              env_itm %in% input$env_dimensions_10,
-             food_group == "total",
-             # age != c("all-a", "all-e", "all-u", "BTH"),
-             #age == "all-a",
-             box == "age-sex",
-             age.education == "all-a",
-             sex.urbanisation == "BTH",
+             food_group %in% input$food_group_10,
+             age == "all-a",
              dmd_scn == input$dmd_scn_10,
-             region %in% input$region_10
-             #category == input$category_10
-             #macrofoods %in% c("ASF", "Staples", "Other")
+             region %in% input$region_10,
+             macrofoods %in% c("ASF", "Staples", "Other")
       )
+      
+      # filter(measure == input$measure_10,
+      #        env_itm %in% input$env_dimensions_10,
+      #        food_group %in% input$food_group_10,
+      #        # age != c("all-a", "all-e", "all-u", "BTH"),
+      #        #age == "all-a",
+      #        box == "age-sex",
+      #        age.education == "all-a",
+      #        sex.urbanisation == "BTH",
+      #        dmd_scn == input$dmd_scn_10,
+      #        region %in% input$region_10
+      #        #category == input$category_10
+      #        #macrofoods %in% c("ASF", "Staples", "Other")
+      # )
   })  
   
+   
   #Prepare graphic objects and labels that will be used to create the plots below ----
   
   #Create custom theme as a function, which can be applied to each plot without having to manually edit each of them to
@@ -1085,6 +1114,29 @@ server <- function(input, output) {
         plot.subtitle = element_text(size = 12, face = "bold"),
         panel.grid.major.x = element_line(colour = "gray", linetype = "dotted"),
         panel.grid.major.y = element_line(colour = "gray", linetype = "dotted"),
+        strip.placement = "outside"
+      )
+  }
+  
+  lshtm_theme_few_radar <- function(){
+    theme_few() +
+      #%+replace%
+      theme(
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        strip.text.x = element_text(size = 12, face = "bold"),
+        panel.spacing = unit(0,"lines"),
+        strip.text.y = element_text(size = 12, face = "bold"),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12, face = "bold"),
+        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
+        plot.subtitle = element_text(size = 12, face = "bold"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_blank(),
         strip.placement = "outside"
       )
   }
@@ -1252,7 +1304,7 @@ server <- function(input, output) {
       aes(
         x = age.education,
         y = value,
-        color = sex.urbanisation,
+        color = sex.urbanisation
       )
     ) +
       geom_point(size = 3) +
@@ -1313,7 +1365,7 @@ server <- function(input, output) {
            aes(
              x = factor(age.education, level = c("all-e" ,"low", "medium", "high")),
              y = value,
-             color = sex.urbanisation,
+             color = sex.urbanisation
            )) +
       geom_point(size = 3) +
       scale_color_manual(values = colors_urban,
@@ -1844,35 +1896,39 @@ server <- function(input, output) {
   reactive_plot_regionradar <- reactive({
     
     data <- filtered_data_regionradar() 
-    # %>%
-    #   spread(key = region, value = value) %>%
+    # %>% spread(key = region, value = value) %>%
     #   select(-c(measure, env_itm, dmd_scn, food_group,box,age.education,sex.urbanisation))
-    # 
-    
-    
+
+
+
     #THIS SECTION OF CODE works to generate individual spider plots using the fmsb package. Because it runs
     #outside of ggplot2, it does not allow for faceting or saving using the existing code for the rest of the
     #script
-    
+
     #     # Extracting the data from reshaped_data
+    
     # radar_data <- as.data.frame(data)
     # print(radar_data)
-    # # Add rows for max and min values
+    # # # Add rows for max and min values
+    
     # max_values <- rep(150, ncol(radar_data))
     # min_values <- rep(0, ncol(radar_data))
+    
     # # Bind the new max/min rows to the data - the radarchart() function needs this to work properly
+    
     # radar_data_maxmin <- rbind(min_values, max_values, radar_data)
     # # Check the data is ok
+    
     # print(radar_data_maxmin)
-    # 
+    #
     # # Create radar plot - WARNING: because this is not going through ggplot2, the resulting plots can't
     # # be faceted, or easily customised using the same settings as in ggplot2
-    # p_regionradar <- radarchart(radar_data_maxmin, maxmin = TRUE) 
-    # 
+    #p_regionradar <- radarchart(radar_data_maxmin, maxmin = TRUE, title = "Avg env footprint per capita\n(compared to WLD average)")
+    #
     # return(p_regionradar)
-    
-   
-    
+
+
+
     # p_regionradar <- radarchart(reshaped_data, maxmin = FALSE
     # )
     #  print(reshaped_data)
@@ -1882,8 +1938,8 @@ server <- function(input, output) {
     
     #I need to play around with these input data frames to rearrange the plot so that the scale is at the top
     segments_1 <- data.frame(
-      x1=rep(0.25,7),
-      x2=rep(5.75,7),
+      x1=rep(0.5,7),
+      x2=rep(5,7),
       y1=c(0,25,50,75,100,125,150),
       y2=c(0,25,50,75,100,125,150)
     )
@@ -1897,13 +1953,13 @@ server <- function(input, output) {
       x = region,
         #factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
       y = value,
+      fill = macrofoods
     )) +
       coord_polar() +
-      #lshtm_theme_few() +
       theme_void() +
       geom_textpath(inherit.aes = FALSE,
                     # mapping = aes(x= factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
-                    # label = factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")), 
+                    # label = factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
                     mapping = aes(x = region,
                     label = region,
                     y =180),
@@ -1911,28 +1967,57 @@ server <- function(input, output) {
                     ) +
       geom_segment(inherit.aes = FALSE,
                    data = segments_1,
-                   mapping = aes(x=x1, xend=x2,y=y1,yend=y2), linewidth = 0.35) +
+                   mapping = aes(x=x1, xend=x2,y=y1,yend=y2), linewidth = 0.35, linetype = "dotted", color = "grey") +
       geom_col(
         #color = "white",
-        fill = "#4DAF4A",
-        alpha = 0.8,
-        width = 0.8
+        alpha = 0.6,
+        width = 0.6
+        #fill = "#a6a79b"
         # show.legend = FALSE
-        ) +
+      ) +
       #geom_point() +
       scale_y_continuous(limits = c(-40,185)) +
+      # geom_text(
+      #   data = labels_1,
+      #   aes(x = 0.5, y = y, label = y),
+      #   #hjust = 0.75,
+      #   vjust = 1.75,
+      #   angle = 0,
+      #   size = 3,
+      #   alpha =0.8,
+      #   fontface = "bold",
+      #   color = "black"
+      # ) +
       geom_textsegment(inherit.aes = FALSE,
                         data = labels_1,
-                        mapping = aes(x=5.5,xend=6.25,y=y,yend=y, label=y)
-                        #linewidth=0.35
-                        #size=2.5
-                       ) +
+                        mapping = aes(x=4.5,xend=5.5,y=y,yend=y, label=
+                                        #c("0%","25%","50%","75%","100%","125%","150%")
+                                        y
+                                      ),
+      linewidth=0.35,
+      size=2.5,
+      linetype = "dotted"
+      #color = "black"
+      ) +
       facet_wrap(~ env_itm,
                  ncol = 3
-      )
-    # # #+ lshtm_theme_few()
-
-      
+      ) +
+      scale_fill_manual(values = colors_macro
+                        #, breaks = c("ASF", "Staples", "Other")
+                        ) +
+      #scale_fill_manual(values = colors_food) +
+      lshtm_theme_few_radar()
+      # lshtm_theme_few() +
+      # theme(
+      #   axis.text.x = element_blank(),
+      #   axis.text.y = element_blank(),
+      #   axis.ticks.x = element_blank(),
+      #   axis.ticks.y = element_blank(),
+      #   axis.title.x = element_blank(),
+      #   axis.title.y = element_blank(),
+      #   panel.grid.major.x = element_blank(),
+      #   panel.grid.major.y = element_blank()
+      # )
   })
   
   output$plot_regionradar <- 
