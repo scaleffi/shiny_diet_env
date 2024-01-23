@@ -1971,11 +1971,10 @@ server <- function(input, output) {
       geom_col(
         #color = "white",
         alpha = 0.6,
-        width = 0.6
+        width = 0.6,
         #fill = "#a6a79b"
-        # show.legend = FALSE
+        show.legend = FALSE
       ) +
-      #geom_point() +
       scale_y_continuous(limits = c(-40,185)) +
       # geom_text(
       #   data = labels_1,
@@ -1997,7 +1996,6 @@ server <- function(input, output) {
       linewidth=0.35,
       size=2.5,
       linetype = "dotted"
-      #color = "black"
       ) +
       facet_wrap(~ env_itm,
                  ncol = 3
@@ -2007,17 +2005,6 @@ server <- function(input, output) {
                         ) +
       #scale_fill_manual(values = colors_food) +
       lshtm_theme_few_radar()
-      # lshtm_theme_few() +
-      # theme(
-      #   axis.text.x = element_blank(),
-      #   axis.text.y = element_blank(),
-      #   axis.ticks.x = element_blank(),
-      #   axis.ticks.y = element_blank(),
-      #   axis.title.x = element_blank(),
-      #   axis.title.y = element_blank(),
-      #   panel.grid.major.x = element_blank(),
-      #   panel.grid.major.y = element_blank()
-      # )
   })
   
   output$plot_regionradar <- 
