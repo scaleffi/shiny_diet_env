@@ -805,18 +805,32 @@ ui <- dashboardPage(skin = "black",
                     width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
                     fluidRow(
                       column(4,
-                             selectInput("dmd_scn_10", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
+                             selectInput("dmd_scn_10", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
                              selectInput("measure_10", "Select Measure:", choices = c(
-                               #"ratio to regional avg. (cap.)",
+                               "ratio to regional avg. (cap.)",
                                "ratio to global avg. (cap.)",
-                               "ratio to global avg (abs.)"
-                               #"ratio to regional avg (abs.)"
+                               "ratio to global avg (abs.)",
+                               "ratio to regional avg (abs.)"
                                ),
                                selected = "ratio to global avg. (cap.)")
                       ),
                       column(4,
-                             selectInput("env_dimensions_10", "Select Environmental Dimensions:", choices = unique(df$env_itm), multiple = TRUE,
+                             selectInput("env_dimensions_10", "Select Environmental Dimensions:", choices = unique(df$env_itm),
                                            selected = "average env. impact"),
+                             selectInput("age_10", "Select sociodemographic:", choices = unique(df_trs_category$age), multiple = TRUE, selected = c(
+                               "low",
+                               "medium",
+                               "high",
+                               "urban",
+                               "rural",
+                               "FML",
+                               "MLE",
+                               "0-9",
+                               "10-19",
+                               "20-39",
+                               "40-64",
+                               "65+")
+                      ),
                              selectInput("region_10", "Select Region:", choices = c("WLD", "HIC", "UMC", "LMC", "LIC"), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                       ),
                       column(4,
@@ -842,7 +856,7 @@ ui <- dashboardPage(skin = "black",
                     width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
                     fluidRow(
                       column(4,
-                             selectInput("dmd_scn_11", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
+                             selectInput("dmd_scn_11", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
                              selectInput("measure_11", "Select Measure:", choices = c(
                                "ratio to regional avg. (cap.)",
                                "ratio to global avg. (cap.)",
@@ -852,7 +866,7 @@ ui <- dashboardPage(skin = "black",
                              selected = "ratio to regional avg. (cap.)")
                       ),
                       column(4,
-                             selectInput("env_dimensions_11", "Select Environmental Dimensions:", choices = unique(df$env_itm), multiple = TRUE,
+                             selectInput("env_dimensions_11", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), multiple = TRUE,
                                          selected = "average env. impact"),
                              selectInput("region_11", "Select Region:", choices = c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF"), multiple = TRUE, selected = c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF"))
                       ),
@@ -1058,11 +1072,11 @@ server <- function(input, output) {
   filtered_data_regionradar <- reactive({
     #df %>%
       
-      df_trs_macrof %>%
+      df_trs_category %>%
       filter(measure == input$measure_10,
              env_itm %in% input$env_dimensions_10,
              food_group == "total",
-             age == "all-a",
+             age %in% input$age_10,
              dmd_scn == input$dmd_scn_10,
              region %in% input$region_10
              #macrofoods %in% c("ASF", "Staples", "Other")
@@ -1073,7 +1087,7 @@ server <- function(input, output) {
     filtered_data_regionradargeo <- reactive({
       #df %>%
       
-      df_trs_macrof %>%
+      df_trs_category %>%
         filter(measure == input$measure_11,
                env_itm %in% input$env_dimensions_11,
                food_group == "total",
@@ -1136,11 +1150,11 @@ server <- function(input, output) {
         axis.text.y = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks = element_blank(),
-        legend.position = "right",
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 12, face = "bold"),
-        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        plot.subtitle = element_text(size = 12, face = "bold"),
+        # legend.position = "right",
+        # legend.text = element_text(size = 12),
+        # legend.title = element_text(size = 12, face = "bold"),
+        # plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
+        # plot.subtitle = element_text(size = 12, face = "bold"),
         panel.grid.major.x = element_blank(),
         panel.grid.major.y = element_blank(),
         strip.placement = "outside"
@@ -1190,6 +1204,13 @@ server <- function(input, output) {
     "20-39" = "#48c9b0",
     "40-64" = "#229954",
     "65+"= "#7d6608"
+  )
+  
+  colors_sociodem_category <- c(
+    "Urb. level" = "#f4d03f",
+    "Sex" = "#4DAF4A",
+    "Edu. level" = "#873600",
+    "Age" = "#ebdef0"
   )
   
   #Create a vector with specific color assigned to each food group
@@ -1944,21 +1965,22 @@ server <- function(input, output) {
     
     #I need to play around with these input data frames to rearrange the plot so that the scale is at the top
     segments_1 <- data.frame(
-      x1=rep(0.5,7),
-      x2=rep(5,7),
-      y1=c(0,25,50,75,100,125,150),
-      y2=c(0,25,50,75,100,125,150)
+      x1=rep(0.5,4),
+      x2=rep(5,4),
+      y1=c(0,50,100,150),
+      y2=c(0,50,100,150)
     )
     
     labels_1 <- data.frame(
-      y=c(0,25,50,75,100,125,150),
-      x=rep(0.25,7)
+      y=c(0,50,100,150),
+      x=rep(0.25,4)
     )
     
     p_regionradar <- ggplot(data, aes(
       x = region,
         #factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
-      y = value
+      y = value,
+      fill = category
       #fill = macrofoods
     )) +
       coord_polar() +
@@ -1968,7 +1990,7 @@ server <- function(input, output) {
                     # label = factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
                     mapping = aes(x = region,
                     label = region,
-                    y =180),
+                    y =190),
                     text_only = TRUE, upright = TRUE
                     ) +
       geom_segment(inherit.aes = FALSE,
@@ -1976,12 +1998,12 @@ server <- function(input, output) {
                    mapping = aes(x=x1, xend=x2,y=y1,yend=y2), linewidth = 0.35, linetype = "dotted", color = "grey") +
       geom_col(
         #color = "white",
-        alpha = 0.6,
+        alpha = 0.5,
         width = 0.6,
         #fill = "#a6a79b"
         show.legend = FALSE
       ) +
-      scale_y_continuous(limits = c(-40,185)) +
+      scale_y_continuous(limits = c(-40,190)) +
       geom_textsegment(inherit.aes = FALSE,
                         data = labels_1,
                         mapping = aes(x=4.5,xend=5.5,y=y,yend=y, label=
@@ -1990,15 +2012,28 @@ server <- function(input, output) {
                                       ),
       linewidth=0.35,
       size=2.5,
-      linetype = "dotted"
+      linetype = "solid",
+      fontface = "bold"
       ) +
-      facet_wrap(~ env_itm,
-                 ncol = 3
+      facet_wrap(~ factor(age, level = c("urban",
+                                         "rural",
+                                         "FML",
+                                         "MLE",
+                                         "0-9",
+                                         "10-19",
+                                         "20-39",
+                                         "40-64",
+                                         "65+",
+                                         "low",
+                                         "medium",
+                                         "high"
+                                         )),
+                 ncol = 4
       ) +
       # scale_fill_manual(values = colors_macro
       #                   #, breaks = c("ASF", "Staples", "Other")
       #                   ) +
-      #scale_fill_manual(values = colors_food) +
+      scale_fill_manual(values = colors_sociodem_category) +
       lshtm_theme_few_radar()
   })
   
@@ -2062,7 +2097,7 @@ server <- function(input, output) {
                      linetype = "dotted"
     ) +
       facet_wrap(~ env_itm,
-                 ncol = 3) +
+                 ncol = 4) +
       lshtm_theme_few_radar()
   })
   
