@@ -180,8 +180,6 @@ df_sel <- df_sel %>%
       TRUE ~ measure# Keep the original value if it doesn't match any condition
     ))
 
-
-
 # data_cons <- read.csv(csv_file_cons)
 # data_cons$Intake <- round(data_cons$Intake, 2)
 # df_cons <- data_cons[-7]
@@ -1602,7 +1600,7 @@ server <- function(input, output) {
                                selected_env_itm,
                                " in 2020,\n",
                                " by sociodemographic",
-                               " (",   
+                               " (",
                                selected_dmd_scn,
                                ")\n",
                                sep = "") ,
@@ -1922,9 +1920,10 @@ server <- function(input, output) {
   
   reactive_plot_regionradar <- reactive({
     
-    data <- filtered_data_regionradar() 
-    # %>% spread(key = region, value = value) %>%
-    #   select(-c(measure, env_itm, dmd_scn, food_group,box,age.education,sex.urbanisation))
+    data <- filtered_data_regionradar()  
+    
+    #%>% spread(key = region, value = value) %>%
+      # select(-c(measure, env_itm, dmd_scn, food_group,box,age.education,sex.urbanisation))
 
 
 
@@ -1933,26 +1932,26 @@ server <- function(input, output) {
     #script
 
     #     # Extracting the data from reshaped_data
-    
-    # radar_data <- as.data.frame(data)
-    # print(radar_data)
+
+     #radar_data <- as.data.frame(data)
+     #print(radar_data)
     # # # Add rows for max and min values
-    
-    # max_values <- rep(150, ncol(radar_data))
-    # min_values <- rep(0, ncol(radar_data))
-    
+
+     #max_values <- rep(150, ncol(radar_data))
+     #min_values <- rep(0, ncol(radar_data))
+
     # # Bind the new max/min rows to the data - the radarchart() function needs this to work properly
-    
-    # radar_data_maxmin <- rbind(min_values, max_values, radar_data)
+
+     #radar_data_maxmin <- rbind(min_values, max_values, radar_data)
     # # Check the data is ok
-    
-    # print(radar_data_maxmin)
+
+     #print(radar_data_maxmin)
     #
     # # Create radar plot - WARNING: because this is not going through ggplot2, the resulting plots can't
     # # be faceted, or easily customised using the same settings as in ggplot2
     #p_regionradar <- radarchart(radar_data_maxmin, maxmin = TRUE, title = "Avg env footprint per capita\n(compared to WLD average)")
     #
-    # return(p_regionradar)
+     #return(p_regionradar)
 
 
 
@@ -1963,19 +1962,19 @@ server <- function(input, output) {
     # print("Reshaped Data:")
     # print(reshaped_data)
     
-    #I need to play around with these input data frames to rearrange the plot so that the scale is at the top
+  #I need to play around with these input data frames to rearrange the plot so that the scale is at the top
     segments_1 <- data.frame(
       x1=rep(0.5,4),
       x2=rep(5,4),
       y1=c(0,50,100,150),
       y2=c(0,50,100,150)
     )
-    
+
     labels_1 <- data.frame(
       y=c(0,50,100,150),
       x=rep(0.25,4)
     )
-    
+
     p_regionradar <- ggplot(data, aes(
       x = region,
         #factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
@@ -2035,13 +2034,13 @@ server <- function(input, output) {
       #                   ) +
       scale_fill_manual(values = colors_sociodem_category) +
       lshtm_theme_few_radar()
-  })
-  
-  output$plot_regionradar <- 
+   })
+   
+  output$plot_regionradar <-
     renderPlot({
     print(reactive_plot_regionradar())
-  })
-  
+   })
+   
   
   reactive_plot_regionradargeo <- reactive({
     
