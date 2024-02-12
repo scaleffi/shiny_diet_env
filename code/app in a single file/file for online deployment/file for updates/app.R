@@ -806,9 +806,9 @@ ui <- dashboardPage(skin = "black",
                              selectInput("dmd_scn_10", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
                              selectInput("measure_10", "Select Measure:", choices = c(
                                "ratio to regional avg. (cap.)",
-                               "ratio to global avg. (cap.)",
-                               "ratio to global avg (abs.)",
-                               "ratio to regional avg (abs.)"
+                               "ratio to global avg. (cap.)"
+                               #"ratio to global avg (abs.)",
+                               #"ratio to regional avg (abs.)"
                                ),
                                selected = "ratio to global avg. (cap.)")
                       ),
@@ -829,7 +829,7 @@ ui <- dashboardPage(skin = "black",
                                "40-64",
                                "65+")
                       ),
-                             selectInput("region_10", "Select Region:", choices = c("WLD", "HIC", "UMC", "LMC", "LIC"), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
+                             #selectInput("region_10", "Select Region:", choices = c("WLD", "HIC", "UMC", "LMC", "LIC"), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                       ),
                       column(4,
                              downloadButton("download_csv_regionradar", "Download table"),
@@ -856,12 +856,12 @@ ui <- dashboardPage(skin = "black",
                       column(4,
                              selectInput("dmd_scn_11", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
                              selectInput("measure_11", "Select Measure:", choices = c(
-                               "ratio to regional avg. (cap.)",
-                               "ratio to global avg. (cap.)",
-                               "ratio to global avg (abs.)",
-                               "ratio to regional avg (abs.)"
+                               #"ratio to regional avg. (cap.)",
+                               "ratio to global avg. (cap.)"
+                               #"ratio to global avg (abs.)",
+                               #"ratio to regional avg (abs.)"
                              ),
-                             selected = "ratio to regional avg. (cap.)")
+                             selected = "ratio to global avg. (cap.)")
                       ),
                       column(4,
                              selectInput("env_dimensions_11", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), multiple = TRUE,
@@ -1076,7 +1076,7 @@ server <- function(input, output) {
              food_group == "total",
              age %in% input$age_10,
              dmd_scn == input$dmd_scn_10,
-             region %in% input$region_10
+             region %in% c("WLD", "HIC", "UMC", "LMC", "LIC")
              #macrofoods %in% c("ASF", "Staples", "Other")
       )
     
@@ -1207,8 +1207,8 @@ server <- function(input, output) {
   colors_sociodem_category <- c(
     "Urb. level" = "#f4d03f",
     "Sex" = "#4DAF4A",
-    "Edu. level" = "#873600",
-    "Age" = "#ebdef0"
+    "Edu. level" = "#f39c12",
+    "Age" = "#48c9b0"
   )
   
   #Create a vector with specific color assigned to each food group
@@ -1976,8 +1976,8 @@ server <- function(input, output) {
     )
 
     p_regionradar <- ggplot(data, aes(
-      x = region,
-        #factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
+      x = #region,
+        factor(region, level = c("HIC", "UMC", "LMC", "LIC", "WLD")),
       y = value,
       fill = category
       #fill = macrofoods
@@ -1997,12 +1997,12 @@ server <- function(input, output) {
                    mapping = aes(x=x1, xend=x2,y=y1,yend=y2), linewidth = 0.35, linetype = "dotted", color = "grey") +
       geom_col(
         #color = "white",
-        alpha = 0.5,
+        alpha = 0.9,
         width = 0.6,
         #fill = "#a6a79b"
         show.legend = FALSE
       ) +
-      scale_y_continuous(limits = c(-40,190)) +
+      scale_y_continuous(limits = c(-60,190)) +
       geom_textsegment(inherit.aes = FALSE,
                         data = labels_1,
                         mapping = aes(x=4.5,xend=5.5,y=y,yend=y, label=
@@ -2079,12 +2079,12 @@ server <- function(input, output) {
                    mapping = aes(x=x1, xend=x2,y=y1,yend=y2), linewidth = 0.35, linetype = "dotted", color = "grey") +
       geom_col(
         #color = "white",
-        alpha = 0.6,
+        alpha = 0.9,
         width = 0.6,
         #fill = "#a6a79b"
         show.legend = FALSE
       ) +
-      scale_y_continuous(limits = c(-40,285)) +
+      scale_y_continuous(limits = c(-60,285)) +
     geom_textsegment(inherit.aes = FALSE,
                      data = labels_1,
                      mapping = aes(x=7.5,xend=8.5,y=y,yend=y, label=
