@@ -7,14 +7,13 @@ library(shiny)
 library(scales)
 #library(shinythemes)
 #library(periscope)
-library(fmsb)
+
 #library(gghighlight)
 library(ggthemes)
 library(ggsci)
-library(geomtextpath)
 #library(patchwork)
 #library(thematic)
-library(plotly)
+#library(plotly)
 
 #logdebug("log", logger = "ss_userAction")
 
@@ -26,9 +25,15 @@ library(plotly)
 rm(list = ls()) #clear the environment
 
 #Load files from Github repository ----
-csv_file_trs <- "report_env_trs_011824.csv"
-csv_file_box <- "report_env_box_011824.csv" 
-csv_file_sel <- "report_env_sel_011824.csv"
+# csv_file_trs <- "report_env_trs_110423.csv"
+# csv_file_box <- "report_env_box_110423.csv" 
+# csv_file_sel <- "report_env_sel_110423.csv"
+
+#Load files from Github repository ----
+csv_file_trs <- "report_env_trs_122623.csv"
+csv_file_box <- "report_env_box_122623.csv" 
+csv_file_sel <- "report_env_sel_122623.csv"
+
 
 data_box <- read.csv(csv_file_box)
 data_box$value <- round(data_box$value, 2)
@@ -180,6 +185,8 @@ df_sel <- df_sel %>%
       TRUE ~ measure# Keep the original value if it doesn't match any condition
     ))
 
+
+
 # data_cons <- read.csv(csv_file_cons)
 # data_cons$Intake <- round(data_cons$Intake, 2)
 # df_cons <- data_cons[-7]
@@ -221,9 +228,6 @@ ui <- dashboardPage(skin = "black",
                         menuSubItem("Food groups", tabName = "foodgroups", icon = icon("wheat-awn")),
                         menuSubItem("Food macrocategories", tabName = "foodmacro", icon = icon("wheat-awn"))
                         ),
-               menuItem("Plots for paper", tabName = NULL,
-               menuSubItem("Radar by region", tabName = "radar_region"),
-               menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo")),
                menuItem("Info", tabName = "readme", icon = icon("info-circle")
                         , selected = TRUE
                         ) 
@@ -513,7 +517,7 @@ ui <- dashboardPage(skin = "black",
                              selectInput("sex_9", "Select sex:", choices = unique(df_sel$sex), multiple = TRUE, selected = c(
                                "MLE",
                                "FML"
-                               ))
+                               )),
                              ),
                       column(3,
                              selectInput("region_9", "Select region:", choices = unique(df_sel$region), multiple = TRUE, selected = c("WLD")),
@@ -797,95 +801,7 @@ ui <- dashboardPage(skin = "black",
         )
       ),
       tabItem(
-        tabName = "radar_region",
-        fluidPage(title = "Impact by income region (radar)",
-                  box(
-                    width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
-                    fluidRow(
-                      column(4,
-                             selectInput("dmd_scn_10", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
-                             selectInput("measure_10", "Select Measure:", choices = c(
-                               "ratio to regional avg. (cap.)",
-                               "ratio to global avg. (cap.)"
-                               #"ratio to global avg (abs.)",
-                               #"ratio to regional avg (abs.)"
-                               ),
-                               selected = "ratio to global avg. (cap.)")
-                      ),
-                      column(4,
-                             selectInput("env_dimensions_10", "Select Environmental Dimensions:", choices = unique(df$env_itm),
-                                           selected = "average env. impact"),
-                             selectInput("age_10", "Select sociodemographic:", choices = unique(df_trs_category$age), multiple = TRUE, selected = c(
-                               "low",
-                               "medium",
-                               "high",
-                               "urban",
-                               "rural",
-                               "FML",
-                               "MLE",
-                               "0-9",
-                               "10-19",
-                               "20-39",
-                               "40-64",
-                               "65+")
-                      ),
-                             #selectInput("region_10", "Select Region:", choices = c("WLD", "HIC", "UMC", "LMC", "LIC"), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
-                      ),
-                      column(4,
-                             downloadButton("download_csv_regionradar", "Download table"),
-                             downloadButton("download_plot_regionradar", "Download plot")
-                      )
-                    )
-                  ), 
-                  box(
-                    width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
-                    tabsetPanel(
-                      tabPanel("Plot", plotOutput("plot_regionradar"
-                      )),
-                      tabPanel("Table",tableOutput("regionradar_table"))
-                    )
-                  )
-        )
-      ),
-      tabItem(
-        tabName = "radar_regiongeo",
-        fluidPage(title = "Impact by geographical region (radar)",
-                  box(
-                    width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
-                    fluidRow(
-                      column(4,
-                             selectInput("dmd_scn_11", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
-                             selectInput("measure_11", "Select Measure:", choices = c(
-                               #"ratio to regional avg. (cap.)",
-                               "ratio to global avg. (cap.)"
-                               #"ratio to global avg (abs.)",
-                               #"ratio to regional avg (abs.)"
-                             ),
-                             selected = "ratio to global avg. (cap.)")
-                      ),
-                      column(4,
-                             selectInput("env_dimensions_11", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), multiple = TRUE,
-                                         selected = "average env. impact"),
-                             selectInput("region_11", "Select Region:", choices = c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF"), multiple = TRUE, selected = c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF"))
-                      ),
-                      column(4,
-                             downloadButton("download_csv_regionradargeo", "Download table"),
-                             downloadButton("download_plot_regionradargeo", "Download plot")
-                      )
-                    )
-                  ), 
-                  box(
-                    width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
-                    tabsetPanel(
-                      tabPanel("Plot", plotOutput("plot_regionradargeo"
-                      )),
-                      tabPanel("Table",tableOutput("regionradargeo_table"))
-                    )
-                  )
-        )
-      ),
-      tabItem(
-        ###Fifth item ----
+        ###Fourth item ----
         tabName = "readme",
         fluidRow(
           box(width = 8,
@@ -1048,7 +964,7 @@ server <- function(input, output) {
              food_group %in% input$food_group_4,
              age == "all-a",
              dmd_scn == input$dmd_scn_4,
-             region %in% input$region_4
+             region %in% input$region_4,
              #macrofoods %in% c("ASF", "Staples", "Other")
       )
   })
@@ -1065,39 +981,6 @@ server <- function(input, output) {
       )
   })
   
-  ##Create filters for tabs in the fourth menu item, 'compare by region (radar)'----
-  
-  filtered_data_regionradar <- reactive({
-    #df %>%
-      
-      df_trs_category %>%
-      filter(measure == input$measure_10,
-             env_itm %in% input$env_dimensions_10,
-             food_group == "total",
-             age %in% input$age_10,
-             dmd_scn == input$dmd_scn_10,
-             region %in% c("WLD", "HIC", "UMC", "LMC", "LIC")
-             #macrofoods %in% c("ASF", "Staples", "Other")
-      )
-    
-  }) 
-      
-    filtered_data_regionradargeo <- reactive({
-      #df %>%
-      
-      df_trs_category %>%
-        filter(measure == input$measure_11,
-               env_itm %in% input$env_dimensions_11,
-               food_group == "total",
-               age == "all-a",
-               dmd_scn == input$dmd_scn_11,
-               region %in% input$region_11
-               #macrofoods %in% c("ASF", "Staples", "Other")
-        )
-      
-    }) 
-  
-   
   #Prepare graphic objects and labels that will be used to create the plots below ----
   
   #Create custom theme as a function, which can be applied to each plot without having to manually edit each of them to
@@ -1132,29 +1015,6 @@ server <- function(input, output) {
         plot.subtitle = element_text(size = 12, face = "bold"),
         panel.grid.major.x = element_line(colour = "gray", linetype = "dotted"),
         panel.grid.major.y = element_line(colour = "gray", linetype = "dotted"),
-        strip.placement = "outside"
-      )
-  }
-  
-  lshtm_theme_few_radar <- function(){
-    theme_few() +
-      #%+replace%
-      theme(
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        strip.text.x = element_text(size = 12, face = "bold"),
-        panel.spacing = unit(0,"lines"),
-        strip.text.y = element_text(size = 12, face = "bold"),
-        axis.text.y = element_blank(),
-        axis.text.x = element_blank(),
-        axis.ticks = element_blank(),
-        # legend.position = "right",
-        # legend.text = element_text(size = 12),
-        # legend.title = element_text(size = 12, face = "bold"),
-        # plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        # plot.subtitle = element_text(size = 12, face = "bold"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.major.y = element_blank(),
         strip.placement = "outside"
       )
   }
@@ -1202,13 +1062,6 @@ server <- function(input, output) {
     "20-39" = "#48c9b0",
     "40-64" = "#229954",
     "65+"= "#7d6608"
-  )
-  
-  colors_sociodem_category <- c(
-    "Urb. level" = "#f4d03f",
-    "Sex" = "#4DAF4A",
-    "Edu. level" = "#f39c12",
-    "Age" = "#48c9b0"
   )
   
   #Create a vector with specific color assigned to each food group
@@ -1329,7 +1182,7 @@ server <- function(input, output) {
       aes(
         x = age.education,
         y = value,
-        color = sex.urbanisation
+        color = sex.urbanisation,
       )
     ) +
       geom_point(size = 3) +
@@ -1390,7 +1243,7 @@ server <- function(input, output) {
            aes(
              x = factor(age.education, level = c("all-e" ,"low", "medium", "high")),
              y = value,
-             color = sex.urbanisation
+             color = sex.urbanisation,
            )) +
       geom_point(size = 3) +
       scale_color_manual(values = colors_urban,
@@ -1600,7 +1453,7 @@ server <- function(input, output) {
                                selected_env_itm,
                                " in 2020,\n",
                                " by sociodemographic",
-                               " (",
+                               " (",   
                                selected_dmd_scn,
                                ")\n",
                                sep = "") ,
@@ -1915,195 +1768,8 @@ server <- function(input, output) {
     print(reactive_plot_categorymacro())
   })
 
-
-  ##Draw plots for fourth item (radar) ----
   
-  reactive_plot_regionradar <- reactive({
-    
-    data <- filtered_data_regionradar()  
-    
-    #%>% spread(key = region, value = value) %>%
-      # select(-c(measure, env_itm, dmd_scn, food_group,box,age.education,sex.urbanisation))
-
-
-
-    #THIS SECTION OF CODE works to generate individual spider plots using the fmsb package. Because it runs
-    #outside of ggplot2, it does not allow for faceting or saving using the existing code for the rest of the
-    #script
-
-    #     # Extracting the data from reshaped_data
-
-     #radar_data <- as.data.frame(data)
-     #print(radar_data)
-    # # # Add rows for max and min values
-
-     #max_values <- rep(150, ncol(radar_data))
-     #min_values <- rep(0, ncol(radar_data))
-
-    # # Bind the new max/min rows to the data - the radarchart() function needs this to work properly
-
-     #radar_data_maxmin <- rbind(min_values, max_values, radar_data)
-    # # Check the data is ok
-
-     #print(radar_data_maxmin)
-    #
-    # # Create radar plot - WARNING: because this is not going through ggplot2, the resulting plots can't
-    # # be faceted, or easily customised using the same settings as in ggplot2
-    #p_regionradar <- radarchart(radar_data_maxmin, maxmin = TRUE, title = "Avg env footprint per capita\n(compared to WLD average)")
-    #
-     #return(p_regionradar)
-
-
-
-    # p_regionradar <- radarchart(reshaped_data, maxmin = FALSE
-    # )
-    #  print(reshaped_data)
-    # Print the result
-    # print("Reshaped Data:")
-    # print(reshaped_data)
-    
-  #I need to play around with these input data frames to rearrange the plot so that the scale is at the top
-    segments_1 <- data.frame(
-      x1=rep(0.5,4),
-      x2=rep(5,4),
-      y1=c(0,50,100,150),
-      y2=c(0,50,100,150)
-    )
-
-    labels_1 <- data.frame(
-      y=c(0,50,100,150),
-      x=rep(0.25,4)
-    )
-
-    p_regionradar <- ggplot(data, aes(
-      x = #region,
-        factor(region, level = c("HIC", "UMC", "LMC", "LIC", "WLD")),
-      y = value,
-      fill = category
-      #fill = macrofoods
-    )) +
-      coord_polar() +
-      theme_void() +
-      geom_textpath(inherit.aes = FALSE,
-                    # mapping = aes(x= factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
-                    # label = factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
-                    mapping = aes(x = region,
-                    label = region,
-                    y =190),
-                    text_only = TRUE, upright = TRUE
-                    ) +
-      geom_segment(inherit.aes = FALSE,
-                   data = segments_1,
-                   mapping = aes(x=x1, xend=x2,y=y1,yend=y2), linewidth = 0.35, linetype = "dotted", color = "grey") +
-      geom_col(
-        #color = "white",
-        alpha = 0.9,
-        width = 0.6,
-        #fill = "#a6a79b"
-        show.legend = FALSE
-      ) +
-      scale_y_continuous(limits = c(-60,190)) +
-      geom_textsegment(inherit.aes = FALSE,
-                        data = labels_1,
-                        mapping = aes(x=4.5,xend=5.5,y=y,yend=y, label=
-                                        #c("0%","25%","50%","75%","100%","125%","150%")
-                                        y
-                                      ),
-      linewidth=0.35,
-      size=2.5,
-      linetype = "solid",
-      fontface = "bold"
-      ) +
-      facet_wrap(~ factor(age, level = c("urban",
-                                         "rural",
-                                         "FML",
-                                         "MLE",
-                                         "0-9",
-                                         "10-19",
-                                         "20-39",
-                                         "40-64",
-                                         "65+",
-                                         "low",
-                                         "medium",
-                                         "high"
-                                         )),
-                 ncol = 4
-      ) +
-      # scale_fill_manual(values = colors_macro
-      #                   #, breaks = c("ASF", "Staples", "Other")
-      #                   ) +
-      scale_fill_manual(values = colors_sociodem_category) +
-      lshtm_theme_few_radar()
-   })
-   
-  output$plot_regionradar <-
-    renderPlot({
-    print(reactive_plot_regionradar())
-   })
-   
   
-  reactive_plot_regionradargeo <- reactive({
-    
-    data <- filtered_data_regionradargeo()
-    
-    segments_1 <- data.frame(
-      x1=rep(0.5,6),
-      x2=rep(8,6),
-      y1=c(0,50,100,150,200,250),
-      y2=c(0,50,100,150,200,250)
-    )
-    
-    labels_1 <- data.frame(
-      y=c(0,50,100,150,200,250),
-      x=rep(0.25,6)
-    )
-    
-    p_regionradargeo <- ggplot(data, aes(
-      x = region,
-      #factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
-      y = value
-      #fill = macrofoods
-    )) +
-      coord_polar() +
-      theme_void() +
-      geom_textpath(inherit.aes = FALSE,
-                    # mapping = aes(x= factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
-                    # label = factor(region, level = c("WLD", "HIC", "UMC", "LMC", "LIC")),
-                    mapping = aes(x = region,
-                                  label = region,
-                                  y =285),
-                    text_only = TRUE, upright = TRUE
-      ) +
-      geom_segment(inherit.aes = FALSE,
-                   data = segments_1,
-                   mapping = aes(x=x1, xend=x2,y=y1,yend=y2), linewidth = 0.35, linetype = "dotted", color = "grey") +
-      geom_col(
-        #color = "white",
-        alpha = 0.9,
-        width = 0.6,
-        #fill = "#a6a79b"
-        show.legend = FALSE
-      ) +
-      scale_y_continuous(limits = c(-60,285)) +
-    geom_textsegment(inherit.aes = FALSE,
-                     data = labels_1,
-                     mapping = aes(x=7.5,xend=8.5,y=y,yend=y, label=
-                                     #c("0%","25%","50%","75%","100%","125%","150%")
-                                     y
-                     ),
-                     linewidth=0.35,
-                     size=2.5,
-                     linetype = "dotted"
-    ) +
-      facet_wrap(~ env_itm,
-                 ncol = 4) +
-      lshtm_theme_few_radar()
-  })
-  
-  output$plot_regionradargeo <- 
-    renderPlot({
-      print(reactive_plot_regionradargeo())
-    })
   
   #Generate data tables ----
   
@@ -2655,17 +2321,6 @@ server <- function(input, output) {
                                       device = "png", width = 12) } 
   )
   
-  output$download_plot_regionradar <- downloadHandler(
-    filename = function() { paste("plot_regionradar", '.png', sep='') },
-    content = function(file) { ggsave(file, plot = reactive_plot_regionradar(),
-                                      device = "png", width = 12) } 
-  )
-  
-  output$download_plot_regionradargeo <- downloadHandler(
-    filename = function() { paste("plot_regionradargeo", '.png', sep='') },
-    content = function(file) { ggsave(file, plot = reactive_plot_regionradargeo(),
-                                      device = "png", width = 12) } 
-  )
   
 }
 

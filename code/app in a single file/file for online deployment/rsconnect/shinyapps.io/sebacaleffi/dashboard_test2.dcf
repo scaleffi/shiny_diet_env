@@ -5,8 +5,9 @@ account: sebacaleffi
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10203471
-bundleId: 8048483
+bundleId: 8259782
 url: https://sebacaleffi.shinyapps.io/dashboard_test2/
 version: 1
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: Readme.rtf|report_env_box_122623.csv|report_env_sel_122623.csv|report_env_trs_122623.csv|Version 2.4/app.R|Version 2.4/cons_compare_012823.csv|Version 2.4/FBS_intake_socio_all-a_051523.csv|Version 2.4/report_env_box_060123.csv|Version 2.4/report_env_trs_053123.csv|Version 2.5/app.R|Version 2.5/cons_compare_012823.csv|Version 2.5/FBS_intake_socio_all-a_051523.csv|Version 2.5/report_env_box_060123.csv|Version 2.5/report_env_trs_053123.csv|Version 2.7/app.R|Version 2.7/cons_compare_012823.csv|Version 2.7/FBS_intake_socio_all-a_051523.csv|Version 2.7/report_env_box_110423.csv|Version 2.7/report_env_trs_110423.csv|Version 2.8/app.R|Version 2.8/cons_compare_012823.csv|Version 2.8/FBS_intake_socio_all-a_051523.csv|Version 2.8/report_env_box_110423.csv|Version 2.8/report_env_trs_110423.csv|Version 3.0/app.R|Version 3.0/report_env_box_110423.csv|Version 3.0/report_env_trs_110423.csv|Version 3.1/app.R|Version 3.1/report_env_box_110423.csv|Version 3.1/report_env_trs_110423.csv|Version 3.2/app.R|Version 3.2/report_env_box_110423.csv|Version 3.2/report_env_trs_110423.csv|Version 3.3/app.R|Version 3.3/report_env_box_110423.csv|Version 3.3/report_env_sel_110423.csv|Version 3.3/report_env_trs_110423.csv|Version 3.4/app.R|file for updates|Version 2.6|Version 2.9
