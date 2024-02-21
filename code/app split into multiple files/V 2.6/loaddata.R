@@ -4,7 +4,9 @@ library(tidyverse)
 #Load data files
 #######-------------------#########-------------------------###########
 
-
+setwd("/Users/lshsc40/Documents/GitHub/shiny_diet_env/code/app split into multiple files/V 2.6/")
+getwd()
+list.files()
 #Load files from Github repository ----
 #csv_file_trs <- "report_env_trs_053123.csv"
 csv_file_trs <- "report_env_trs_110423.csv"

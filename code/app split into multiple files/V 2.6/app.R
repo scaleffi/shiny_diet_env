@@ -1,4 +1,4 @@
-#This file replicates the code in the Dashboard 2.3.R file, but split into four separate scripts. This one includes all the instructions to launch the dashboard. It only requires loading in the correct data files, but 
+#This file replicates the code in the Dashboard 2.6.R file, but split into four separate scripts. This one includes all the instructions to launch the dashboard. It only requires loading in the correct data files, but 
 #it does not run with the Run App button, you have to launch it manually. Or, you can load in the loaddata.R file, and then use the Run App button
 
 #----
@@ -11,7 +11,7 @@ library(rsconnect)
 library(shiny)
 
 #Prepare the environment for executing the dashboard ----
-rm(list = ls()) #clear the environment
+#rm(list = ls()) #clear the environment
 
 #options(shiny.error = browser) # for debugging - remove in last version
 
@@ -41,4 +41,4 @@ rm(list = ls()) #clear the environment
 #Run the Shiny app.
 ###
 
-shinyApp(ui, server)
+#shinyApp(ui, server)
