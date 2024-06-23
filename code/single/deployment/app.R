@@ -5,37 +5,27 @@ library(DT)
 library(rsconnect)
 library(shiny)
 library(scales)
-#library(shinythemes)
-#library(periscope)
 library(fmsb)
-#library(gghighlight)
 library(ggthemes)
 library(ggsci)
 library(geomtextpath)
-#library(patchwork)
-#library(thematic)
 library(plotly)
-
-#logdebug("log", logger = "ss_userAction")
 
 #To inspect the script one section at a time and make debugging easier, navigate to Edit --> Folding --> Collapse all. This will automatically
 #nest each subsection within their upper-level section, as defined in the code through the use of # and - symbols. Then simply click on the
 #small arrows that appear next to the line numbers, or on buttons with double-sided arrows at the end of each line, to expand the corresponding section of code.
 
-#Prepare the environment for executing the dashboard ----
-rm(list = ls()) #clear the environment
 
-#Load files from Github repository ----
+#Load and read in files from Github repository ----
 csv_file_trs <- "report_env_trs_011824.csv"
 csv_file_box <- "report_env_box_011824.csv" 
 csv_file_sel <- "report_env_sel_011824.csv"
 
+#Read in files - NOTE: using read_csv (from the readr package) instead of read.csv could speed up the process, investigate if possible
 data_box <- read.csv(csv_file_box)
-data_box$value <- round(data_box$value, 2)
-df <- data_box 
-
+data_box$value <- round(data_box$value, 0)
+df <- data_box %>%
 #Rename values in env_itm column to include unit of measurements for each environmental dimension
-df <- df %>%
   mutate(env_itm = case_when(
     env_itm == "GHG" ~ "GHG (Mt CO2eq)",
     env_itm == "water" ~ "water use (km3)",
@@ -43,8 +33,8 @@ df <- df %>%
     env_itm == "land_crop" ~ "land use, crops (thousands of km2)",
     env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "eutrophication pot. (kt PO4eq)",
-    env_itm == "avg" ~ "average env. impact",
-    env_itm == "avg_pb" ~ "average env. impact (pb weighted)",
+    env_itm == "avg" ~ "average environmental impact",
+    env_itm == "avg_pb" ~ "average environmental impact (pb weighted)",
     TRUE ~ env_itm  # Keep the original value if it doesn't match any condition
   ),
           dmd_scn = case_when(
@@ -55,15 +45,15 @@ df <- df %>%
           measure = case_when(
     measure == "abs" ~ "absolute",
     measure == "cap" ~ "per capita",
-    measure == "pct_abs_WLD" ~ "ratio to global avg (abs.)",
-    measure == "pct_abs_RGS" ~ "ratio to regional avg (abs.)",
-    measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
-    measure == "pct_cap_WLD" ~ "ratio to global avg. (cap.)",
+    measure == "pct_abs_WLD" ~ "ratio to global avg (absolute)",
+    measure == "pct_abs_RGS" ~ "ratio to regional avg (absolute)",
+    measure == "pct_cap_RGS" ~ "ratio to regional mean (capita)",
+    measure == "pct_cap_WLD" ~ "ratio to global mean (capita)",
     TRUE ~ measure
           ))
 
-data_trs <- read.csv(csv_file_trs)
-data_trs$value <- round(data_trs$value, 2)
+data_trs <- read.csv(csv_file_trs) 
+data_trs$value <- round(data_trs$value, 0)
 df_trs <- data_trs 
 
 # Create a new dataset, data_trs_category, by adding a column labelled 'category' to the _trs dataset, to group different labels in the variable age/sociodem to subgroups (if useful)
@@ -85,8 +75,8 @@ df_trs_category <- df_trs_category %>%
     env_itm == "land_crop" ~ "land use, crops (thousands of km2)",
     env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "eutrophication pot. (kt PO4eq)",
-    env_itm == "avg" ~ "average env. impact",
-    env_itm == "avg_pb" ~ "average env. impact (pb weighted)",
+    env_itm == "avg" ~ "average environmental impact",
+    env_itm == "avg_pb" ~ "average environmental impact (pb weighted)",
     TRUE ~ env_itm),
     dmd_scn = case_when(
       dmd_scn == "actl" ~ "actual demand",
@@ -96,10 +86,10 @@ df_trs_category <- df_trs_category %>%
     measure = case_when(
       measure == "abs" ~ "absolute",
       measure == "cap" ~ "per capita",
-      measure == "pct_abs_WLD" ~ "ratio to global avg (abs.)",
-      measure == "pct_abs_RGS" ~ "ratio to regional avg (abs.)",
-      measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
-      measure == "pct_cap_WLD" ~ "ratio to global avg. (cap.)",
+      measure == "pct_abs_WLD" ~ "ratio to global avg (absolute)",
+      measure == "pct_abs_RGS" ~ "ratio to regional avg (absolute)",
+      measure == "pct_cap_RGS" ~ "ratio to regional mean (capita)",
+      measure == "pct_cap_WLD" ~ "ratio to global mean (capita)",
       TRUE ~ measure
     ))
 
@@ -131,8 +121,8 @@ df_trs_macrof <- df_trs_macrof %>%
     env_itm == "land_crop" ~ "land use, crops (thousands of km2)",
     env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "eutrophication pot. (kt PO4eq)",
-    env_itm == "avg" ~ "average env. impact",
-    env_itm == "avg_pb" ~ "average env. impact (pb weighted)",
+    env_itm == "avg" ~ "average environmental impact",
+    env_itm == "avg_pb" ~ "average environmental impact (pb weighted)",
     TRUE ~ env_itm),
     dmd_scn = case_when(
       dmd_scn == "actl" ~ "actual demand",
@@ -142,19 +132,17 @@ df_trs_macrof <- df_trs_macrof %>%
     measure = case_when(
       measure == "abs" ~ "absolute",
       measure == "cap" ~ "per capita",
-      measure == "pct_abs_WLD" ~ "ratio to global avg (abs.)",
-      measure == "pct_abs_RGS" ~ "ratio to regional avg (abs.)",
-      measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
-      measure == "pct_cap_WLD" ~ "ratio to global avg. (cap.)",
+      measure == "pct_abs_WLD" ~ "ratio to global avg (absolute)",
+      measure == "pct_abs_RGS" ~ "ratio to regional avg (absolute)",
+      measure == "pct_cap_RGS" ~ "ratio to regional mean (capita)",
+      measure == "pct_cap_WLD" ~ "ratio to global mean (capita)",
       TRUE ~ measure# Keep the original value if it doesn't match any condition
   ))
 
 
 data_sel <- read.csv(csv_file_sel)
-data_sel$value <- round(data_sel$value, 2)
-df_sel <- data_sel
-
-df_sel <- df_sel %>%
+data_sel$value <- round(data_sel$value, 0)
+df_sel <- data_sel %>%
   mutate(env_itm = case_when(
     env_itm == "GHG" ~ "GHG (Mt CO2eq)",
     env_itm == "water" ~ "water use (km3)",
@@ -162,8 +150,8 @@ df_sel <- df_sel %>%
     env_itm == "land_crop" ~ "land use, crops (thousands of km2)",
     env_itm == "land_pstr" ~ "land use, pasture (thousands of km2)",
     env_itm == "eutr" ~ "eutrophication pot. (kt PO4eq)",
-    env_itm == "avg" ~ "average env. impact",
-    env_itm == "avg_pb" ~ "average env. impact (pb weighted)",
+    env_itm == "avg" ~ "average environmental impact",
+    env_itm == "avg_pb" ~ "average environmental impact (pb weighted)",
     TRUE ~ env_itm),
     dmd_scn = case_when(
       dmd_scn == "actl" ~ "actual demand",
@@ -173,22 +161,12 @@ df_sel <- df_sel %>%
     measure = case_when(
       measure == "abs" ~ "absolute",
       #measure == "cap" ~ "per capita",
-      measure == "pct_abs_WLD" ~ "ratio to global avg (abs.)",
-      measure == "pct_abs_RGS" ~ "ratio to regional avg (abs.)",
-      #measure == "pct_cap_RGS" ~ "ratio to regional avg. (cap.)",
-      #measure == "pct_cap_WLD" ~ "ratio to global avg. (cap.)",
+      measure == "pct_abs_WLD" ~ "ratio to global avg (absolute)",
+      measure == "pct_abs_RGS" ~ "ratio to regional avg (absolute)",
+      #measure == "pct_cap_RGS" ~ "ratio to regional mean (capita)",
+      #measure == "pct_cap_WLD" ~ "ratio to global mean (capita)",
       TRUE ~ measure# Keep the original value if it doesn't match any condition
     ))
-
-# data_cons <- read.csv(csv_file_cons)
-# data_cons$Intake <- round(data_cons$Intake, 2)
-# df_cons <- data_cons[-7]
-# 
-# data_FBSintake <- read.csv(csv_file_FBSintake)
-# data_FBSintake$Value <- round(data_FBSintake$Value, 2)
-# df_FBSintake <- data_FBSintake
-
-
 
 #UI ----
 
@@ -208,8 +186,8 @@ ui <- dashboardPage(skin = "black",
                         menuSubItem("Sex and age", tabName = "sexage", icon = icon("person-half-dress")),
                         menuSubItem("Edu. and urb.", tabName = "eduurb", icon = icon("person-half-dress")),
                         menuSubItem("Absolute impacts, by sociodem", tabName = "multisociodem", icon = icon("person-half-dress")),
-                        menuSubItem("Relative impacts, by sociodem", tabName = "multisociodem_rel", icon = icon("person-half-dress")),
-                        menuSubItem("All sociodem", tabName = "all_sociodem", icon = icon("person-half-dress"))
+                        menuSubItem("Relative impacts, by sociodem", tabName = "multisociodem_rel", icon = icon("person-half-dress"))
+                        #menuSubItem("All sociodem", tabName = "all_sociodem", icon = icon("person-half-dress"))
                         ),
                menuItem("View by region", tabName = NULL, icon = icon("earth-africa"),
                         menuSubItem("About this data", tabName = "about_region", icon = icon("earth-africa")),
@@ -221,9 +199,9 @@ ui <- dashboardPage(skin = "black",
                         menuSubItem("Food groups", tabName = "foodgroups", icon = icon("wheat-awn")),
                         menuSubItem("Food macrocategories", tabName = "foodmacro", icon = icon("wheat-awn"))
                         ),
-               menuItem("Plots for paper", tabName = NULL,
-               menuSubItem("Radar by region", tabName = "radar_region"),
-               menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo")),
+               #menuItem("Plots for paper", tabName = NULL,
+               # menuSubItem("Radar by region", tabName = "radar_region"),
+               # menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo")),
                menuItem("Info", tabName = "readme", icon = icon("info-circle")
                         , selected = TRUE
                         ) 
@@ -237,14 +215,16 @@ ui <- dashboardPage(skin = "black",
         #tabName = "sociodem",
         # tabItem(
         tabName = "about_sociodem", 
-          box(width = 8,
+          box(width = 12,
             title = "About this data", HTML(
               "These tabs allow you to compare diet-related environmental footprints across different sociodemographics.
               Use the first tab, 'Sex and age', if you want to explore how diet-related environmental footprints differ among sexes and age groups, relative to the global
               or regional average. Open the second tab instead, 'Edu-urb', if you want to explore how the footprints change across education and urbanisation levels, 
-              relative to the global or regional average. In both tabs, the values can be interpreted as percentages which show how much higher or lower the impact of a 
-              specific group is, compared to a global or regional average set at 100%.<br><br>
-              If you are interested in seeing how absolute and per capita impacts differ across sociodemographics, regions, and environmental dimensions, open the third tab, 'Sociodem and food groups'.<br><br>
+              relative to the global or regional average.<br><br> 
+              In both tabs, the values can be interpreted as percentages which show how much higher or lower the impact of a 
+              specific group is, compared to a global or regional average - set at 100%. For example, a value of 137 corresponds to a diet that is 37% higher than the mean.
+              A value of 81 corresponds to a diet that is 19% lower than the mean.<br><br>
+              If you are interested in seeing how absolute and relative impacts differ across sociodemographics, regions, and environmental dimensions, open the third and fourth tab.<br><br>
               In all tabs, you can visualise the data through two measures: actual demand, or demand normalised to 2,000 kcal/day. The first measure, actual demand, shows the footprints
               based on the real demand estimated for the underlying food. But comparing environmental footprints across sociodemographics using only this measure
               may be misleading: children, for example, eat less than adults in absolute terms, making their footprints invariably smaller in absolute terms. To control for these biophysical factors, we also calculated footprints
@@ -265,10 +245,10 @@ ui <- dashboardPage(skin = "black",
                         fluidRow(
                           column(3,
                                selectInput("dmd_scn_2", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
-                               selectInput("measure_2", "Select Measure:", choices = c("ratio to global avg. (cap.)","ratio to regional avg. (cap.)"), selected = "ratio to global avg. (cap.)")
+                               selectInput("measure_2", "Select Measure:", choices = c("ratio to global mean (capita)","ratio to regional mean (capita)"), selected = "ratio to global mean (capita)")
                         ),
                           column(3,
-                               selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "average env. impact"),
+                               selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "average environmental impact"),
                                selectInput("region_2", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
                           column(3,
@@ -287,7 +267,7 @@ ui <- dashboardPage(skin = "black",
                         width = 12, title = "Output" , collapsible = T, solidHeader = TRUE, status = "primary",
                         tabsetPanel(
                           tabPanel("Plot", plotOutput("plot_sexage"
-                                                      #, height = 400
+                                                      #, height = 100
                           )),
                           tabPanel("Table",tableOutput("sexage_table"))
                         )
@@ -303,10 +283,10 @@ ui <- dashboardPage(skin = "black",
                fluidRow(
                  column(3,
                         selectInput("dmd_scn_3", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
-                        selectInput("measure_3", "Select Measure:", choices = c("ratio to global avg. (cap.)","ratio to regional avg. (cap.)"), selected = "ratio to global avg. (cap.)")
+                        selectInput("measure_3", "Select Measure:", choices = c("ratio to global mean (capita)","ratio to regional mean (capita)"), selected = "ratio to global mean (capita)")
                         ),
                  column(3,
-                        selectInput("env_dimensions_3", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "average env. impact"),
+                        selectInput("env_dimensions_3", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "average environmental impact"),
                         selectInput("region_3", "Select Region:", choices = unique(df$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
                  column(3,
@@ -347,7 +327,7 @@ ui <- dashboardPage(skin = "black",
                         ),
                  column(3,
                         selectInput("env_dimensions_7", "Select Environmental Dimensions:", 
-                                    choices = setdiff(unique(df_trs_category$env_itm), c("average env. impact", "average env. impact (pb weighted)")),
+                                    choices = setdiff(unique(df_trs_category$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")),
                                     selected = "GHG (Mt CO2eq)"),
                         selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
                           "beef",
@@ -413,14 +393,14 @@ ui <- dashboardPage(skin = "black",
                       column(3,
                              selectInput("dmd_scn_8", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
                              selectInput("measure_8", "Select Measure:", choices = c(
-                               "ratio to global avg (abs.)", 
-                               "ratio to regional avg (abs.)",
-                               "ratio to regional avg. (cap.)",
-                               "ratio to global avg. (cap.)"),
-                               selected = "ratio to regional avg (abs.)")
+                               "ratio to global avg (absolute)", 
+                               "ratio to regional avg (absolute)",
+                               "ratio to regional mean (capita)",
+                               "ratio to global mean (capita)"),
+                               selected = "ratio to regional avg (absolute)")
                       ),
                       column(3,
-                             selectInput("env_dimensions_8", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), selected = "average env. impact"),
+                             selectInput("env_dimensions_8", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), selected = "average environmental impact"),
                              selectInput("age_8", "Select sociodemographic:", choices = unique(df_trs_category$age), multiple = TRUE, selected = c(
                                "low",
                                "medium",
@@ -494,16 +474,16 @@ ui <- dashboardPage(skin = "black",
                              selectInput("dmd_scn_9", "Select Demand Perspective:", choices = unique(df_sel$dmd_scn), selected = "actual demand"),
                              selectInput("measure_9", "Select Measure:", choices = unique(df_sel$measure), selected = "absolute")
                                #             c(
-                               # "ratio to global avg (abs.)", 
-                               # "ratio to regional avg (abs.)",
-                               # "ratio to regional avg. (cap.)",
-                               # "ratio to global avg. (cap.)",
+                               # "ratio to global avg (absolute)", 
+                               # "ratio to regional avg (absolute)",
+                               # "ratio to regional mean (capita)",
+                               # "ratio to global mean (capita)",
                                # "absolute",
                                # "per capita"),
                                # selected = "absolute")
                       ),
                       column(3,
-                             selectInput("env_dimensions_9", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), c("average env. impact", "average env. impact (pb weighted)")), selected = "GHG (Mt CO2eq)"),
+                             selectInput("env_dimensions_9", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")), selected = "GHG (Mt CO2eq)"),
                              selectInput("age_9", "Select age:", choices = unique(df_sel$age), multiple = TRUE, selected = c(
                                "0-9",
                                "10-19",
@@ -550,7 +530,7 @@ ui <- dashboardPage(skin = "black",
       tabItem(
         ###Second item ----
         tabName = "about_region",
-          box(width = 8,
+          box(width = 12,
             title = "About this data",HTML(
               "These tabs allow you to compare absolute and per capita diet-related environmental footprints across income regions and geographical regions.<br><br>
               In both tabs, you can also see how much each food group contributes to the environmental footprint across the six different dimensions.<br><br> 
@@ -571,13 +551,13 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_1", "Select Measure:", choices = c(
                           "absolute", 
                           "per capita",
-                          "ratio to global avg (abs.)", 
-                          "ratio to regional avg (abs.)",
-                          "ratio to regional avg. (cap.)",
-                          "ratio to global avg. (cap.)"), selected = "per capita")
+                          "ratio to global avg (absolute)", 
+                          "ratio to regional avg (absolute)",
+                          "ratio to regional mean (capita)",
+                          "ratio to global mean (capita)"), selected = "per capita")
                         ),
                  column(4,
-                        selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average env. impact", "average env. impact (pb weighted)")),multiple = TRUE, selected = c(
+                        selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")),multiple = TRUE, selected = c(
                           "GHG (Mt CO2eq)",
                           "land use (thousands of km2)",
                           "water use (km3)",
@@ -632,7 +612,7 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_5", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
                         ),
                  column(4,
-                        selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average env. impact", "average env. impact (pb weighted)")),multiple = TRUE, selected = c(
+                        selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")),multiple = TRUE, selected = c(
                           "GHG (Mt CO2eq)",
                           "land use (thousands of km2)",
                           "water use (km3)",
@@ -687,7 +667,7 @@ ui <- dashboardPage(skin = "black",
       tabItem(
         ###Third item ----
         tabName = "about_categories",
-          box(width = 8,
+          box(width = 12,
             title = "About this data", HTML(
               "These tabs allow you to compare absolute and per capita environmental footprints associated with the estimated demand of fifteen food groups, across regions.<br><br>
               We also grouped the fifteen food groups into three macrocategories: Animal Source Foods (ASF), Staples, and Other. This is an arbitrary classification made for the
@@ -708,7 +688,7 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_4", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
                         ),
                  column(4,
-                        selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average env. impact", "average env. impact (pb weighted)")), selected = "GHG (Mt CO2eq)"),
+                        selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")), selected = "GHG (Mt CO2eq)"),
                         selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
                  column(4,
@@ -758,7 +738,7 @@ ui <- dashboardPage(skin = "black",
                         selectInput("measure_6", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
                         ),
                  column(4,
-                        selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average env. impact","average env. impact (pb weighted)", "land use, pasture (thousands of km2)", "land use, crops (thousands of km2)")), selected = "GHG (Mt CO2eq)"),
+                        selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average environmental impact","average environmental impact (pb weighted)", "land use, pasture (thousands of km2)", "land use, crops (thousands of km2)")), selected = "GHG (Mt CO2eq)"),
                         selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
                  column(4,
@@ -805,16 +785,16 @@ ui <- dashboardPage(skin = "black",
                       column(4,
                              selectInput("dmd_scn_10", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
                              selectInput("measure_10", "Select Measure:", choices = c(
-                               "ratio to regional avg. (cap.)",
-                               "ratio to global avg. (cap.)"
-                               #"ratio to global avg (abs.)",
-                               #"ratio to regional avg (abs.)"
+                               "ratio to regional mean (capita)",
+                               "ratio to global mean (capita)"
+                               #"ratio to global avg (absolute)",
+                               #"ratio to regional avg (absolute)"
                                ),
-                               selected = "ratio to global avg. (cap.)")
+                               selected = "ratio to global mean (capita)")
                       ),
                       column(4,
                              selectInput("env_dimensions_10", "Select Environmental Dimensions:", choices = unique(df$env_itm),
-                                           selected = "average env. impact"),
+                                           selected = "average environmental impact"),
                              selectInput("age_10", "Select sociodemographic:", choices = unique(df_trs_category$age), multiple = TRUE, selected = c(
                                "low",
                                "medium",
@@ -856,16 +836,16 @@ ui <- dashboardPage(skin = "black",
                       column(4,
                              selectInput("dmd_scn_11", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
                              selectInput("measure_11", "Select Measure:", choices = c(
-                               #"ratio to regional avg. (cap.)",
-                               "ratio to global avg. (cap.)"
-                               #"ratio to global avg (abs.)",
-                               #"ratio to regional avg (abs.)"
+                               #"ratio to regional mean (capita)",
+                               "ratio to global mean (capita)"
+                               #"ratio to global avg (absolute)",
+                               #"ratio to regional avg (absolute)"
                              ),
-                             selected = "ratio to global avg. (cap.)")
+                             selected = "ratio to global mean (capita)")
                       ),
                       column(4,
                              selectInput("env_dimensions_11", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), multiple = TRUE,
-                                         selected = "average env. impact"),
+                                         selected = "average environmental impact"),
                              selectInput("region_11", "Select Region:", choices = c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF"), multiple = TRUE, selected = c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF"))
                       ),
                       column(4,
@@ -888,18 +868,20 @@ ui <- dashboardPage(skin = "black",
         ###Fifth item ----
         tabName = "readme",
         fluidRow(
-          box(width = 8,
+          box(width = 12,
             title = "ReadMe",
             div(
               HTML(
-                    "This dashboard allows you to explore and compare data on the environmental footprints of global diets in 2020. 
-                    It uses new datasets and estimates, developed by Prof. Marco Springmann at the London School of Hygiene and Tropical Medicine.<br><br> 
-                    The data can be filtered by region, country, and by characteristics such as sex, age group, education level, etc.
-                    The dashboard is divided in three sections: the first one focuses on how footprints differ across sociodemographics; the second one on how
-                    they differ across regions, both income and geographic; the third one on how they differ across food groups and macrocategories. Within each section,
-                    you can build plots and data tables by choosing among several filters and inputs. 
+                    "This dashboard allows you to explore and compare diet-related environmental footprints of global diets in 2020. 
+                    It uses new estimates developed by Prof. Marco Springmann.<br><br> 
+                    The data can be filtered or compared by region, country, sex, age group, urbanicity, and education level.
+                    The dashboard is divided in three sections, accessible through the tabs in the menu on the left.<br><br>
+                    The first section focuses on how footprints differ across sociodemographics (sex, age, urbanicty, education level).<br>
+                    The second, on how they differ across regions, both income and geographic.<br> 
+                    The third, on how they differ across food groups and macrocategories.<br><br> 
+                    Within each section, you can build plots and data tables by choosing among several filters and inputs. 
                     All data can be visualised and downloaded as both a plot or a table. Plots and tables are reproducible, as long as their source is clearly and correctly cited.<br><br>
-                    For feedback or questions please contact Sebastiano Caleffi at sebastiano.caleffi@lshtm.ac.uk"
+                    For feedback or questions please contact Sebastiano Caleffi at s.caleffi@ucl.ac.uk"
               )
               #style = "width:100%;"
               
@@ -1107,18 +1089,25 @@ server <- function(input, output) {
     theme_few() +
     #%+replace%
       theme(
+        #plot.margin = margin(0,0,0,0),
         axis.title.x = element_text(
-          vjust = -1,
-          size = 12,
+          vjust = -0.5,
+          size = 16,
+          #family = "serif",
           face = "bold"),
-        axis.title.y = element_text(size = 12,
+        axis.title.y = element_text(size = 16,
                                     face = "bold",
+                                    #family = "serif",
                                     #angle = 90
                                     vjust = 1.5
                                     ),
-        strip.text.x = element_text(size = 12, face = "bold"),
+        strip.text.x = element_text(size = 14 
+                                    #,face = "bold"
+                                    ),
         panel.spacing = unit(0,"lines"),
-        strip.text.y = element_text(size = 12, face = "bold"),
+        strip.text.y = element_text(size = 14
+                                    , face = "bold"
+                                    ),
         axis.text.y = element_text(size = 12),
         axis.text.x = element_text(size = 12,
                                    angle = 45,
@@ -1127,18 +1116,25 @@ server <- function(input, output) {
         ),
         legend.position = "right",
         legend.text = element_text(size = 12),
-        legend.title = element_text(size = 12, face = "bold"),
-        plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        plot.subtitle = element_text(size = 12, face = "bold"),
+        legend.title = element_text(size = 12
+                                    #face = "bold"
+                                    ),
+        plot.title = element_text(#family = "serif",
+                                  size = 22, 
+                                  face = "bold",
+                                  hjust = 0.5,
+                                  vjust = 1),
+        plot.subtitle = element_text(size = 14, face = "bold"),
         panel.grid.major.x = element_line(colour = "gray", linetype = "dotted"),
         panel.grid.major.y = element_line(colour = "gray", linetype = "dotted"),
-        strip.placement = "outside"
+        strip.placement = "inside"
       )
   }
   
+#Create a second version of the custom theme, for radar plots. This type of plots require some changes that would be 
+    #too time consuming to manually add to each plot
   lshtm_theme_few_radar <- function(){
     theme_few() +
-      #%+replace%
       theme(
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
@@ -1148,26 +1144,11 @@ server <- function(input, output) {
         axis.text.y = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks = element_blank(),
-        # legend.position = "right",
-        # legend.text = element_text(size = 12),
-        # legend.title = element_text(size = 12, face = "bold"),
-        # plot.title = element_text(size = 14, face = "bold", hjust = 0.5, vjust = 1),
-        # plot.subtitle = element_text(size = 12, face = "bold"),
         panel.grid.major.x = element_blank(),
         panel.grid.major.y = element_blank(),
         strip.placement = "outside"
       )
   }
-  
-  # #Control shading by setting alpha values through a new vector named alpha_vals; changing the range of shading helps with displaying some images that have several colors.
-  # alpha_max <- 1
-  # alpha_min <- 0.7
-  # alpha_vals <- c(
-  #   seq(alpha_max, alpha_min, length.out = 8), 
-  #   seq(alpha_min, alpha_max, length.out = 8)[-1]
-  # )
-  # alpha_vals
-  # 
   
   #create a vector named 'colors_macro' made up of three colors from the Set1 ColorBrewer palette. This can be used to assign specific colors to values in the macrofoods variable.
   colors_macro <- c(
@@ -1236,14 +1217,6 @@ server <- function(input, output) {
   env_itm.labs <- c("GHG (Mt CO2eq)", "Freshwater use (km3)", "Eutrophication pot. (Mt PO4eq)", "land use (thousands of km2)", "Land use_pasture (thousands of km2)", "Land use_crops (thousands of km2)")
   names(env_itm.labs) <- c("GHG (Mt CO2eq)", "water use (km3)", "eutrophication pot. (kt PO4eq)", "land use (thousands of km2)", "land use, pasture (thousands of km2)", "land use, crops (thousands of km2)")
   
-  # env_itm == "GHG" ~ "GHG (kt CO2eq)",
-  # env_itm == "water" ~ "water use (km3)",
-  # env_itm == "land" ~ "land use (thousands of km2)",
-  # env_itm == "land_crop" ~ "Land use,crops (thousands of km2)",
-  # env_itm == "land_pstr" ~ "Land use,pasture (thousands of km2)",
-  # env_itm == "eutr" ~ "eutrophication pot. (kt PO4eq)",
-  
-  
   # Create a vector to rename facet plots with the full names of the regions
   region.labs <-
     c(
@@ -1305,7 +1278,6 @@ server <- function(input, output) {
       "Sub-Saharan Africa"
     )
   
-  
   ##Draw plots for tabs in the first item (sociodem) ----
 
 #The dashboard works if the plots are directly called using the renderPlot call, which means that R generates a new plot dynamically
@@ -1332,7 +1304,7 @@ server <- function(input, output) {
         color = sex.urbanisation
       )
     ) +
-      geom_point(size = 3) +
+      geom_point(size = 4) +
       #coord_flip() +
       scale_color_manual(values = colors_sex,
                         breaks = c("MLE",
@@ -1341,36 +1313,38 @@ server <- function(input, output) {
                         labels = c("Male",
                                    "Female",
                                    "Both"),
-                        name = "Sex:") +
+                        name = "(100 = global mean)") + 
       scale_y_continuous(breaks = c(0, 50, 75, 100, 125, 150, 200)) +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 5,
                   labeller = labeller(region_custom = label_wrap_gen(width = 15))
                   ) +
-      geom_hline(yintercept = 100, alpha = 0.3) +
+      geom_hline(yintercept = 100, alpha = 0.2, linewidth = 2) +
+      #geom_texthline(mapping = NULL, data = NULL, yintercept = 100, label = "Global average") +
       labs(
         title = paste("Diet-related",
                       selected_env_itm_s,
                       "in 2020,",
-                      "expressed as\n",
+                      "as\n",
                       selected_measure,
                       #"(100 = world or regional average)",
                       sep = " "),
-        subtitle = paste("Note: all data is based on ",
-                          selected_dmd_scn,
-                         ".",
-                         #".\nIn the plot, average is set equal to 100.", 
-                         sep = "") ,
+        # # subtitle = paste("Note: all data is based on ",
+        # #                   selected_dmd_scn,
+        # #                  ".",
+        #                  #".\nIn the plot, average is set equal to 100.", 
+        #                  sep = "") ,
         #caption = "LSHTM - Centre for Climate Change and Planetary Health",
         x = "Age",
         y = paste(selected_env_itm_s,
             " as\n",
             selected_measure,
-            ", with average set to 100",
+            #", with average set to 100",
             sep = "")
        ) +
-      lshtm_theme_few()
+      lshtm_theme_few()+
+      theme(legend.position = "top")
   })
   
   output$plot_sexage <- renderPlot({
@@ -1392,7 +1366,7 @@ server <- function(input, output) {
              y = value,
              color = sex.urbanisation
            )) +
-      geom_point(size = 3) +
+      geom_point(size = 4) +
       scale_color_manual(values = colors_urban,
                          breaks = c("urban",
                                     "rural",
@@ -1402,36 +1376,37 @@ server <- function(input, output) {
                                     "Rural",
                                     "all-u"
                                     ),
-                         name = "Urbanisation:") +
+                         name = "(100 = global mean)") +
       scale_y_continuous(breaks = c(0, 50, 75, 100, 125, 150, 175, 200)) +
       geom_text_repel(aes(label = value), show.legend = FALSE) +
       #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
       facet_wrap( ~ region_custom, ncol = 5, 
                   labeller = labeller(region_custom = label_wrap_gen(width = 15)) 
                   ) +
-      geom_hline(yintercept = 100, alpha = 0.3) +
+      geom_hline(yintercept = 100, alpha = 0.2, linewidth = 2) +
       labs(
         title = paste("Diet-related",
                              selected_env_itm_u,
                              "in 2020,",
-                             "expressed as\n",
+                             "as\n",
                              selected_measure,
                              #"(100 = world or regional average)",
                              sep = " ") ,
-        subtitle = paste("Note: all data is based on ",
-                         selected_dmd_scn,
-                         ".",
-                         #".\nIn the plot, average is set equal to 100.", 
-                         sep = "") ,
+        # subtitle = paste("Note: all data is based on ",
+        #                  selected_dmd_scn,
+        #                  ".",
+        #                  #".\nIn the plot, average is set equal to 100.", 
+        #                  sep = "") ,
         #caption = "LSHTM - Centre for Climate Change and Planetary Health",
         x = "Education level",
         y = paste(selected_env_itm_u,
-                      " as ",
+                      " as\n",
                       selected_measure,
-                      ", with average set to 100",
+                      #", with average set to 100",
                       sep = "")
              ) +
-      lshtm_theme_few()
+      lshtm_theme_few()+
+      theme(legend.position = "top")
   })
   
   output$plot_eduurb <- renderPlot({
@@ -1500,7 +1475,7 @@ server <- function(input, output) {
       #coord_flip() is an easy way to swtich the x and y axis. Depending on what we want the user to focus on, each vis has its advantages. To see
       #the graph with the impacts on the y axis and the sociodem/age variables on the x axis, comment the coord_flip() call, AND switch the arguments in facet_grid to scales = "free_x", space = "free", switch = "x".
       coord_flip() +
-      facet_grid(category ~ region_custom, scales = "free", space = "free_y", switch = "y", shrink = FALSE,
+      facet_grid(category ~ region_custom, scales = "free_y", space = "free_y", switch = "y", shrink = FALSE,
                  labeller = labeller(region_custom = label_wrap_gen(width = 15),
                                      category = label_wrap_gen(width = 5))
                  ) +
@@ -1509,12 +1484,10 @@ server <- function(input, output) {
                          " diet-related ",
                          selected_env_itm,
                          " in 2020,\n",
-                         " by sociodemographic",
-                         " (",   
+                         "based on ",
                          selected_dmd_scn,
-                         ")\n",
                          sep = "") ,
-           subtitle ="Note: value ranges along the x-axis differ across plots" ,
+           #subtitle ="Note: value ranges along the x-axis differ across plots" ,
         #caption = "LSHTM - Centre for Climate Change and Planetary Health",
         x = NULL,
         y = paste(selected_env_itm,
@@ -1599,10 +1572,8 @@ server <- function(input, output) {
          title = paste("diet-related ",
                                selected_env_itm,
                                " in 2020,\n",
-                               " by sociodemographic",
-                               " (",
+                               "based on ",
                                selected_dmd_scn,
-                               ")\n",
                                sep = "") ,
          #caption = "LSHTM - Centre for Climate Change and Planetary Health",
          x = NULL,
@@ -1695,7 +1666,7 @@ server <- function(input, output) {
       labs(#caption = "LSHTM - Centre for Climate Change and Planetary Health",
            title = paste("Diet-related environmental impact from\n",
                          selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
-           x = "Income Region" , 
+           x = NULL , 
            #y = "Diet-related environmental impact in 2020",
            y = NULL,
            fill = NULL) +
@@ -1778,7 +1749,7 @@ server <- function(input, output) {
       labs(title = paste("Diet-related environmental impact from\n",
                                  selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
            #caption = "LSHTM - Centre for Climate Change and Planetary Health",
-           x = "Geographical Region",
+           x = NULL,
            #y = "Impact",
            y = NULL,
            fill = NULL) +
@@ -1921,46 +1892,6 @@ server <- function(input, output) {
   reactive_plot_regionradar <- reactive({
     
     data <- filtered_data_regionradar()  
-    
-    #%>% spread(key = region, value = value) %>%
-      # select(-c(measure, env_itm, dmd_scn, food_group,box,age.education,sex.urbanisation))
-
-
-
-    #THIS SECTION OF CODE works to generate individual spider plots using the fmsb package. Because it runs
-    #outside of ggplot2, it does not allow for faceting or saving using the existing code for the rest of the
-    #script
-
-    #     # Extracting the data from reshaped_data
-
-     #radar_data <- as.data.frame(data)
-     #print(radar_data)
-    # # # Add rows for max and min values
-
-     #max_values <- rep(150, ncol(radar_data))
-     #min_values <- rep(0, ncol(radar_data))
-
-    # # Bind the new max/min rows to the data - the radarchart() function needs this to work properly
-
-     #radar_data_maxmin <- rbind(min_values, max_values, radar_data)
-    # # Check the data is ok
-
-     #print(radar_data_maxmin)
-    #
-    # # Create radar plot - WARNING: because this is not going through ggplot2, the resulting plots can't
-    # # be faceted, or easily customised using the same settings as in ggplot2
-    #p_regionradar <- radarchart(radar_data_maxmin, maxmin = TRUE, title = "Avg env footprint per capita\n(compared to WLD average)")
-    #
-     #return(p_regionradar)
-
-
-
-    # p_regionradar <- radarchart(reshaped_data, maxmin = FALSE
-    # )
-    #  print(reshaped_data)
-    # Print the result
-    # print("Reshaped Data:")
-    # print(reshaped_data)
     
   #I need to play around with these input data frames to rearrange the plot so that the scale is at the top
     segments_1 <- data.frame(
@@ -2198,8 +2129,6 @@ server <- function(input, output) {
     }
   )
   
-  
-  
   ##Generate data table for eduurb ----
   #Create table for the eduurb tab, starting from the subsection of the main dataset identified by the filtered_data_eduurb element, that here is called as a function.
   eduurb_table <- reactive({
@@ -2313,8 +2242,7 @@ server <- function(input, output) {
       write.csv(sociodem_data_export, file, row.names = FALSE)
     }
   )
-  
-  
+
   sociodem_rel_table <- reactive({
     data <- filtered_data_sociodem_rel()
     data <- data %>%
@@ -2599,11 +2527,6 @@ server <- function(input, output) {
       write.csv(categorymacro_data_export, file, row.names = FALSE)
     }
   )
-  
-  
-  ##Generate data table for cons proxy compare ----
-  
-  
   
   #Generate code to download the plots ----
   

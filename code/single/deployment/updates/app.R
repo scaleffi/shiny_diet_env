@@ -186,8 +186,8 @@ ui <- dashboardPage(skin = "black",
                         menuSubItem("Sex and age", tabName = "sexage", icon = icon("person-half-dress")),
                         menuSubItem("Edu. and urb.", tabName = "eduurb", icon = icon("person-half-dress")),
                         menuSubItem("Absolute impacts, by sociodem", tabName = "multisociodem", icon = icon("person-half-dress")),
-                        menuSubItem("Relative impacts, by sociodem", tabName = "multisociodem_rel", icon = icon("person-half-dress")),
-                        menuSubItem("All sociodem", tabName = "all_sociodem", icon = icon("person-half-dress"))
+                        menuSubItem("Relative impacts, by sociodem", tabName = "multisociodem_rel", icon = icon("person-half-dress"))
+                        #menuSubItem("All sociodem", tabName = "all_sociodem", icon = icon("person-half-dress"))
                         ),
                menuItem("View by region", tabName = NULL, icon = icon("earth-africa"),
                         menuSubItem("About this data", tabName = "about_region", icon = icon("earth-africa")),
@@ -199,9 +199,9 @@ ui <- dashboardPage(skin = "black",
                         menuSubItem("Food groups", tabName = "foodgroups", icon = icon("wheat-awn")),
                         menuSubItem("Food macrocategories", tabName = "foodmacro", icon = icon("wheat-awn"))
                         ),
-               menuItem("Plots for paper", tabName = NULL,
-               menuSubItem("Radar by region", tabName = "radar_region"),
-               menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo")),
+               #menuItem("Plots for paper", tabName = NULL,
+               # menuSubItem("Radar by region", tabName = "radar_region"),
+               # menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo")),
                menuItem("Info", tabName = "readme", icon = icon("info-circle")
                         , selected = TRUE
                         ) 
@@ -215,14 +215,16 @@ ui <- dashboardPage(skin = "black",
         #tabName = "sociodem",
         # tabItem(
         tabName = "about_sociodem", 
-          box(width = 8,
+          box(width = 12,
             title = "About this data", HTML(
               "These tabs allow you to compare diet-related environmental footprints across different sociodemographics.
               Use the first tab, 'Sex and age', if you want to explore how diet-related environmental footprints differ among sexes and age groups, relative to the global
               or regional average. Open the second tab instead, 'Edu-urb', if you want to explore how the footprints change across education and urbanisation levels, 
-              relative to the global or regional average. In both tabs, the values can be interpreted as percentages which show how much higher or lower the impact of a 
-              specific group is, compared to a global or regional average set at 100%.<br><br>
-              If you are interested in seeing how absolute and per capita impacts differ across sociodemographics, regions, and environmental dimensions, open the third tab, 'Sociodem and food groups'.<br><br>
+              relative to the global or regional average.<br><br> 
+              In both tabs, the values can be interpreted as percentages which show how much higher or lower the impact of a 
+              specific group is, compared to a global or regional average - set at 100%. For example, a value of 137 corresponds to a diet that is 37% higher than the mean.
+              A value of 81 corresponds to a diet that is 19% lower than the mean.<br><br>
+              If you are interested in seeing how absolute and relative impacts differ across sociodemographics, regions, and environmental dimensions, open the third and fourth tab.<br><br>
               In all tabs, you can visualise the data through two measures: actual demand, or demand normalised to 2,000 kcal/day. The first measure, actual demand, shows the footprints
               based on the real demand estimated for the underlying food. But comparing environmental footprints across sociodemographics using only this measure
               may be misleading: children, for example, eat less than adults in absolute terms, making their footprints invariably smaller in absolute terms. To control for these biophysical factors, we also calculated footprints
@@ -528,7 +530,7 @@ ui <- dashboardPage(skin = "black",
       tabItem(
         ###Second item ----
         tabName = "about_region",
-          box(width = 8,
+          box(width = 12,
             title = "About this data",HTML(
               "These tabs allow you to compare absolute and per capita diet-related environmental footprints across income regions and geographical regions.<br><br>
               In both tabs, you can also see how much each food group contributes to the environmental footprint across the six different dimensions.<br><br> 
@@ -665,7 +667,7 @@ ui <- dashboardPage(skin = "black",
       tabItem(
         ###Third item ----
         tabName = "about_categories",
-          box(width = 8,
+          box(width = 12,
             title = "About this data", HTML(
               "These tabs allow you to compare absolute and per capita environmental footprints associated with the estimated demand of fifteen food groups, across regions.<br><br>
               We also grouped the fifteen food groups into three macrocategories: Animal Source Foods (ASF), Staples, and Other. This is an arbitrary classification made for the
@@ -866,18 +868,20 @@ ui <- dashboardPage(skin = "black",
         ###Fifth item ----
         tabName = "readme",
         fluidRow(
-          box(width = 8,
+          box(width = 12,
             title = "ReadMe",
             div(
               HTML(
-                    "This dashboard allows you to explore and compare data on the environmental footprints of global diets in 2020. 
-                    It uses new datasets and estimates, developed by Prof. Marco Springmann at the London School of Hygiene and Tropical Medicine.<br><br> 
-                    The data can be filtered by region, country, and by characteristics such as sex, age group, education level, etc.
-                    The dashboard is divided in three sections: the first one focuses on how footprints differ across sociodemographics; the second one on how
-                    they differ across regions, both income and geographic; the third one on how they differ across food groups and macrocategories. Within each section,
-                    you can build plots and data tables by choosing among several filters and inputs. 
+                    "This dashboard allows you to explore and compare diet-related environmental footprints of global diets in 2020. 
+                    It uses new estimates developed by Prof. Marco Springmann.<br><br> 
+                    The data can be filtered or compared by region, country, sex, age group, urbanicity, and education level.
+                    The dashboard is divided in three sections, accessible through the tabs in the menu on the left.<br><br>
+                    The first section focuses on how footprints differ across sociodemographics (sex, age, urbanicty, education level).<br>
+                    The second, on how they differ across regions, both income and geographic.<br> 
+                    The third, on how they differ across food groups and macrocategories.<br><br> 
+                    Within each section, you can build plots and data tables by choosing among several filters and inputs. 
                     All data can be visualised and downloaded as both a plot or a table. Plots and tables are reproducible, as long as their source is clearly and correctly cited.<br><br>
-                    For feedback or questions please contact Sebastiano Caleffi at sebastiano.caleffi@lshtm.ac.uk"
+                    For feedback or questions please contact Sebastiano Caleffi at s.caleffi@ucl.ac.uk"
               )
               #style = "width:100%;"
               
@@ -1085,12 +1089,13 @@ server <- function(input, output) {
     theme_few() +
     #%+replace%
       theme(
+        #plot.margin = margin(0,0,0,0),
         axis.title.x = element_text(
-          vjust = -1,
-          size = 14,
+          vjust = -0.5,
+          size = 16,
           #family = "serif",
           face = "bold"),
-        axis.title.y = element_text(size = 14,
+        axis.title.y = element_text(size = 16,
                                     face = "bold",
                                     #family = "serif",
                                     #angle = 90
@@ -1115,7 +1120,7 @@ server <- function(input, output) {
                                     #face = "bold"
                                     ),
         plot.title = element_text(#family = "serif",
-                                  size = 18, 
+                                  size = 22, 
                                   face = "bold",
                                   hjust = 0.5,
                                   vjust = 1),
