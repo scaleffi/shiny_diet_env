@@ -876,7 +876,7 @@ ui <- dashboardPage(skin = "black",
                     It uses new estimates developed by Prof. Marco Springmann.<br><br> 
                     The data can be filtered or compared by region, country, sex, age group, urbanicity, and education level.
                     The dashboard is divided in three sections, accessible through the tabs in the menu on the left.<br><br>
-                    The first section focuses on how footprints differ across sociodemographics (sex, age, urbanicty, education level).<br>
+                    The first section focuses on how footprints differ across sociodemographics (sex, age, urbanicity, education level).<br>
                     The second, on how they differ across regions, both income and geographic.<br> 
                     The third, on how they differ across food groups and macrocategories.<br><br> 
                     Within each section, you can build plots and data tables by choosing among several filters and inputs. 
