@@ -29,8 +29,8 @@
 # I tried immediately to implement these two commands, to clear the environment and get more info on what crashes,
 # but they have no effect.
 # clear the workspace:
-rm(list = ls())
-options(shiny.error = browser)  
+# rm(list = ls())
+# options(shiny.error = browser)  
 
 #Load required libraries
 library(shinydashboard)

@@ -1,4 +1,4 @@
-#library(tidyverse)
+library(tidyverse)
 #Load and read in files from Github repository ----
 csv_file_trs <- "report_env_trs_011824.csv"
 csv_file_box <- "report_env_box_011824.csv"
