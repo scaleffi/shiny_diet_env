@@ -290,8 +290,8 @@ ui <- dashboardPage(skin = "black",
                         selectInput("region_3", "Select Region:", choices = unique(df$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                         ),
                  column(3,
-                        selectInput("age.education_3", "Select education level:", choices = c("low", "medium", "high"), multiple = TRUE, selected = c("low", "medium", "high")),
-                        selectInput("sex.urbanisation_3", "Select urbanisation level:", choices = c("urban", "rural"), multiple = TRUE, selected = c("urban", "rural"))
+                        selectInput("age.education_3", "Select education level:", choices = c("low", "medium", "high", "all-e"), multiple = TRUE, selected = c("low", "medium", "high")),
+                        selectInput("sex.urbanisation_3", "Select urbanisation level:", choices = c("urban", "rural", "all-u"), multiple = TRUE, selected = c("urban", "rural"))
                         ),
                  column(3,
                         downloadButton("download_csv_eduurb", "Download table"),
