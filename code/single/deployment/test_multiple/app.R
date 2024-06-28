@@ -76,9 +76,9 @@ myserver <- function(input,output) {
 myapp <- shinyApp(ui = myUI, 
          server = myserver)
 
-runApp(myapp
-       #the "showcase" mode displays the content of the dashboard alongside the code behind it
-       #,display.mode = "showcase"
-       )
+# runApp(myapp
+#        #the "showcase" mode displays the content of the dashboard alongside the code behind it
+#        #,display.mode = "showcase"
+#        )
 
 #shiny::runApp(display.mode="showcase")
