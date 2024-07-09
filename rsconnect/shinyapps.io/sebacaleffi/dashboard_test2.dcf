@@ -1,0 +1,13 @@
+name: dashboard_test2
+title:
+username: sebacaleffi
+account: sebacaleffi
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10203471
+bundleId: 8768204
+url: https://sebacaleffi.shinyapps.io/dashboard_test2/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: Readme.rtf|Previousversions|updates
