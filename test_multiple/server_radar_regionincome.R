@@ -1,39 +1,37 @@
-filtered_data_regionradargeo <- reactive({
+filtered_data_regionradarincome <- reactive({
   #df %>%
   
   df_trs_category %>%
-    filter(measure == input$measure_11,
-           env_itm %in% input$env_dimensions_11,
+    filter(measure == input$measure_12,
+           env_itm %in% input$env_dimensions_12,
            food_group == "total",
            age == "all-a",
-           dmd_scn == input$dmd_scn_11,
-           region %in% c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF")
+           dmd_scn == input$dmd_scn_12,
+           region %in% c("WLD", "HIC", "UMC", "LMC", "LIC")
            #macrofoods %in% c("ASF", "Staples", "Other")
     )
   
 })
 
-reactive_plot_regionradargeo <- reactive({
+reactive_plot_regionradarincome <- reactive({
   
-  data <- filtered_data_regionradargeo()
-  
-  data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
+  data <- filtered_data_regionradarincome()
   
   segments_1 <- data.frame(
-    x1=rep(0.5,6),
-    x2=rep(8,6),
-    y1=c(0,50,100,150,200,250),
-    y2=c(0,50,100,150,200,250)
+    x1=rep(0.5,4),
+    x2=rep(5,4),
+    y1=c(0,50,100,150),
+    y2=c(0,50,100,150)
   )
   
   labels_1 <- data.frame(
-    y=c(0,50,100,150,200,250),
-    x=rep(0.25,6)
+    y=c(0,50,100,150),
+    x=rep(0.25,4)
   )
   
-  p_regionradargeo <- ggplot(data, aes(
+  p_regionradarincome <- ggplot(data, aes(
     x = #region,
-    factor(region, level = c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF")),
+    factor(region, level = c("HIC", "UMC", "LMC", "LIC", "WLD")),
     y = value
     #fill = macrofoods
   )) +
@@ -60,28 +58,30 @@ reactive_plot_regionradargeo <- reactive({
     scale_y_continuous(limits = c(-60,285)) +
     geom_textsegment(inherit.aes = FALSE,
                      data = labels_1,
-                     mapping = aes(x=7.5,xend=8.5,y=y,yend=y, label=
+                     mapping = aes(x=4.5,xend=5.5,y=y,yend=y, label=
                                      #c("0%","25%","50%","75%","100%","125%","150%")
                                      y
                      ),
                      linewidth=0.35,
                      size=2.5,
-                     linetype = "dotted"
+                     linetype = "solid",
+                     fontface = "bold"
     ) +
     facet_wrap(~ env_itm,
-               ncol = 4
+               ncol = 4,
+               labeller = labeller(env_itm = label_wrap_gen(width = 15))
                ) +
     lshtm_theme_few_radar()
 })
 
-output$plot_regionradargeo <-
+output$plot_regionradarincome <-
   renderPlot({
-    print(reactive_plot_regionradargeo())
+    print(reactive_plot_regionradarincome())
   })
 
-output$download_plot_regionradargeo <- downloadHandler(
-  filename = function() { paste("plot_regionradargeo", '.png', sep='') },
-  content = function(file) { ggsave(file, plot = reactive_plot_regionradargeo(),
+output$download_plot_regionradarincome <- downloadHandler(
+  filename = function() { paste("plot_regionradarincome", '.png', sep='') },
+  content = function(file) { ggsave(file, plot = reactive_plot_regionradarincome(),
                                     device = "png", width = 12) }
 )
 

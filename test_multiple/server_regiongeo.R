@@ -7,7 +7,7 @@ filtered_data_regiongeo <- reactive({
            age.education == "all-a",
            sex.urbanisation == "BTH",
            dmd_scn == input$dmd_scn_5,
-           region %in% input$region_5)
+           region %in% c("WLD", "NAC", "LCN", "ECS", "MEA", "SAS", "EAS", "SSF"))
 })
 
 reactive_plot_regiongeo <- reactive({

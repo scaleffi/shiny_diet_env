@@ -32,7 +32,8 @@ myUI <- dashboardPage(skin = "black",
                         ),
                         menuItem("Plots for paper", tabName = NULL,
                         menuSubItem("Radar by region", tabName = "radar_region"),
-                        menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo")),
+                        menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo"),
+                        menuSubItem("Radar by region (income)", tabName = "radar_regionincome")),
                         menuItem("Info", tabName = "readme", icon = icon("info-circle")
                                  , selected = TRUE
                         ) 
@@ -55,6 +56,7 @@ myUI <- dashboardPage(skin = "black",
                         source('UI_foodmacro.R', local = TRUE)$value,
                         source('UI_radar_region.R', local = TRUE)$value,
                         source('UI_radar_regiongeo.R', local = TRUE)$value,
+                        source('UI_radar_regionincome.R', local = TRUE)$value,
                         source('UI_readme.R', local = TRUE)$value
                       )
                     )

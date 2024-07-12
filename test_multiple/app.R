@@ -34,6 +34,7 @@ myserver <- function(input,output) {
   source('server_categorymacro.R', local = TRUE)
   source('server_radar_region.R', local = TRUE)
   source('server_radar_regiongeo.R', local = TRUE)
+  source('server_radar_regionincome.R', local = TRUE)
 }
 
 #Run the app ----
