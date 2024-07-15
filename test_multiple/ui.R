@@ -1,7 +1,8 @@
 library(shinydashboard)
 # library(shiny)
 
-myUI <- dashboardPage(skin = "black",
+myUI <- dashboardPage(
+                    skin = "black",
                     dashboardHeader(
                       title = "The environmental footprints of global diets",
                       titleWidth = 450

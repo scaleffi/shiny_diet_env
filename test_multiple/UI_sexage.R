@@ -2,6 +2,7 @@ tabItem(
   tabName = "sexage",
   #Sexage----
   fluidPage(title = "Compare footprints by sex and age group",
+            #theme = bslib::bs_theme(bootswatch = "litera"),
             box(width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
                 fluidRow(
                   column(3,
@@ -31,6 +32,18 @@ tabItem(
                                             #, height = 100
                 )),
                 tabPanel("Table",tableOutput("sexage_table"))
+              )
+            ),
+            box(
+              width = 12, title = "Info", collapsible = T, solidHeader = TRUE, status = "primary",
+              div(
+                HTML(
+                  "This plot allows you to compare how diet-related environmental impacts differ across sexes and age groups.<br>
+                  The impacts are presented as relative to the global (or regional) average, set to 100. That is, an impact
+                  of 134 implies a footprint that is 34% higher than the average, while an impact of 78 implies a footprint that is 22% lower than the average.<br><br>
+                  You are free to change any of the inputs in the menu at the top, the plot will update accordingly.
+                  "
+                )
               )
             )
   )
