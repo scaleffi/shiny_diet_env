@@ -9,11 +9,12 @@ tabItem(
                        selectInput("dmd_scn_1", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
                        selectInput("measure_1", "Select Measure:", choices = c(
                          "absolute", 
-                         "per capita",
-                         "ratio to global avg (absolute)", 
-                         "ratio to regional avg (absolute)",
-                         "ratio to regional mean (capita)",
-                         "ratio to global mean (capita)"), selected = "per capita")
+                         "per capita"),
+                         #"ratio to global avg (absolute)", 
+                         #"ratio to regional avg (absolute)",
+                         #"ratio to regional mean (capita)",
+                         #"ratio to global mean (capita)"), 
+                         selected = "per capita")
                 ),
                 column(4,
                        selectInput("env_dimensions_1", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")),multiple = TRUE, selected = c(
@@ -28,20 +29,20 @@ tabItem(
                        selectInput("food_group_1", "Select Food Group:", choices = unique(df$food_group), multiple = TRUE, selected = c(
                          "beef",
                          "lamb",
-                         "dairy",
                          "pork",
-                         "othr_meat",
+                         "other meats",
                          "fish",
-                         "othr_ani",
-                         "rice",
-                         "grains",
-                         "fruit_veg",
-                         "oils",
+                         "dairy",  
+                         "eggs&fats",
+                         "other",
                          "sugar",
-                         "roots",
+                         "oils",
+                         "nuts&seeds",
+                         "fruit&veg",
                          "legumes",
-                         "nuts_seeds",
-                         "other"
+                         "roots",
+                         "rice",
+                         "grains"
                        )),
                        downloadButton("download_csv_region", "Download table"),
                        downloadButton("download_plot_region", "Download plot")

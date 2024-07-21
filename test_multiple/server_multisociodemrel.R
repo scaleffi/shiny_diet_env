@@ -15,6 +15,7 @@ reactive_plot_sociodem_rel <- reactive({
   data <- filtered_data_sociodem_rel()
   
   data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
+  data$category_custom <- factor(data$category, levels = custom_order_category)
   
   selected_env_itm <- input$env_dimensions_8
   selected_dmd_scn <- input$dmd_scn_8
@@ -22,73 +23,134 @@ reactive_plot_sociodem_rel <- reactive({
   
   p_sociodem_rel <- ggplot(data,
                            aes(
-                             x = factor(
+                             x = value,
+                             y = factor(
                                age,
-                               level = c(
-                                 "MLE",
-                                 "FML",
-                                 "BTH",
-                                 "0-9",
-                                 "10-19",
-                                 "20-39",
-                                 "40-64",
-                                 "65+",
-                                 "all-a",
-                                 "low",
-                                 "medium",
-                                 "high",
-                                 "all-e",
-                                 "urban",
-                                 "rural",
-                                 "all-u"
-                               )
-                             ),
-                             y = value,
-                             label = value
-                           )) +
+                               level = 
+                                 custom_order_sociodem
+                             )
+                             ,label = value
+                           )
+                           ) +
     geom_col(aes(fill = factor(
       food_group,
-      level = c(
-        "beef",
-        "lamb",
-        "dairy",
-        "pork",
-        "othr_meat",
-        "fish",
-        "othr_ani",
-        "rice",
-        "grains",
-        "fruit_veg",
-        "oils",
-        "sugar",
-        "roots",
-        "legumes",
-        "nuts_seeds",
-        "other",
-        "total"
-      )
-    )), color = "white") +
-    coord_flip() +
-    facet_grid(category ~ region_custom,
+      level = custom_order_foodgroup
+    )), color = "black") +
+    #coord_flip() +
+    facet_grid(category_custom ~ region_custom,
                scales = "free_y",
                space = "free_y", switch = "y", shrink = FALSE,
                labeller = labeller(region_custom = label_wrap_gen(width = 15),
                                    category = label_wrap_gen(width = 5))
     ) +
+    geom_vline(xintercept = 100, alpha = 0.4, linewidth = 0.8) +
     scale_fill_manual(values = colors_food) +
+    #scale_x_continuous(position = "top") +
     labs(
-      title = paste("diet-related ",
+      title = 
+        paste("Share of diet-related ",
                     selected_env_itm,
                     " in 2020,\n",
                     "based on ",
                     selected_dmd_scn,
-                    sep = "") ,
+                    sep = ""),
       #caption = "LSHTM - Centre for Climate Change and Planetary Health",
-      x = NULL,
-      y = paste("% contribution to diet-related ",selected_env_itm, "\nas ", selected_measure, sep = ""),
+        #"Diet-related environmental impacts per person\nnormalised to 2000 kcal/d (ratio of regional average, %)",
+      x = paste(
+        "Impact per person as ",
+        selected_measure,
+        ", in %",
+        sep = ""
+      ),
+        # paste("% contribution to diet-related ",selected_env_itm, "\nas ", selected_measure, sep = ""),
+      y = NULL,
       fill = NULL
     ) +
-    lshtm_theme_few()
+    lshtm_theme_few() +
+    theme(strip.text.y = element_text(face = "bold",
+                                      size = 9
+                                      #angle = -90
+                                      ),
+          strip.placement = "outside"
+    )
+  
+  
+  # p_sociodem_rel <- ggplot(data,
+  #                          aes(
+  #                            x = factor(
+  #                              age,
+  #                              level = c(
+  #                                "MLE",
+  #                                "FML",
+  #                                "BTH",
+  #                                "0-9",
+  #                                "10-19",
+  #                                "20-39",
+  #                                "40-64",
+  #                                "65+",
+  #                                "all-a",
+  #                                "low",
+  #                                "medium",
+  #                                "high",
+  #                                "all-e",
+  #                                "urban",
+  #                                "rural",
+  #                                "all-u"
+  #                              )
+  #                            ),
+  #                            y = value,
+  #                            label = value
+  #                          )) +
+  #   geom_col(aes(fill = factor(
+  #     food_group,
+  #     level = c(
+  #       "beef",
+  #       "lamb",
+  #       "dairy",
+  #       "pork",
+  #       "other meats",
+  #       "fish",
+  #       "eggs&fats",
+  #       "rice",
+  #       "grains",
+  #       "fruit_veg",
+  #       "oils",
+  #       "sugar",
+  #       "roots",
+  #       "legumes",
+  #       "nuts&seeds",
+  #       "other",
+  #       "total"
+  #     )
+  #   )), color = "white") +
+  #   coord_flip() +
+  #   facet_grid(category ~ region_custom,
+  #              scales = "free_y",
+  #              space = "free_y", switch = "y", shrink = FALSE,
+  #              labeller = labeller(region_custom = label_wrap_gen(width = 15),
+  #                                  category = label_wrap_gen(width = 5))
+  #   ) +
+  #   scale_fill_manual(values = colors_food) +
+  #   labs(
+  #     title = paste("diet-related ",
+  #                   selected_env_itm,
+  #                   " in 2020,\n",
+  #                   "based on ",
+  #                   selected_dmd_scn,
+  #                   sep = "") ,
+  #     #caption = "LSHTM - Centre for Climate Change and Planetary Health",
+  #     x = NULL,
+  #     y = paste("% contribution to diet-related ",selected_env_itm, "\nas ", selected_measure, sep = ""),
+  #     fill = NULL
+  #   ) +
+  #   lshtm_theme_few() +
+  #   theme(strip.text.y = element_text(size = 14
+  #                                     , face = "bold"
+  #                                     , angle = 90
+  #   ),
+  #   strip.placement = "outside"
+  #   )
+  
 })
 
 output$plot_sociodem_rel <- renderPlot({

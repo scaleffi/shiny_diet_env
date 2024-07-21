@@ -24,30 +24,13 @@ reactive_plot_category <- reactive({
   p_category <- ggplot(data, aes(
     x = factor(
       food_group,
-      level = c(
-        "beef",
-        "lamb",
-        "dairy",
-        "pork",
-        "othr_meat",
-        "fish",
-        "othr_ani",
-        "rice",
-        "grains",
-        "roots",
-        "fruit_veg",
-        "oils",
-        "sugar",
-        "legumes",
-        "nuts_seeds",
-        "other",
-        "total"
-      )
+      level = custom_order_foodgroup
+      
     ),
     y = value,
     fill = macrofoods
   )) +
-    geom_col(color = "white", width = 0.6) +
+    geom_col(color = "black", width = 0.6) +
     coord_flip() +
     #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
     facet_wrap( ~ region_custom,
@@ -59,8 +42,8 @@ reactive_plot_category <- reactive({
     labs(title = paste("Diet-related ",
                        selected_env_itm,
                        " from\n",
-                       selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
-         subtitle = "Note: value ranges along the x-axis differ across plots",
+                       selected_dmd_scn,", in 2020 (", selected_measure, ")", sep = ""),
+         #subtitle = "Note: value ranges along the x-axis differ across plots",
          #caption = "LSHTM - Centre for Climate Change and Planetary Health",
          x = "Food Group",
          y = paste(selected_env_itm),

@@ -21,6 +21,8 @@ filtered_data_sexage <- reactive({
 reactive_plot_sexage <- reactive({
   data <- filtered_data_sexage()
   
+  
+  
   data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
   
   selected_measure <- input$measure_2
@@ -44,7 +46,9 @@ reactive_plot_sexage <- reactive({
                        labels = c("Male",
                                   "Female",
                                   "Both"),
-                       name = "(100 = global mean)") +
+                       name =
+                         "(100 = global mean)"
+                       ) +
     scale_y_continuous(breaks = c(0, 50, 75, 100, 125, 150, 200)) +
     geom_text_repel(aes(label = value), show.legend = FALSE) +
     #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
@@ -54,28 +58,46 @@ reactive_plot_sexage <- reactive({
     geom_hline(yintercept = 100, alpha = 0.2, linewidth = 2) +
     #geom_texthline(mapping = NULL, data = NULL, yintercept = 100, label = "Global average") +
     labs(
-      title = paste("Diet-related",
+      title = 
+      #   paste(
+      #   "Mean diet-related ",
+      #   selected_env_itm_s,
+      #   "\nper person, from ",
+      #   selected_dmd_scn,
+      #   ", in 2020",
+      #   sep = ""
+      # ),
+        paste("Diet-related",
                     selected_env_itm_s,
-                    "in 2020,",
-                    "as\n",
-                    selected_measure,
+                    "per person\nin 2020,",
+                    "based on",
+                    selected_dmd_scn,
                     #"(100 = world or regional average)",
                     sep = " "),
-      # # subtitle = paste("Note: all data is based on ",
-      # #                   selected_dmd_scn,
-      # #                  ".",
-      #                  #".\nIn the plot, average is set equal to 100.",
-      #                  sep = "") ,
-      #caption = "LSHTM - Centre for Climate Change and Planetary Health",
+      # subtitle = paste("Values are expressed as",
+      #                   selected_measure,
+      #                  ", set equal to 100."),
+      # caption = paste("Values are expressed as ",
+      #                                selected_measure,
+      #                               ",\nwhich has been set equal to 100.",
+      #                 sep = ""),
       x = "Age",
-      y = paste(selected_env_itm_s,
-                " as\n",
+      y = paste("Impact as ",
                 selected_measure,
-                #", with average set to 100",
+                #",\nset equal to 100.",
                 sep = "")
+        #"100 = global mean"
+        # paste(selected_env_itm_s,
+        #         " as\n",
+        #         selected_measure,
+        #         #", with average set to 100",
+        #         sep = "")
     ) +
-    lshtm_theme_few()+
-    theme(legend.position = "top")
+    lshtm_theme_few() +
+    theme(
+        legend.position = "top"
+    )
+    #theme(legend.position = "top")
 })
 
 output$plot_sexage <- renderPlot({

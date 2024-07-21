@@ -7,15 +7,10 @@ tabItem(
               fluidRow(
                 column(3,
                        selectInput("dmd_scn_9", "Select Demand Perspective:", choices = unique(df_sel$dmd_scn), selected = "actual demand"),
-                       selectInput("measure_9", "Select Measure:", choices = unique(df_sel$measure), selected = "absolute")
-                       #             c(
-                       # "ratio to global avg (absolute)", 
-                       # "ratio to regional avg (absolute)",
-                       # "ratio to regional mean (capita)",
-                       # "ratio to global mean (capita)",
-                       # "absolute",
-                       # "per capita"),
-                       # selected = "absolute")
+                       selectInput("measure_9", "Select Measure:", choices = c(
+                         "ratio to regional mean (capita)",
+                         "ratio to global mean (capita)"),
+                         selected = "ratio to regional mean (capita)")
                 ),
                 column(3,
                        selectInput("env_dimensions_9", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")), selected = "GHG (Mt CO2eq)"),
@@ -25,14 +20,15 @@ tabItem(
                          "20-39",
                          "40-64",
                          "65+")),
-                       selectInput("sex_9", "Select sex:", choices = unique(df_sel$sex), multiple = TRUE, selected = c(
+                       selectInput("sex_9", "Select sex:", choices = unique(df_sel$sex), multiple = TRUE, selected = 
+                                     c(
                          "MLE",
                          "FML"
                        ))
                 ),
                 column(3,
                        selectInput("region_9", "Select region:", choices = unique(df_sel$region), multiple = TRUE, selected = c("WLD")),
-                       selectInput("urbanisation_9", "Select urbanicity:", choices = unique(df_sel$urban), multiple = TRUE, selected = c(
+                       selectInput("urbanisation_9", "Select residence:", choices = unique(df_sel$urban), multiple = TRUE, selected = c(
                          "urban",
                          "rural"
                        )),

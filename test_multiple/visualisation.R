@@ -9,25 +9,30 @@ lshtm_theme_few <- function(){
     theme(
       #plot.margin = margin(0,0,0,0),
       axis.title.x = element_text(
-        vjust = -0.5,
-        size = 16,
+        vjust = -1,
+        size = 14,
         #family = "serif",
-        face = "bold"),
-      axis.title.y = element_text(size = 16,
-                                  face = "bold",
+        face = "plain"),
+      axis.title.x.top = element_text(
+        size = 14,
+        vjust = 1,
+        hjust = 0
+      ),
+      axis.title.y = element_text(size = 14,
+                                  face = "plain",
                                   #family = "serif",
                                   #angle = 90
                                   vjust = 1.5
       ),
-      strip.text.x = element_text(size = 14 
+      strip.text.x = element_text(size = 12 
                                   #,face = "bold"
       ),
       panel.spacing = unit(0,"lines"),
-      strip.text.y = element_text(size = 14
+      strip.text.y = element_text(size = 12
                                   , face = "bold"
       ),
-      axis.text.y = element_text(size = 12),
-      axis.text.x = element_text(size = 12,
+      axis.text.y = element_text(size = 10.5),
+      axis.text.x = element_text(size = 10.5,
                                  angle = 45,
                                  #vjust = 0.5,
                                  hjust = 1
@@ -41,11 +46,21 @@ lshtm_theme_few <- function(){
         size = 22, 
         face = "bold",
         hjust = 0.5,
-        vjust = 1),
-      plot.subtitle = element_text(size = 14, face = "bold"),
+        vjust = 0.2
+        ),
+      plot.subtitle = element_text(
+        size = 10, 
+        face = "plain",
+        vjust = 1,
+        ),
+      plot.caption = element_text(
+        size = 12,
+        face = "bold",
+        hjust = 0
+      ),
       panel.grid.major.x = element_line(colour = "gray", linetype = "dotted"),
       panel.grid.major.y = element_line(colour = "gray", linetype = "dotted"),
-      strip.placement = "inside"
+      strip.placement = "outside"
     )
 }
 
@@ -103,6 +118,15 @@ colors_sociodem <- c(
   "65+"= "#7d6608"
 )
 
+colors_age <-
+  c("0-9" = "#ebdef0",
+    "10-19" = "#a9cce3",
+    "20-39" = "#48c9b0",
+    "40-64" = "#229954",
+    "65+"= "#7d6608"
+      )
+
+
 colors_sociodem_category <- c(
   "Urb. level" = "#f4d03f",
   "Sex" = "#4DAF4A",
@@ -113,23 +137,25 @@ colors_sociodem_category <- c(
 #Create a vector with specific color assigned to each food group
 #Based on _trs_110423
 colors_food <- c(
-  "total" = "#a6a79b",
-  "rice" = "#f9e79f",
-  "roots" = "#eb984e",
-  "sugar" = "#fad7a0",
-  "legumes" = "#6e2c00",
   "beef" = "#cb4335",
   "lamb" = "#ec7063",
-  "othr_meat" = "#d98880",
   "pork" = "#f5a5b5",
-  "othr_ani" = "#fae5d3",
+  "other meats" = "#d98880",
+  "fish" = "#003366",
+  "dairy" = "#66CCFF",
+  "eggs&fats" = "#fae5d3",
   "other" = "#fdedec",
-  "dairy" = "#f0ebe2",
-  "fish" = "#8fbad3",
+  "sugar" = "#bdc3c7",
+  "oils" = "#7b7d7d",
+  "nuts&seeds" = "#999933",
+  "fruit&veg" = "#66CC00",
+  "legumes" = "#66CC99",
+  "roots" = "#eb984e",
+  "rice" = "#f9e79f",
   "grains" = "#ecdb54",
-  "fruit_veg" = "#229954",
-  "nuts_seeds" = "#7d6608",
-  "oils" = "#abebc6")
+  "total" = "#2c3e50"
+  )
+
 
 # Create a vector to rename facet plots with the full names of the environmental dimensions
 env_itm.labs <- c("GHG (Mt CO2eq)", "Freshwater use (km3)", "Eutrophication pot. (Mt PO4eq)", "land use (thousands of km2)", "Land use_pasture (thousands of km2)", "Land use_crops (thousands of km2)")
@@ -180,6 +206,12 @@ custom_order_region <-
     "LCN",
     "SSF")
 
+custom_order_category <-
+  c("Sex",
+    "Age",
+    "Education",
+    "Residence")
+
 custom_labels_region <-
   c(
     "World",
@@ -194,4 +226,67 @@ custom_labels_region <-
     "North America",
     "Latin Am. & Caribbean",
     "Sub-Saharan Africa"
+  )
+
+custom_order_sociodem <- 
+  c(
+    "BTH",
+    "MLE",
+    "FML",
+    "all-a",
+    "65+",
+    "40-64",
+    "20-39",
+    "10-19",
+    "0-9",
+    "all-e",
+    "high",
+    "medium",
+    "low",
+    "all-u",
+    "rural",
+    "urban"
+  )
+
+custom_order_foodgroup <- 
+  c(
+    "beef",
+    "lamb",
+    "pork",
+    "other meats",
+    "fish",
+    "dairy",  
+    "eggs&fats",
+    "other",
+    "sugar",
+    "oils",
+    "nuts&seeds",
+    "fruit&veg",
+    "legumes",
+    "roots",
+    "rice",
+    "grains",
+    "total"
+  )
+
+custom_order_edu <- 
+  c(
+    "high",
+    "medium",
+    "low",
+    "all-u"
+  )
+
+custom_order_urban <-
+  c(
+    "all-u",
+    "rural",
+    "urban"
+  )
+
+custom_order_sex <-
+  c(
+    "BTH",
+    "MLE",
+    "FML"
   )

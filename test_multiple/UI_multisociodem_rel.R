@@ -8,11 +8,11 @@ tabItem(
                 column(3,
                        selectInput("dmd_scn_8", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
                        selectInput("measure_8", "Select Measure:", choices = c(
-                         "ratio to global avg (absolute)", 
-                         "ratio to regional avg (absolute)",
+                         #"ratio to global avg (absolute)", 
+                         #"ratio to regional avg (absolute)",
                          "ratio to regional mean (capita)",
                          "ratio to global mean (capita)"),
-                         selected = "ratio to regional avg (absolute)")
+                         selected = "ratio to regional mean (capita)")
                 ),
                 column(3,
                        selectInput("env_dimensions_8", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), selected = "average environmental impact"),
@@ -42,20 +42,20 @@ tabItem(
                        selectInput("food_group_8", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
                          "beef",
                          "lamb",
-                         "dairy",
                          "pork",
-                         "othr_meat",
+                         "other meats",
                          "fish",
-                         "othr_ani",
-                         "rice",
-                         "grains",
-                         "fruit_veg",
-                         "oils",
+                         "dairy",  
+                         "eggs&fats",
+                         "other",
                          "sugar",
-                         "roots",
+                         "oils",
+                         "nuts&seeds",
+                         "fruit&veg",
                          "legumes",
-                         "nuts_seeds",
-                         "other"
+                         "roots",
+                         "rice",
+                         "grains"
                        ))
                 ),
                 column(3,

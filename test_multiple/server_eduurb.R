@@ -46,11 +46,11 @@ reactive_plot_eduurb <- reactive({
     labs(
       title = paste("Diet-related",
                     selected_env_itm_u,
-                    "in 2020,",
-                    "as\n",
-                    selected_measure,
+                    "per person\nin 2020,",
+                    "based on",
+                    selected_dmd_scn,
                     #"(100 = world or regional average)",
-                    sep = " ") ,
+                    sep = " "),
       # subtitle = paste("Note: all data is based on ",
       #                  selected_dmd_scn,
       #                  ".",
@@ -58,11 +58,10 @@ reactive_plot_eduurb <- reactive({
       #                  sep = "") ,
       #caption = "LSHTM - Centre for Climate Change and Planetary Health",
       x = "Education level",
-      y = paste(selected_env_itm_u,
-                " as\n",
-                selected_measure,
-                #", with average set to 100",
-                sep = "")
+      y = paste("Impact as ",
+                    selected_measure,
+                    #",\nset equal to 100.",
+                    sep = "")
     ) +
     lshtm_theme_few()+
     theme(legend.position = "top")

@@ -1,7 +1,7 @@
 tabItem(
   tabName = "eduurb",
   #Eduurb ----
-  fluidPage(title = "Compare footprints by urbanisation and education levels",
+  fluidPage(title = "Compare footprints by education levels and urban/rural residence",
             box(
               width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
               fluidRow(
@@ -15,7 +15,7 @@ tabItem(
                 ),
                 column(3,
                        selectInput("age.education_3", "Select education level:", choices = c("low", "medium", "high", "all-e"), multiple = TRUE, selected = c("low", "medium", "high")),
-                       selectInput("sex.urbanisation_3", "Select urbanisation level:", choices = c("urban", "rural", "all-u"), multiple = TRUE, selected = c("urban", "rural"))
+                       selectInput("sex.urbanisation_3", "Select urban/rural residence:", choices = c("urban", "rural", "all-u"), multiple = TRUE, selected = c("urban", "rural"))
                 ),
                 column(3,
                        downloadButton("download_csv_eduurb", "Download table"),

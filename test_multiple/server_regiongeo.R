@@ -34,28 +34,11 @@ reactive_plot_regiongeo <- reactive({
     y = value,
     fill = factor(
       food_group,
-      level = c(
-        "beef",
-        "lamb",
-        "dairy",
-        "pork",
-        "othr_meat",
-        "fish",
-        "othr_ani",
-        "rice",
-        "grains",
-        "fruit_veg",
-        "oils",
-        "sugar",
-        "roots",
-        "legumes",
-        "nuts_seeds",
-        "other",
-        "total"
-      )
+      level = custom_order_foodgroup
+        
     )
   )) +
-    geom_col(color = "white", width = 0.6) +
+    geom_col(color = "black", width = 0.6) +
     coord_flip() +
     scale_fill_manual(values = colors_food) +
     scale_x_discrete(
@@ -80,7 +63,7 @@ reactive_plot_regiongeo <- reactive({
     ) +
     #geom_text_repel(aes(label = value), show.legend = FALSE) +
     labs(title = paste("Diet-related environmental impact from\n",
-                       selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
+                       selected_dmd_scn,", in 2020 (", selected_measure, ")", sep = ""),
          #caption = "LSHTM - Centre for Climate Change and Planetary Health",
          x = NULL,
          #y = "Impact",

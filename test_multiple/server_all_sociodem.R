@@ -26,19 +26,56 @@ filtered_data_all_sociodem <- reactive({
 reactive_plot_all_sociodem <- reactive({
   data <- filtered_data_all_sociodem()
   
+  selected_env_itm <- input$env_dimensions_9
+  
+  #data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
+  #data$category_custom <- factor(data$category, levels = custom_order_category)
+  
   p_all_sociodem <- ggplot(data,
                            aes(x = age,
                                y = value,
+                               #fill = "#2c3e50",
                                label = value)) +
-    geom_col(
-      aes(
-        #fill = sex
-      ),
-      position = "stack"
+    geom_point(
+      alpha = 0.8,
+      colour = "#2c3e50",
+      size = 1
+      ) +
+    geom_segment( 
+      aes(x=age, xend=age, y=0, yend=value),
+      alpha = 0.8,
+      colour = "#2c3e50",
+      show.legend = FALSE
+      ) +
+    geom_hline(yintercept = 100, alpha = 0.4, colour = "#943126" , linewidth = 0.8) +
+    #coord_flip()+
+    facet_grid(factor(region,
+                      levels = custom_order_region
+                      ) ~ 
+                 factor(edu,
+                        levels = custom_order_edu
+                        ) +
+                 factor(urban,
+                        levels = 
+                          #custom_order_urban
+                          c(
+                            "all-u",
+                            "urban",
+                            "rural"
+                          )
+                 ) +
+                 factor(sex,
+                        levels = custom_order_sex
+                        )
+               ) +
+    labs(
+      y = paste(selected_env_itm),
+      fill = NULL,
+      alpha = NULL,
+      colour = NULL
     ) +
-    coord_flip() +
-    facet_grid(region ~ edu + urban + sex) +
-    lshtm_theme_few()
+    lshtm_theme_few() 
+    
 })
 
 output$plot_all_sociodem <- renderPlot({

@@ -9,9 +9,9 @@ tabItem(
             "This dashboard allows you to explore and compare diet-related environmental footprints of global diets in 2020. 
                     It uses new estimates developed by Prof. Marco Springmann. Food demand data is taken from FAOSTAT; daily intakes by sociodemographic are taken from the GDD; 
                     region- and food-specific environmental footprints are taken from Poore and Nemecek (2018).<br><br> 
-                    The data can be filtered or compared by region, country, sex, age group, urbanicity, and education level.
+                    The data can be filtered or compared by region, country, sex, age group, urban/rural residence, and education level.
                     The dashboard is divided in three sections, accessible through the tabs in the menu on the left.<br><br>
-                    The first section focuses on how footprints differ across sociodemographics (sex, age, urbanicty, education level).<br>
+                    The first section focuses on how footprints differ across sociodemographics (sex, age, urban/rural residence, education level).<br>
                     The second, on how they differ across regions, both income and geographic.<br> 
                     The third, on how they differ across food groups and macrocategories.<br><br> 
                     Within each section, you can build plots and data tables by choosing among several filters and inputs. 

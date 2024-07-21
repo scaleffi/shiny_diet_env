@@ -15,23 +15,26 @@ tabItem(
                        selectInput("env_dimensions_7", "Select Environmental Dimensions:", 
                                    choices = setdiff(unique(df_trs_category$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")),
                                    selected = "GHG (Mt CO2eq)"),
-                       selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
-                         "beef",
-                         "lamb",
-                         "dairy",
-                         "pork",
-                         "othr_meat",
-                         "fish",
-                         "othr_ani",
-                         "rice",
-                         "grains",
-                         "fruit_veg",
-                         "oils",
-                         "sugar",
-                         "roots",
-                         "legumes",
-                         "nuts_seeds",
-                         "other"))
+                       selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = 
+                                    c(
+                                      "beef",
+                                      "lamb",
+                                      "pork",
+                                      "other meats",
+                                      "fish",
+                                      "dairy",  
+                                      "eggs&fats",
+                                      "other",
+                                      "sugar",
+                                      "oils",
+                                      "nuts&seeds",
+                                      "fruit&veg",
+                                      "legumes",
+                                      "roots",
+                                      "rice",
+                                      "grains"
+                                    )
+                         )
                 ),
                 column(3,
                        selectInput("region_7", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC")),

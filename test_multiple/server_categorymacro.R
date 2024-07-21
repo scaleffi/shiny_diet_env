@@ -26,28 +26,11 @@ reactive_plot_categorymacro <- reactive({
     y = value,
     fill = factor(
       food_group,
-      level = c(
-        "beef",
-        "lamb",
-        "dairy",
-        "pork",
-        "othr_meat",
-        "fish",
-        "othr_ani",
-        "rice",
-        "grains",
-        "roots",
-        "fruit_veg",
-        "oils",
-        "sugar",
-        "legumes",
-        "nuts_seeds",
-        "other",
-        "total"
-      )
+      level = custom_order_foodgroup
+        
     )
   )) +
-    geom_col(color = "white", width = 0.6) +
+    geom_col(color = "black", width = 0.6) +
     #scale_x_discrete(guide = guide_axis(n.dodge=2)) +
     facet_wrap( ~ region_custom , ncol = 5, scales = "free_x",
                 labeller = labeller(region_custom = label_wrap_gen(width = 15))
@@ -57,7 +40,7 @@ reactive_plot_categorymacro <- reactive({
     labs(title = paste("Diet-related ",
                        selected_env_itm,
                        " from\n",
-                       selected_dmd_scn,", in 2020 (", selected_measure, ")\n", sep = ""),
+                       selected_dmd_scn,", in 2020 (", selected_measure, ")", sep = ""),
          #subtitle = "Note: value ranges along the x-axis differ across plots",
          #caption = "LSHTM - Centre for Climate Change and Planetary Health",
          x = "Food Category",

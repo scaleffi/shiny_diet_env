@@ -12,6 +12,7 @@ reactive_plot_sociodem <- reactive({
   data <- filtered_data_sociodem()
   
   data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
+  data$category_custom <- factor(data$category, levels = custom_order_category)
   
   selected_env_itm <- input$env_dimensions_7
   selected_dmd_scn <- input$dmd_scn_7
@@ -21,55 +22,21 @@ reactive_plot_sociodem <- reactive({
                        aes(
                          x = factor(
                            age,
-                           level = c(
-                             "MLE",
-                             "FML",
-                             "BTH",
-                             "0-9",
-                             "10-19",
-                             "20-39",
-                             "40-64",
-                             "65+",
-                             "all-a",
-                             "low",
-                             "medium",
-                             "high",
-                             "all-e",
-                             "urban",
-                             "rural",
-                             "all-u"
-                           )
+                           level = custom_order_sociodem 
+                             
                          ),
                          y = value,
                          label = value
                        )) +
-    #fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit_veg", "oils", "sugar", "roots", "legumes", "nuts_seeds")))) +
+    #fill = factor(food_group, level=c("beef","milk", "lamb", "pork", "poultry", "eggs", "fish", "rice", "grains", "fruit&veg", "oils", "sugar", "roots", "legumes", "nuts&seeds")))) +
     geom_col(aes(fill = factor(
       food_group,
-      level = c(
-        "beef",
-        "lamb",
-        "dairy",
-        "pork",
-        "othr_meat",
-        "fish",
-        "othr_ani",
-        "rice",
-        "grains",
-        "fruit_veg",
-        "oils",
-        "sugar",
-        "roots",
-        "legumes",
-        "nuts_seeds",
-        "other",
-        "total"
-      )
-    )), color = "white") +
+      level = custom_order_foodgroup
+    )), color = "black") +
     #coord_flip() is an easy way to swtich the x and y axis. Depending on what we want the user to focus on, each vis has its advantages. To see
     #the graph with the impacts on the y axis and the sociodem/age variables on the x axis, comment the coord_flip() call, AND switch the arguments in facet_grid to scales = "free_x", space = "free", switch = "x".
     coord_flip() +
-    facet_grid(category ~ region_custom, scales = "free_y", space = "free_y", switch = "y", shrink = FALSE,
+    facet_grid(category_custom ~ region_custom, scales = "free_y", space = "free_y", switch = "y", shrink = FALSE,
                labeller = labeller(region_custom = label_wrap_gen(width = 15),
                                    category = label_wrap_gen(width = 5))
     ) +
@@ -89,7 +56,13 @@ reactive_plot_sociodem <- reactive({
                    sep = " "),
          fill = NULL
     ) +
-    lshtm_theme_few()
+    lshtm_theme_few() +
+    theme(strip.text.y = element_text(face = "bold",
+                                      size = 9
+                                      #angle = -90
+    ),
+    strip.placement = "outside"
+    )
 })
 
 output$plot_sociodem <- renderPlot({
