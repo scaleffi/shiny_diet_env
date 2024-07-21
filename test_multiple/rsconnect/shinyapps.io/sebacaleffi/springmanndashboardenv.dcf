@@ -5,7 +5,7 @@ account: sebacaleffi
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 12248424
-bundleId: 8800393
+bundleId: 8888843
 url: https://sebacaleffi.shinyapps.io/springmanndashboardenv/
 version: 1
 asMultiple: FALSE

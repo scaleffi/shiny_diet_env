@@ -31,10 +31,10 @@ myUI <- dashboardPage(
                                  menuSubItem("Food groups", tabName = "foodgroups", icon = icon("wheat-awn")),
                                  menuSubItem("Food macrocategories", tabName = "foodmacro", icon = icon("wheat-awn"))
                         ),
-                        menuItem("Plots for paper", tabName = NULL,
-                        menuSubItem("Radar by region", tabName = "radar_region"),
-                        menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo"),
-                        menuSubItem("Radar by region (income)", tabName = "radar_regionincome")),
+                        # menuItem("Plots for paper", tabName = NULL,
+                        # menuSubItem("Radar by region", tabName = "radar_region"),
+                        # menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo"),
+                        # menuSubItem("Radar by region (income)", tabName = "radar_regionincome")),
                         menuItem("Info", tabName = "readme", icon = icon("info-circle")
                                  , selected = TRUE
                         ) 
