@@ -38,10 +38,11 @@ tabItem(
               width = 12, title = "Info", collapsible = T, solidHeader = TRUE, status = "primary",
               div(
                 HTML(
-                  "This plot allows you to compare how diet-related environmental impacts differ across sexes and age groups.<br>
-                  The impacts are presented as relative to the global (or regional) average, set to 100. That is, an impact
-                  of 134 implies a footprint that is 34% higher than the average, while an impact of 78 implies a footprint that is 22% lower than the average.<br><br>
-                  You are free to change any of the inputs in the menu at the top, the plot will update accordingly.
+                  "
+                  The impacts are visualised here as relative to the global (or regional) average, which is set to 100 and highlighted by a grey line. 
+                  An impact of 134 on this plot implies a footprint that is 34% higher than the average, while an impact of 78 implies a footprint that is 22% lower than the average.<br><br>
+                  'Average environmental impact' is a weighted average of impacts across the four environmental dimensions we considered, namely
+                  GHG emissions, land use, freshwater use, and eutrophication potential.<br><br>
                   "
                 )
               )

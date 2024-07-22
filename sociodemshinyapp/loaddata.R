@@ -1,13 +1,24 @@
+#=============================
+# loaddata.R file, loading data for the sociodem shiny app
+# author: Sebastiano Caleffi (github: scaleffi)
+#=============================
+
+# Load libraries ----
 library(tidyverse)
-#Load and read in files from Github repository ----
+library(readr) # needed for the read_csv function, which is faster than the base read.csv
+
+# Load files ----
 csv_file_trs <- "report_env_trs_011824.csv"
 csv_file_box <- "report_env_box_011824.csv"
 csv_file_sel <- "report_env_sel_011824.csv"
 csv_file_trs_rgsage <- "report_env_trs_norgs_011824.csv"
 
-#Read in files - NOTE: using read_csv (from the readr package) instead of read.csv could speed up the process, investigate if possible
-data_box <- read.csv(csv_file_box)
+# Read in the 'box' file, which groups the 4 sociodem dimensions in two variables, age.education and sex.urbanisation ----
+data_box <- read_csv(csv_file_box) # read_csv reads column names and data formats differently from read.csv, make sure they are as expected
+
+## Format the data as needed ----
 data_box$value <- round(data_box$value, 0)
+
 df <- data_box %>%
   #Rename values in env_itm column to include unit of measurements for each environmental dimension
   mutate(env_itm = case_when(
@@ -41,9 +52,14 @@ df <- data_box %>%
     measure == "pct_cap_RGS" ~ "ratio to regional mean (capita)",
     measure == "pct_cap_WLD" ~ "ratio to global mean (capita)",
     TRUE ~ measure
-  ))
+  )) %>%
+  rename("age.education" = "age-education") %>%
+  rename("sex.urbanisation" = "sex-urbanisation")
 
-data_trs <- read.csv(csv_file_trs)
+# Read in the 'transposed' file, that lists all sociodem dimensions in a single column/variable ----
+data_trs <- read_csv(csv_file_trs)
+
+## Format the data as needed ----
 data_trs$value <- round(data_trs$value, 0)
 df_trs <- data_trs
 
@@ -167,7 +183,10 @@ df_trs_macrof <- df_trs_macrof %>%
     ))
 
 
-data_sel <- read.csv(csv_file_sel)
+# Read in the 'sel' file, which has all sociodem dimensions split into separate variables ----
+data_sel <- read_csv(csv_file_sel)
+
+## Format the data as needed ----
 data_sel$value <- round(data_sel$value, 0)
 df_sel <- data_sel %>%
   mutate(env_itm = case_when(
@@ -202,7 +221,7 @@ df_sel <- data_sel %>%
       TRUE ~ measure# Keep the original value if it doesn't match any condition
     ))
 
-
-data_trs_rgsage <- read.csv(csv_file_trs_rgsage)
+# Read in the transposed+regions file, which combines all the sociodem dimensions AND the regions in a single variable ----
+data_trs_rgsage <- read_csv(csv_file_trs_rgsage)
 data_trs_rgsage$value <- round(data_trs_rgsage$value, 0)
 df_trs_rgsage <- data_trs_rgsage

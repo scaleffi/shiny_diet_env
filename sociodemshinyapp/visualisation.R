@@ -1,7 +1,11 @@
-#Prepare graphic objects and labels that will be used to create the plots below ----
+#=============================
+# visualisation.R file, creating visual elements for the sociodem shiny app
+# author: Sebastiano Caleffi (github: scaleffi)
+#=============================
 
-#Create custom theme as a function, which can be applied to each plot without having to manually edit each of them to
-#obtain the required look
+#==============
+# Create custom themes, by using a function to apply manual edits to the theme_few template ----
+#==============
 
 lshtm_theme_few <- function(){
   theme_few() +
@@ -64,8 +68,9 @@ lshtm_theme_few <- function(){
     )
 }
 
-#Create a second version of the custom theme, for radar plots. This type of plots require some changes that would be 
-#too time consuming to manually add to each plot
+
+# Create a second version of the custom theme, for radar plots.----
+
 lshtm_theme_few_radar <- function(){
   theme_few() +
     theme(
@@ -83,14 +88,14 @@ lshtm_theme_few_radar <- function(){
     )
 }
 
-#create a vector named 'colors_macro' made up of three colors from the Set1 ColorBrewer palette. This can be used to assign specific colors to values in the macrofoods variable.
+## Create vectors to assign specific colors to elements that repeat across the dashboard ----
+
 colors_macro <- c(
   "ASF" = "#922b21",
   "Staples" = "#f1c40f",
   "Other" = "#85929e"
 )
 
-#create vectors to assign colors to the sociodem characteristics
 colors_sex <- c(
   "FML" = "#E41A1C",
   "MLE" = "#377EB8",
@@ -126,7 +131,6 @@ colors_age <-
     "65+"= "#7d6608"
       )
 
-
 colors_sociodem_category <- c(
   "Urb. level" = "#f4d03f",
   "Sex" = "#4DAF4A",
@@ -134,8 +138,6 @@ colors_sociodem_category <- c(
   "Age" = "#48c9b0"
 )
 
-#Create a vector with specific color assigned to each food group
-#Based on _trs_110423
 colors_food <- c(
   "beef" = "#cb4335",
   "lamb" = "#ec7063",
@@ -156,12 +158,29 @@ colors_food <- c(
   "total" = "#2c3e50"
   )
 
+## Create vectors to rename facet titles and make them more descriptive ----
 
-# Create a vector to rename facet plots with the full names of the environmental dimensions
-env_itm.labs <- c("GHG (Mt CO2eq)", "Freshwater use (km3)", "Eutrophication pot. (Mt PO4eq)", "land use (thousands of km2)", "Land use_pasture (thousands of km2)", "Land use_crops (thousands of km2)")
-names(env_itm.labs) <- c("GHG (Mt CO2eq)", "water use (km3)", "eutrophication pot. (kt PO4eq)", "land use (thousands of km2)", "land use, pasture (thousands of km2)", "land use, crops (thousands of km2)")
+### Rename env dimensions for facet titles ----
 
-# Create a vector to rename facet plots with the full names of the regions
+# env_itm.labs <- c(
+#     "GHG (Mt CO2eq)",
+#     "Freshwater use (km3)",
+#     "Eutrophication pot. (Mt PO4eq)",
+#     "land use (thousands of km2)",
+#     "Land use_pasture (thousands of km2)",
+#     "Land use_crops (thousands of km2)"
+#     )
+# 
+# names(env_itm.labs) <- c(
+#   "GHG (Mt CO2eq)",
+#   "water use (km3)",
+#   "eutrophication pot. (kt PO4eq)",
+#   "land use (thousands of km2)",
+#   "land use, pasture (thousands of km2)",
+#   "land use, crops (thousands of km2)"
+#   )
+
+###  Rename regions for facet titles ----
 region.labs <-
   c(
     "World",
@@ -191,6 +210,8 @@ names(region.labs) <-
     "SAS",
     "SSF"
   )
+
+## Create vectors to order categories consistently across plots ---- 
 
 custom_order_region <-
   c("WLD",
