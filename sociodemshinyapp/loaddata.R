@@ -22,7 +22,7 @@ data_box$value <- round(data_box$value, 0)
 df <- data_box %>%
   #Rename values in env_itm column to include unit of measurements for each environmental dimension
   mutate(env_itm = case_when(
-    env_itm == "GHG" ~ "GHG (mt CO2eq)",
+    env_itm == "GHG" ~ "GHG (Mt CO2eq)",
     env_itm == "water" ~ "water use (km3)",
     env_itm == "land" ~ "land use (thousands of km2)",
     env_itm == "land_crop" ~ "land use, crops (thousands of km2)",
