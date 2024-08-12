@@ -25,7 +25,6 @@ reactive_plot_category <- reactive({
     x = factor(
       food_group,
       level = custom_order_foodgroup
-      
     ),
     y = value,
     fill = macrofoods
