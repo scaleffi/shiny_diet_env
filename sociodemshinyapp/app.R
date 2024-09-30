@@ -1,36 +1,30 @@
-#=============================
-# app.R file, building and deploying the sociodem shiny app
-# author: Sebastiano Caleffi (github: scaleffi)
-#=============================
+# Header ------------------------------------------------------------------
+# Author: Sebastiano Caleffi (github: scaleffi)
 
-# Load libraries ----
+# Load libraries ----------------------------------------------------------
 library(shinydashboard)
 library(tidyverse)
-#ggrepel is used in the sexage and eduurb tabs to visualise a scatterplot (geom_point)
-#without generating excessive overlap between the data labels.
-library(ggrepel)
+library(ggrepel)# to plot non-overlapping labels
 library(DT)
-#rsconnect is used to establish the connection with my online shiny account, where the app is published.
-library(rsconnect)
+library(rsconnect) # to connect to the posit account on which the dashboard is deployed
 library(shiny)
 library(scales)
-# library(fmsb)
 library(ggthemes)
 library(ggsci)
 library(geomtextpath)
-# library(plotly)
 library(bslib)
 
-# Load in the data and apply all needed transformations ----
+
+# Load and prepare data ---------------------------------------------------
 source('loaddata.R', local = TRUE)
 
-# Load in visualisation elements, a theme, and labels for plotting ----
+# Load in elements for visualisations -------------------------------------
 source('visualisation.R', local = TRUE)
 
-# Generate the UI object; the ui.R file establishes the overall structure and appearance of the dashboard ----
+# Create UI object, defining what the user will see -----------------------
 source('ui.R', local = TRUE)
 
-# Create the reactive server function that takes care of the dynamic behaviour of the dashboard ----
+# Create server function, which drives all reactive behaviours ------------
 myserver <- function(input,output) {
   source('server_sexage.R', local = TRUE)
   source('server_eduurb.R', local = TRUE)
@@ -46,14 +40,13 @@ myserver <- function(input,output) {
   source('server_radar_regionincome.R', local = TRUE)
 }
 
-# Run the app ----
-
+# Execute and launch the app ----------------------------------------------
 sociodemapp <- shinyApp(ui = myUI, 
          server = myserver)
 
+# Execute and launch the app in showcase mode -----------------------------
 # runApp(myapp
 #        #the "showcase" mode displays the content of the dashboard alongside the code behind it
 #        #,display.mode = "showcase"
 #        )
-
 #shiny::runApp(display.mode="showcase")

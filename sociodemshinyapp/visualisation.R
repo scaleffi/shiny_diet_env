@@ -1,12 +1,8 @@
-#=============================
-# visualisation.R file, creating visual elements for the sociodem shiny app
-# author: Sebastiano Caleffi (github: scaleffi)
-#=============================
+# Header ------------------------------------------------------------------
+# Author: Sebastiano Caleffi
 
-#==============
-# Create custom themes, by using a function to apply manual edits to the theme_few template ----
-#==============
 
+# Create custom themes ----------------------------------------------------
 lshtm_theme_few <- function(){
   theme_few() +
     #%+replace%
@@ -68,9 +64,7 @@ lshtm_theme_few <- function(){
     )
 }
 
-
-# Create a second version of the custom theme, for radar plots.----
-
+# Create a second version of the custom theme, for radar plots
 lshtm_theme_few_radar <- function(){
   theme_few() +
     theme(
@@ -88,8 +82,7 @@ lshtm_theme_few_radar <- function(){
     )
 }
 
-## Create vectors to assign specific colors to elements that repeat across the dashboard ----
-
+# Assign colours to variables ---------------------------------------------
 colors_macro <- c(
   "ASF" = "#922b21",
   "Staples" = "#f1c40f",
@@ -158,29 +151,8 @@ colors_food <- c(
   "total" = "#2c3e50"
   )
 
-## Create vectors to rename facet titles and make them more descriptive ----
 
-### Rename env dimensions for facet titles ----
-
-# env_itm.labs <- c(
-#     "GHG (Mt CO2eq)",
-#     "Freshwater use (km3)",
-#     "Eutrophication pot. (Mt PO4eq)",
-#     "land use (thousands of km2)",
-#     "Land use_pasture (thousands of km2)",
-#     "Land use_crops (thousands of km2)"
-#     )
-# 
-# names(env_itm.labs) <- c(
-#   "GHG (Mt CO2eq)",
-#   "water use (km3)",
-#   "eutrophication pot. (kt PO4eq)",
-#   "land use (thousands of km2)",
-#   "land use, pasture (thousands of km2)",
-#   "land use, crops (thousands of km2)"
-#   )
-
-###  Rename regions for facet titles ----
+# Rename regions for clearer facet titles ---------------------------------
 region.labs <-
   c(
     "World",
@@ -211,8 +183,8 @@ names(region.labs) <-
     "SSF"
   )
 
-## Create vectors to order categories consistently across plots ---- 
 
+# Define ordering of variables in plots -----------------------------------
 custom_order_region <-
   c("WLD",
     "HIC",
