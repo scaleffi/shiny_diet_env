@@ -43,22 +43,22 @@ myUI <- dashboardPage(
                     # mainPanel(
                     dashboardBody(
                       tabItems(
-                        source('UI_aboutsociodem.R', local = TRUE)$value,
-                        source('UI_sexage.R', local = TRUE)$value,
-                        source('UI_eduurb.R', local = TRUE)$value,
-                        source('UI_multisociodem.R', local = TRUE)$value,
-                        source('UI_multisociodem_rel.R', local = TRUE)$value,
-                        source('UI_all_sociodem.R', local = TRUE)$value,
-                        source('UI_aboutregion.R', local = TRUE)$value,
-                        source('UI_region.R', local = TRUE)$value,
-                        source('UI_regiongeo.R', local = TRUE)$value,
-                        source('UI_aboutcategories.R', local = TRUE)$value,
-                        source('UI_foodgroups.R', local = TRUE)$value,
-                        source('UI_foodmacro.R', local = TRUE)$value,
-                        source('UI_radar_region.R', local = TRUE)$value,
-                        source('UI_radar_regiongeo.R', local = TRUE)$value,
-                        source('UI_radar_regionincome.R', local = TRUE)$value,
-                        source('UI_readme.R', local = TRUE)$value
+                        source('ui_files/UI_aboutsociodem.R', local = TRUE)$value,
+                        source('ui_files/UI_sexage.R', local = TRUE)$value,
+                        source('ui_files/UI_eduurb.R', local = TRUE)$value,
+                        source('ui_files/UI_multisociodem.R', local = TRUE)$value,
+                        source('ui_files/UI_multisociodem_rel.R', local = TRUE)$value,
+                        source('ui_files/UI_all_sociodem.R', local = TRUE)$value,
+                        source('ui_files/UI_aboutregion.R', local = TRUE)$value,
+                        source('ui_files/UI_region.R', local = TRUE)$value,
+                        source('ui_files/UI_regiongeo.R', local = TRUE)$value,
+                        source('ui_files/UI_aboutcategories.R', local = TRUE)$value,
+                        source('ui_files/UI_foodgroups.R', local = TRUE)$value,
+                        source('ui_files/UI_foodmacro.R', local = TRUE)$value,
+                        source('ui_files/UI_radar_region.R', local = TRUE)$value,
+                        source('ui_files/UI_radar_regiongeo.R', local = TRUE)$value,
+                        source('ui_files/UI_radar_regionincome.R', local = TRUE)$value,
+                        source('ui_files/UI_readme.R', local = TRUE)$value
                       )
                     )
 )

@@ -5,13 +5,13 @@
 # Load libraries ----------------------------------------------------------
 library(tidyverse)
 library(readr) # needed for the read_csv function, which is faster than the base read.csv
-library(magrittr)
+
 
 # Load .csv data files ---------------------------------------------------------
-csv_file_trs <- "report_env_trs_011824.csv"
-csv_file_box <- "report_env_box_011824.csv"
-csv_file_sel <- "report_env_sel_011824.csv"
-csv_file_trs_rgsage <- "report_env_trs_norgs_011824.csv"
+csv_file_trs <- "data/report_env_trs_011824.csv"
+csv_file_box <- "data/report_env_box_011824.csv"
+csv_file_sel <- "data/report_env_sel_011824.csv"
+csv_file_trs_rgsage <- "data/report_env_trs_norgs_011824.csv"
 
 
 # Create dataframe 'Box' (age-sex and edu-urb) ----------------------------
