@@ -76,6 +76,9 @@ reactive_plot_regionradarincome <- reactive({
 
 output$plot_regionradarincome <-
   renderPlot({
+    validate(
+      need(nrow(filtered_data_regionradarincome()) >0, "The current input selection returns an empty plot.\nPlease change the input selection to display a valid plot.")
+    )
     print(reactive_plot_regionradarincome())
   })
 

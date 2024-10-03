@@ -7,7 +7,6 @@ filtered_data_all_sociodem <- reactive({
   # print(input$urban_9)
   # print(input$education_9)
   # print(input$sex_9)
-  
   df_sel %>%
     filter(measure == input$measure_9,
            env_itm %in% input$env_dimensions_9,
@@ -79,6 +78,9 @@ reactive_plot_all_sociodem <- reactive({
 })
 
 output$plot_all_sociodem <- renderPlot({
+  validate(
+    need(nrow(filtered_data_all_sociodem()) >0, "The current input selection returns an empty plot.\nPlease change the input selection to display a valid plot.")
+  )
   print(reactive_plot_all_sociodem())
 })
 

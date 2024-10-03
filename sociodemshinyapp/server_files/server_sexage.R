@@ -21,7 +21,9 @@ filtered_data_sexage <- reactive({
 reactive_plot_sexage <- reactive({
   data <- filtered_data_sexage()
   
-  
+  if (nrow(data) == 0) {
+    return(NULL)  # Return NULL if there is no data to plot
+  }
   
   data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
   
@@ -101,6 +103,9 @@ reactive_plot_sexage <- reactive({
 })
 
 output$plot_sexage <- renderPlot({
+  validate(
+    need(nrow(filtered_data_sexage()) >0, "The current input selection returns an empty plot.\nPlease change the input selection to display a valid plot.")
+  )
   print(reactive_plot_sexage())
 })
 

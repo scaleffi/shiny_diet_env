@@ -154,6 +154,9 @@ reactive_plot_sociodem_rel <- reactive({
 })
 
 output$plot_sociodem_rel <- renderPlot({
+  validate(
+    need(nrow(filtered_data_sociodem_rel()) >0, "The current input selection returns an empty plot.\nPlease change the input selection to display a valid plot.")
+  )
   print(reactive_plot_sociodem_rel())
 })
 

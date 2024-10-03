@@ -10,7 +10,7 @@ library(rsconnect) # to connect to the posit account on which the dashboard is d
 library(shiny)
 library(scales)
 library(ggthemes)
-library(ggsci)
+#library(ggsci)
 library(geomtextpath)
 library(bslib)
 
