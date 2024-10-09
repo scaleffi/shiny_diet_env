@@ -112,6 +112,8 @@ output$plot_sexage <- renderPlot({
 sexage_table <- reactive({
   data <- filtered_data_sexage()
   
+  
+  
   #Add a unique identifier column based on all relevant variables. This is needed because otherwise the datatable command used further down will automatically
   #group into a single row instances where different combinations of variables in the dataset correspond to the same impact value on the y axis.
   #If for example FML aged 10-19 have an impact value of 1.19 in both HIC and LIC, the datatable command would display just one row for the value 1.19, and list
@@ -147,28 +149,29 @@ sexage_table <- reactive({
   return(data_wide)
 })
 
-#Now create the actual table based on the dataframe that results from the previous section
-output$sexage_table <- renderUI({
+  #Now create the actual table based on the dataframe that results from the previous section
+  output$sexage_table <- renderUI({
   sexage_data <- sexage_table()
-  
-  
+
   #Remove the 'unique_id' column from the data. We created this in the previous section to ensure that all occurrences of the value
   #on the y axis are assigned a distinct row, but we don't need to show that column to the user.
   sexage_data <- sexage_data[, !colnames(sexage_data) %in% c("unique_id", "box")]
-  
+
   #Convert the list column 'age.education' to a character vector, ensuring there are no errors when R has to read it
   sexage_data$age.education <- sapply(sexage_data$age.education, paste, collapse = ", ")
   #This is the command that creates the actual table. The pageLength argument tells R to display a table that is as long
   #as there are rows in the originating dataset - which is defined dynamically by the user's choice of inputs.
   #The scrollX and scrollY arguments simply make the table scrollable across both axes. I set rownames to TRUE so that
-  #R automatically assigns a number to each rowm to make it easier to count records.
+  #R automatically assigns a number to each row to make it easier to count records.
   table_html <- datatable(sexage_data,
                           options = list(dom = 't', pageLength = nrow(sexage_data),
                                          scrollX = TRUE, scrollY = TRUE),
                           rownames = TRUE)  # Include the default row numbers
-  
+
+
   return(table_html)
 })
+
 
 #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
 output$download_csv_sexage <- downloadHandler(

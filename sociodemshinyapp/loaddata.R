@@ -15,7 +15,7 @@ csv_file_trs_rgsage <- "data/report_env_trs_norgs_011824.csv"
 
 
 # Create dataframe 'Box' (age-sex and edu-urb) ----------------------------
-df_box <- read_csv(csv_file_box)
+df_box <- read_csv(csv_file_box, show_col_types = FALSE)
 df_box$value <- round(df_box$value, 0)
 df <- df_box %>%
   #Rename values in env_itm column to include unit of measurements for each environmental dimension
@@ -58,7 +58,7 @@ df <- df_box %>%
 
 
 # Create dataframe 'Trs' (age-sex-edu-urb) --------------------------------
-df_trs <- read_csv(csv_file_trs)
+df_trs <- read_csv(csv_file_trs, show_col_types = FALSE)
 df_trs$value <- round(df_trs$value, 0)
 df_trs <- df_trs %>%
   mutate(
@@ -139,7 +139,7 @@ df_trs_macrof <-
 
 
 # Create dataframe 'Sel' (age,sex,edu,urb) --------------------------------
-df_sel <- read_csv(csv_file_sel)
+df_sel <- read_csv(csv_file_sel, show_col_types = FALSE)
 df_sel$value <- round(df_sel$value, 0)
 df_sel <- df_sel %>%
   mutate(
@@ -179,7 +179,7 @@ df_sel <- df_sel %>%
 
 
 # Create dataframe 'Trsage' (age-sex-edu-urb-region) ----------------------
-df_trs_rgsage <- read_csv(csv_file_trs_rgsage)
+df_trs_rgsage <- read_csv(csv_file_trs_rgsage, show_col_types = FALSE)
 df_trs_rgsage$value <- round(df_trs_rgsage$value, 0)
 df_trs_rgsage <- df_trs_rgsage %>%
   mutate(

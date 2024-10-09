@@ -27,7 +27,7 @@ lshtm_theme_few <- function(){
       strip.text.x = element_text(size = 12 
                                   #,face = "bold"
       ),
-      panel.spacing = unit(0,"lines"),
+      panel.spacing = unit(0, "lines"),
       strip.text.y = element_text(size = 12
                                   , face = "bold"
       ),
