@@ -51,9 +51,7 @@ reactive_plot_all_sociodem <- reactive({
     facet_grid(factor(region,
                       levels = custom_order_region
                       ) ~ 
-                 factor(edu,
-                        levels = custom_order_edu
-                        ) +
+                 
                  factor(urban,
                         levels = 
                           #custom_order_urban
@@ -61,7 +59,10 @@ reactive_plot_all_sociodem <- reactive({
                             "all-u",
                             "urban",
                             "rural"
-                          )
+                          ) 
+                 ) +
+                 factor(edu,
+                        levels = custom_order_edu
                  ) +
                  factor(sex,
                         levels = custom_order_sex

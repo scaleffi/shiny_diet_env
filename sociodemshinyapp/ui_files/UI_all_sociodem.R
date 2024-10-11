@@ -8,6 +8,7 @@ tabItem(
                 column(3,
                        selectInput("dmd_scn_9", "Select Demand Perspective:", choices = unique(df_sel$dmd_scn), selected = "actual demand"),
                        selectInput("measure_9", "Select Measure:", choices = c(
+                         "ratio to regional avg (absolute)",
                          "ratio to regional mean (capita)",
                          "ratio to global mean (capita)"),
                          selected = "ratio to regional mean (capita)")

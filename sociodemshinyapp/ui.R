@@ -1,5 +1,4 @@
-library(shinydashboard)
-# library(shiny)
+library(shinydashboard) # needed here even if already loaded in app.R
 
 myUI <- dashboardPage(
                     skin = "black",
@@ -11,7 +10,6 @@ myUI <- dashboardPage(
                     dashboardSidebar(
                       sidebarMenu(
                         menuItem("View by sociodemographic", 
-                                 #tabName = "sociodem",
                                  tabName = NULL,
                                  icon = icon("person-half-dress"),
                                  menuSubItem("About this data", tabName = "about_sociodem", icon = icon("person-half-dress")),
@@ -31,10 +29,11 @@ myUI <- dashboardPage(
                                  menuSubItem("Food groups", tabName = "foodgroups", icon = icon("wheat-awn")),
                                  menuSubItem("Food macrocategories", tabName = "foodmacro", icon = icon("wheat-awn"))
                         ),
-                        # menuItem("Plots for paper", tabName = NULL,
-                        # menuSubItem("Radar by region", tabName = "radar_region"),
-                        # menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo"),
-                        # menuSubItem("Radar by region (income)", tabName = "radar_regionincome")),
+                        menuItem("Plots for paper", tabName = NULL,
+                        menuSubItem("Radar by region", tabName = "radar_region"),
+                        menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo"),
+                        menuSubItem("Radar by region (income)", tabName = "radar_regionincome"),
+                        menuSubItem("Radar by env dimension", tabName = "radar_envitm")),
                         menuItem("Info", tabName = "readme", icon = icon("info-circle")
                                  , selected = TRUE
                         ) 
@@ -43,24 +42,23 @@ myUI <- dashboardPage(
                     # mainPanel(
                     dashboardBody(
                       tabItems(
-                        source('ui_files/UI_aboutsociodem.R', local = TRUE)$value,
-                        source('ui_files/UI_sexage.R', local = TRUE)$value,
-                        source('ui_files/UI_eduurb.R', local = TRUE)$value,
-                        source('ui_files/UI_multisociodem.R', local = TRUE)$value,
-                        source('ui_files/UI_multisociodem_rel.R', local = TRUE)$value,
-                        source('ui_files/UI_all_sociodem.R', local = TRUE)$value,
-                        source('ui_files/UI_aboutregion.R', local = TRUE)$value,
-                        source('ui_files/UI_region.R', local = TRUE)$value,
-                        source('ui_files/UI_regiongeo.R', local = TRUE)$value,
-                        source('ui_files/UI_aboutcategories.R', local = TRUE)$value,
-                        source('ui_files/UI_foodgroups.R', local = TRUE)$value,
-                        source('ui_files/UI_foodmacro.R', local = TRUE)$value,
-                        source('ui_files/UI_radar_region.R', local = TRUE)$value,
-                        source('ui_files/UI_radar_regiongeo.R', local = TRUE)$value,
-                        source('ui_files/UI_radar_regionincome.R', local = TRUE)$value,
-                        source('ui_files/UI_readme.R', local = TRUE)$value
+                        source("ui_files/UI_aboutsociodem.R", local = TRUE)$value,
+                        source("ui_files/UI_sexage.R", local = TRUE)$value,
+                        source("ui_files/UI_eduurb.R", local = TRUE)$value,
+                        source("ui_files/UI_multisociodem.R", local = TRUE)$value,
+                        source("ui_files/UI_multisociodem_rel.R", local = TRUE)$value,
+                        source("ui_files/UI_all_sociodem.R", local = TRUE)$value,
+                        source("ui_files/UI_aboutregion.R", local = TRUE)$value,
+                        source("ui_files/UI_region.R", local = TRUE)$value,
+                        source("ui_files/UI_regiongeo.R", local = TRUE)$value,
+                        source("ui_files/UI_aboutcategories.R", local = TRUE)$value,
+                        source("ui_files/UI_foodgroups.R", local = TRUE)$value,
+                        source("ui_files/UI_foodmacro.R", local = TRUE)$value,
+                        source("ui_files/UI_radar_region.R", local = TRUE)$value,
+                        source("ui_files/UI_radar_regiongeo.R", local = TRUE)$value,
+                        source("ui_files/UI_radar_regionincome.R", local = TRUE)$value,
+                        source("ui_files/UI_radar_envitm.R", local = TRUE)$value,
+                        source("ui_files/UI_readme.R", local = TRUE)$value
                       )
                     )
 )
-
-

@@ -3,76 +3,75 @@
 
 
 # Create custom themes ----------------------------------------------------
-lshtm_theme_few <- function(){
+lshtm_theme_few <- function() {
   theme_few() +
     #%+replace%
     theme(
-      #plot.margin = margin(0,0,0,0),
       axis.title.x = element_text(
         vjust = -1,
         size = 14,
         #family = "serif",
-        face = "plain"),
+        face = "plain"
+      ),
       axis.title.x.top = element_text(
         size = 14,
         vjust = 1,
         hjust = 0
       ),
-      axis.title.y = element_text(size = 14,
-                                  face = "plain",
-                                  #family = "serif",
-                                  #angle = 90
-                                  vjust = 1.5
-      ),
-      strip.text.x = element_text(size = 12 
-                                  #,face = "bold"
-      ),
-      panel.spacing = unit(0, "lines"),
-      strip.text.y = element_text(size = 12
-                                  , face = "bold"
-      ),
-      axis.text.y = element_text(size = 10.5),
-      axis.text.x = element_text(size = 10.5,
-                                 angle = 45,
-                                 #vjust = 0.5,
-                                 hjust = 1
-      ),
-      legend.position = "right",
-      legend.text = element_text(size = 12),
-      legend.title = element_text(size = 12
-                                  #face = "bold"
-      ),
-      plot.title = element_text(#family = "serif",
-        size = 22, 
-        face = "bold",
-        hjust = 0.5,
-        vjust = 0.2
-        ),
-      plot.subtitle = element_text(
-        size = 10, 
+      axis.title.y = element_text(
+        size = 14,
         face = "plain",
-        vjust = 1,
-        ),
-      plot.caption = element_text(
-        size = 12,
-        face = "bold",
-        hjust = 0
+        #family = "serif",
+        #angle = 90
+        vjust = 1.5
       ),
-      panel.grid.major.x = element_line(colour = "gray", linetype = "dotted"),
-      panel.grid.major.y = element_line(colour = "gray", linetype = "dotted"),
-      strip.placement = "outside"
-    )
+      strip.text.x = element_text(size = 12
+                                  ,face = "bold"),
+                                  panel.spacing = unit(0, "lines"),
+                                  strip.text.y = element_text(size = 12
+                                                              , face = "bold"),
+                                  axis.text.y = element_text(size = 10.5),
+                                  axis.text.x = element_text(
+                                    size = 10.5,
+                                    angle = 45,
+                                    #vjust = 0.5,
+                                    hjust = 1
+                                  ),
+                                  legend.position = "right",
+                                  legend.text = element_text(size = 12),
+                                  legend.title = element_text(size = 12),
+                                                              plot.title = element_text(
+                                                                #family = "serif",
+                                                                size = 22,
+                                                                face = "bold",
+                                                                hjust = 0.5,
+                                                                vjust = 0.2
+                                                              ),
+                                                              plot.subtitle = element_text(
+                                                                size = 10,
+                                                                face = "plain",
+                                                                vjust = 1,
+                                                              ),
+                                                              plot.caption = element_text(
+                                                                size = 12,
+                                                                face = "bold",
+                                                                hjust = 0
+                                                              ),
+                                                              panel.grid.major.x = element_line(colour = "gray", linetype = "dotted"),
+                                                              panel.grid.major.y = element_line(colour = "gray", linetype = "dotted"),
+                                                              strip.placement = "outside"
+                                  )
 }
 
 # Create a second version of the custom theme, for radar plots
-lshtm_theme_few_radar <- function(){
+lshtm_theme_few_radar <- function() {
   theme_few() +
     theme(
       axis.title.x = element_blank(),
       axis.title.y = element_blank(),
       strip.text.x = element_text(size = 12, face = "bold"),
-      panel.spacing = unit(0,"lines"),
-      strip.text.y = element_text(size = 12, face = "bold"),
+      panel.spacing = unit(0, "lines"),
+      strip.text.y = element_text(size = 12, face = "bold"), 
       axis.text.y = element_blank(),
       axis.text.x = element_blank(),
       axis.ticks = element_blank(),
@@ -114,7 +113,7 @@ colors_sociodem <- c(
   "20-39" = "#48c9b0",
   "40-64" = "#229954",
   "65+"= "#7d6608"
-)
+ ) 
 
 colors_age <-
   c("0-9" = "#ebdef0",
@@ -122,7 +121,7 @@ colors_age <-
     "20-39" = "#48c9b0",
     "40-64" = "#229954",
     "65+"= "#7d6608"
-      )
+      ) 
 
 colors_sociodem_category <- c(
   "Urb. level" = "#f4d03f",

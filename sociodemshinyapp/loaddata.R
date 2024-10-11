@@ -4,7 +4,7 @@
 
 # Load libraries ----------------------------------------------------------
 library(tidyverse)
-library(readr) # needed for the read_csv function, which is faster than the base read.csv
+library(readr) # for the read_csv function, faster than the base read.csv
 
 
 # Load .csv data files ---------------------------------------------------------
@@ -18,7 +18,7 @@ csv_file_trs_rgsage <- "data/report_env_trs_norgs_011824.csv"
 df_box <- read_csv(csv_file_box, show_col_types = FALSE)
 df_box$value <- round(df_box$value, 0)
 df <- df_box %>%
-  #Rename values in env_itm column to include unit of measurements for each environmental dimension
+  # include explicit units of measurement
   mutate(
     env_itm = case_when(
       env_itm == "GHG" ~ "GHG (Mt CO2eq)",
@@ -29,7 +29,7 @@ df <- df_box %>%
       env_itm == "eutr" ~ "eutrophication pot. (kt PO4eq)",
       env_itm == "avg" ~ "average environmental impact",
       env_itm == "avg_pb" ~ "average environmental impact (pb weighted)",
-      TRUE ~ env_itm  # Keep the original value if it doesn't match any condition
+      TRUE ~ env_itm  #keep the original value if it doesn't match any condition
     ),
     dmd_scn = case_when(
       dmd_scn == "actl" ~ "actual demand",
@@ -108,7 +108,7 @@ df_trs_category <-
   )
 
 df_trs_macrofoods <-
-  df_trs_category %>% # create a new dataset with both variables 'category' and 'macrofoods', for grouping in plots
+  df_trs_category %>% # new dataset with variables 'category' and 'macrofoods'
   mutate(
     macrofoods = case_when(
       food_group %in% c(
@@ -121,18 +121,21 @@ df_trs_macrofoods <-
         "fish"
       ) ~ "ASF",
       food_group %in% c("rice", "grains", "roots") ~ "Staples",
-      food_group %in% c("fruit_veg", "oils", "sugar", "legumes", "nuts_seeds", "other") ~ "Other",
+      food_group %in% c("fruit_veg", "oils", "sugar",
+                        "legumes", "nuts_seeds", "other") ~ "Other",
       food_group %in% c("total") ~ "Total"
     )
   )
 
 df_trs_macrof <-
-  df_trs %>% # create a new datasets with variable 'macrofoods', for grouping in plots
+  df_trs %>% # dataset with new variable 'macrofoods'
   mutate(
     macrofoods = case_when(
-      food_group %in% c("beef", "lamb", "dairy", "othr_ani", "othr_meat", "pork", "fish") ~ "ASF",
+      food_group %in% c("beef", "lamb", "dairy", "othr_ani",
+                        "othr_meat", "pork", "fish") ~ "ASF",
       food_group %in% c("rice", "grains", "roots") ~ "Staples",
-      food_group %in% c("fruit_veg", "oils", "sugar", "legumes", "nuts_seeds", "other") ~ "Other",
+      food_group %in% c("fruit_veg", "oils", "sugar", "legumes",
+                        "nuts_seeds", "other") ~ "Other",
       food_group %in% c("total") ~ "Total"
     )
   )

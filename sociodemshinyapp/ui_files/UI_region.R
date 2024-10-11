@@ -9,11 +9,11 @@ tabItem(
                        selectInput("dmd_scn_1", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
                        selectInput("measure_1", "Select Measure:", choices = c(
                          "absolute", 
-                         "per capita"),
-                         #"ratio to global avg (absolute)", 
+                         "per capita",
+                         "ratio to global avg (absolute)", 
                          #"ratio to regional avg (absolute)",
                          #"ratio to regional mean (capita)",
-                         #"ratio to global mean (capita)"), 
+                         "ratio to global mean (capita)"), 
                          selected = "per capita")
                 ),
                 column(4,
