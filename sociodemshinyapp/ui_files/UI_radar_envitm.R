@@ -17,7 +17,7 @@ tabItem(
                 column(4,
                        # selectInput("env_dimensions_13", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), multiple = TRUE,
                        #             selected = "average environmental impact")
-                       selectInput("region_13", "Select Region:", choices = c("WLD", "HIC", "UMC", "LMC", "LIC"), multiple = TRUE, selected = c("WLD"))
+                       selectInput("region_13", "Select Region:", choices = c("HIC", "UMC", "LMC", "LIC"), multiple = TRUE, selected = c("HIC", "UMC", "LMC", "LIC"))
                 ),
                 column(4,
                        downloadButton("download_csv_envitmradar", "Download table"),

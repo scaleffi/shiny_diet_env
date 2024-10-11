@@ -43,9 +43,9 @@ reactive_plot_env_itmradar <- reactive({
   
   p_envitmradar <- ggplot(data, aes(
     x = #env_itm,
-    factor(env_itm, level = c("avg", "GHG", "land", "water", "eutr")),
+    factor(env_itm, level = c("GHG", "land", "water", "eutr", "avg")),
     y = value
-    #fill = macrofoods
+    #fill = env_itm
   )) +
     coord_polar() +
     theme_void() +
@@ -64,7 +64,6 @@ reactive_plot_env_itmradar <- reactive({
       #color = "white",
       alpha = 0.9,
       width = 0.6,
-      #fill = "#a6a79b"
       show.legend = FALSE
     ) +
     scale_y_continuous(limits = c(-60,285)) +
