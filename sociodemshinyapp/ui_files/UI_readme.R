@@ -9,7 +9,7 @@ tabItem(
             "This dashboard allows you to explore and compare global food-related environmental footprints in 2020. 
                     It uses new estimates developed by Prof. Marco Springmann, and has been designed and developed
                     by Sebastiano Caleffi.<br><br> 
-                    The footprints can be filtered and compared by region, country, sex, age group, urban/rural residence, and education level.
+                    The footprints can be filtered and compared by region, sex, age group, urban/rural residence, and education level.
                     The dashboard is divided in three sections, accessible through the tabs in the menu on the left.<br>
                     The first section focuses on how footprints differ across sociodemographic groups (sex, age, urban/rural residence, education level).<br>
                     The second, on how they differ across regions, both income and geographic.<br> 

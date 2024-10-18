@@ -3,8 +3,8 @@ library(shinydashboard) # needed here even if already loaded in app.R
 myUI <- dashboardPage(
                     skin = "black",
                     dashboardHeader(
-                      title = "The environmental footprints of global diets",
-                      titleWidth = 450
+                      title = "The socio-demographic characteristics of food-related environmental impacts",
+                      titleWidth = 750
                     ),
                     # titlePanel("The environmental footprints of global diets"),----
                     dashboardSidebar(
@@ -29,11 +29,11 @@ myUI <- dashboardPage(
                                  menuSubItem("Food groups", tabName = "foodgroups", icon = icon("wheat-awn")),
                                  menuSubItem("Food macrocategories", tabName = "foodmacro", icon = icon("wheat-awn"))
                         ),
-                        menuItem("Plots for paper", tabName = NULL,
-                        menuSubItem("Radar by region", tabName = "radar_region"),
-                        menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo"),
-                        menuSubItem("Radar by region (income)", tabName = "radar_regionincome"),
-                        menuSubItem("Radar by env dimension", tabName = "radar_envitm")),
+                        # menuItem("Plots for paper", tabName = NULL,
+                        # menuSubItem("Radar by region", tabName = "radar_region"),
+                        # menuSubItem("Radar by region (geo)", tabName = "radar_regiongeo"),
+                        # menuSubItem("Radar by region (income)", tabName = "radar_regionincome"),
+                        # menuSubItem("Radar by env dimension", tabName = "radar_envitm")),
                         menuItem("Info", tabName = "readme", icon = icon("info-circle")
                                  , selected = TRUE
                         ) 
@@ -54,10 +54,10 @@ myUI <- dashboardPage(
                         source("ui_files/UI_aboutcategories.R", local = TRUE)$value,
                         source("ui_files/UI_foodgroups.R", local = TRUE)$value,
                         source("ui_files/UI_foodmacro.R", local = TRUE)$value,
-                        source("ui_files/UI_radar_region.R", local = TRUE)$value,
-                        source("ui_files/UI_radar_regiongeo.R", local = TRUE)$value,
-                        source("ui_files/UI_radar_regionincome.R", local = TRUE)$value,
-                        source("ui_files/UI_radar_envitm.R", local = TRUE)$value,
+                        # source("ui_files/UI_radar_region.R", local = TRUE)$value,
+                        # source("ui_files/UI_radar_regiongeo.R", local = TRUE)$value,
+                        # source("ui_files/UI_radar_regionincome.R", local = TRUE)$value,
+                        # source("ui_files/UI_radar_envitm.R", local = TRUE)$value,
                         source("ui_files/UI_readme.R", local = TRUE)$value
                       )
                     )
