@@ -1,11 +1,12 @@
 **What**: 
-This repository contains code and data to create an interactive Shiny Dashboard. The tool has been designed and developed by Sebastiano Caleffi and Marco Springmann at the Institute for Global Health, University College London.
+This repository contains code and data to create an interactive Shiny dashboard. The tool has been designed and developed by Sebastiano Caleffi and Marco Springmann at the Institute for Global Health, University College London.
 
 **Description**:
 The dashboard allows users to explore data on food-related environmental footprints in 2020, for 175 countries, across four socio-demographic characteristics (age, sex, education level, urban/rural residency),
 and four environmental dimensions (GHG, land use, freshwater use, eutrophication potential). 
 
-The dashboard accompanies a scientific paper that has been submitted for review. For any questions or comments, please contact Sebastiano Caleffi at [s.caleffi@ucl.ac.uk](mailto:s.caleffi@ucl.ac.uk) 
+The dashboard accompanies a scientific paper that has been submitted for review, and which contains detailed information on the methodology and data used. The paper will be linked to the dashboard once it has been published. 
+For any questions or comments, please contact Sebastiano Caleffi at [s.caleffi@ucl.ac.uk](mailto:s.caleffi@ucl.ac.uk) 
 
 **Instructions**:
 
