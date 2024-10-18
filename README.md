@@ -5,10 +5,10 @@ This repository contains code and data to create an interactive Shiny dashboard.
 The dashboard allows users to explore data on food-related environmental footprints in 2020, for 175 countries, across four socio-demographic characteristics (age, sex, education level, urban/rural residency),
 and four environmental dimensions (GHG, land use, freshwater use, eutrophication potential). 
 
-The dashboard accompanies a scientific paper that has been submitted for review, and which contains detailed information on the methodology and data used. The paper will be linked to the dashboard once it has been published. 
+The dashboard accompanies a scientific paper that has been submitted for review, and which contains detailed information on the methodology and data used. The paper will be linked to the dashboard once it has been published. After publication, the dashboard will be published online on a freely accessible platform, hosted courtesy of Oxford University.
 For any questions or comments, please contact Sebastiano Caleffi at [s.caleffi@ucl.ac.uk](mailto:s.caleffi@ucl.ac.uk) 
 
-**Instructions**:
+**Instructions for off-line use**:
 
 1. Ensure you have R and RStudio installed on your environment.
 2. Download a copy of the repository onto your local environment.
