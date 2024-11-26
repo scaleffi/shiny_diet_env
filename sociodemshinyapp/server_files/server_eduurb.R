@@ -25,6 +25,7 @@ reactive_plot_eduurb <- reactive({
                        y = value,
                        color = sex.urbanisation
                      )) +
+    geom_hline(yintercept = 100, alpha = 0.2, linewidth = 2) +
     geom_point(size = 4) +
     scale_color_manual(values = colors_urban,
                        breaks = c("urban",
@@ -42,7 +43,6 @@ reactive_plot_eduurb <- reactive({
     facet_wrap( ~ region_custom, ncol = 5,
                 labeller = labeller(region_custom = label_wrap_gen(width = 15))
     ) +
-    geom_hline(yintercept = 100, alpha = 0.2, linewidth = 2) +
     labs(
       title = paste("Diet-related",
                     selected_env_itm_u,

@@ -266,7 +266,7 @@ custom_order_edu <-
     "high",
     "medium",
     "low",
-    "all-u"
+    "all-e"
   )
 
 custom_order_urban <-

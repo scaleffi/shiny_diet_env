@@ -39,6 +39,7 @@ reactive_plot_sexage <- reactive({
       color = sex.urbanisation
     )
   ) +
+    geom_hline(yintercept = 100, alpha = 0.2, linewidth = 2) +
     geom_point(size = 4) +
     #coord_flip() +
     scale_color_manual(values = colors_sex,
@@ -57,7 +58,6 @@ reactive_plot_sexage <- reactive({
     facet_wrap( ~ region_custom, ncol = 5,
                 labeller = labeller(region_custom = label_wrap_gen(width = 15))
     ) +
-    geom_hline(yintercept = 100, alpha = 0.2, linewidth = 2) +
     #geom_texthline(mapping = NULL, data = NULL, yintercept = 100, label = "Global average") +
     labs(
       title = 
