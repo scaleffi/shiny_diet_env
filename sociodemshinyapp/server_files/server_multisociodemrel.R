@@ -32,6 +32,7 @@ reactive_plot_sociodem_rel <- reactive({
                              ,label = value
                            )
                            ) +
+    geom_vline(xintercept = 100, alpha = 0.4, linewidth = 0.8) +
     geom_col(aes(fill = factor(
       food_group,
       level = custom_order_foodgroup
@@ -43,7 +44,6 @@ reactive_plot_sociodem_rel <- reactive({
                labeller = labeller(region_custom = label_wrap_gen(width = 15),
                                    category = label_wrap_gen(width = 5))
     ) +
-    geom_vline(xintercept = 100, alpha = 0.4, linewidth = 0.8) +
     scale_fill_manual(values = colors_food) +
     #scale_x_continuous(position = "top") +
     labs(
@@ -73,84 +73,6 @@ reactive_plot_sociodem_rel <- reactive({
                                       ),
           strip.placement = "outside"
     )
-  
-  
-  # p_sociodem_rel <- ggplot(data,
-  #                          aes(
-  #                            x = factor(
-  #                              age,
-  #                              level = c(
-  #                                "MLE",
-  #                                "FML",
-  #                                "BTH",
-  #                                "0-9",
-  #                                "10-19",
-  #                                "20-39",
-  #                                "40-64",
-  #                                "65+",
-  #                                "all-a",
-  #                                "low",
-  #                                "medium",
-  #                                "high",
-  #                                "all-e",
-  #                                "urban",
-  #                                "rural",
-  #                                "all-u"
-  #                              )
-  #                            ),
-  #                            y = value,
-  #                            label = value
-  #                          )) +
-  #   geom_col(aes(fill = factor(
-  #     food_group,
-  #     level = c(
-  #       "beef",
-  #       "lamb",
-  #       "dairy",
-  #       "pork",
-  #       "other meats",
-  #       "fish",
-  #       "eggs&fats",
-  #       "rice",
-  #       "grains",
-  #       "fruit_veg",
-  #       "oils",
-  #       "sugar",
-  #       "roots",
-  #       "legumes",
-  #       "nuts&seeds",
-  #       "other",
-  #       "total"
-  #     )
-  #   )), color = "white") +
-  #   coord_flip() +
-  #   facet_grid(category ~ region_custom,
-  #              scales = "free_y",
-  #              space = "free_y", switch = "y", shrink = FALSE,
-  #              labeller = labeller(region_custom = label_wrap_gen(width = 15),
-  #                                  category = label_wrap_gen(width = 5))
-  #   ) +
-  #   scale_fill_manual(values = colors_food) +
-  #   labs(
-  #     title = paste("diet-related ",
-  #                   selected_env_itm,
-  #                   " in 2020,\n",
-  #                   "based on ",
-  #                   selected_dmd_scn,
-  #                   sep = "") ,
-  #     #caption = "LSHTM - Centre for Climate Change and Planetary Health",
-  #     x = NULL,
-  #     y = paste("% contribution to diet-related ",selected_env_itm, "\nas ", selected_measure, sep = ""),
-  #     fill = NULL
-  #   ) +
-  #   lshtm_theme_few() +
-  #   theme(strip.text.y = element_text(size = 14
-  #                                     , face = "bold"
-  #                                     , angle = 90
-  #   ),
-  #   strip.placement = "outside"
-  #   )
-  
 })
 
 output$plot_sociodem_rel <- renderPlot({
