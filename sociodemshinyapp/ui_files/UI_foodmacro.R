@@ -10,7 +10,11 @@ tabItem(
                        selectInput("measure_6", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
                 ),
                 column(4,
-                       selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average environmental impact","average environmental impact (pb weighted)", "land use, pasture (thousands of km2)", "land use, crops (thousands of km2)")), selected = "GHG (Mt CO2eq)"),
+                       selectInput("env_dimensions_6", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average environmental impact",
+                                                                                                                                   "average environmental impact (pb weighted)",
+                                                                                                                                   "land use, pasture (thousands of km\u00B2)",
+                                                                                                                                   "land use, crops (thousands of km\u00B2)")), 
+                                   selected = "GHG (Mt CO\u2082eq)"),
                        selectInput("region_6", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                 ),
                 column(4,
@@ -18,7 +22,7 @@ tabItem(
                          "beef",
                          "lamb",
                          "pork",
-                         "other meats",
+                         "other meat",
                          "fish",
                          "dairy",  
                          "eggs&fats",

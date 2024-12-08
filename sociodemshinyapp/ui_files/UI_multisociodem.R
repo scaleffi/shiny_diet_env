@@ -14,13 +14,13 @@ tabItem(
                 column(3,
                        selectInput("env_dimensions_7", "Select Environmental Dimensions:", 
                                    choices = setdiff(unique(df_trs_category$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")),
-                                   selected = "GHG (Mt CO2eq)"),
+                                   selected = "GHG (Mt CO\u2082eq)"),
                        selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = 
                                     c(
                                       "beef",
                                       "lamb",
                                       "pork",
-                                      "other meats",
+                                      "other meat",
                                       "fish",
                                       "dairy",  
                                       "eggs&fats",

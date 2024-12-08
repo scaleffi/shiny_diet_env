@@ -82,9 +82,18 @@ lshtm_theme_few_radar <- function() {
 }
 
 # Assign colours to variables ---------------------------------------------
+
+# These were used in the first version of the dashboard
+# colors_macro <- c(
+#   "ASF" = "#922b21",
+#   "Staples" = "#f1c40f",
+#   "Other" = "#85929e"
+# )
+
+# These colours approximate the Excel palette and are used in the paper as well
 colors_macro <- c(
-  "ASF" = "#922b21",
-  "Staples" = "#f1c40f",
+  "ASF" = "#ff0000",
+  "Staples" = "#ffcc00",
   "Other" = "#85929e"
 )
 
@@ -130,25 +139,47 @@ colors_sociodem_category <- c(
   "Age" = "#48c9b0"
 )
 
+# These colours were used in the first version of the dashboard
+# colors_food <- c(
+#   "beef" = "#cb4335",
+#   "lamb" = "#ec7063",
+#   "pork" = "#f5a5b5",
+#   "other meat" = "#d98880",
+#   "fish" = "#003366",
+#   "dairy" = "#66CCFF",
+#   "eggs&fats" = "#fae5d3",
+#   "other" = "#fdedec",
+#   "sugar" = "#bdc3c7",
+#   "oils" = "#7b7d7d",
+#   "nuts&seeds" = "#999933",
+#   "fruit&veg" = "#66CC00",
+#   "legumes" = "#66CC99",
+#   "roots" = "#eb984e",
+#   "rice" = "#f9e79f",
+#   "grains" = "#ecdb54",
+#   "total" = "#2c3e50"
+#   )
+
+# these colours approximate the Excel palette and are used in the paper
 colors_food <- c(
-  "beef" = "#cb4335",
-  "lamb" = "#ec7063",
-  "pork" = "#f5a5b5",
-  "other meats" = "#d98880",
-  "fish" = "#003366",
+  "beef" = "#ff0000",
+  "lamb" = "#800000",
+  "pork" = "#ff9900",
+  "other meat" = "#FFCC99",
+  "fish" = "#0066CC",
   "dairy" = "#66CCFF",
-  "eggs&fats" = "#fae5d3",
-  "other" = "#fdedec",
-  "sugar" = "#bdc3c7",
-  "oils" = "#7b7d7d",
-  "nuts&seeds" = "#999933",
-  "fruit&veg" = "#66CC00",
-  "legumes" = "#66CC99",
-  "roots" = "#eb984e",
-  "rice" = "#f9e79f",
-  "grains" = "#ecdb54",
+  "eggs&fats" = "#CCCCFF",
+  "other" = "#616a6b",
+  "sugar" = "#7f8c8d",
+  "oils" = "#b2babb",
+  "nuts&seeds" = "#99CC00",
+  "fruit&veg" = "#008000",
+  "legumes" = "#CCFFCC",
+  "roots" = "#fcf3cf",
+  "rice" = "#f7dc6f",
+  "grains" = "#ffcc00",
   "total" = "#2c3e50"
-  )
+)
 
 
 # Rename regions for clearer facet titles ---------------------------------
@@ -245,7 +276,7 @@ custom_order_foodgroup <-
     "beef",
     "lamb",
     "pork",
-    "other meats",
+    "other meat",
     "fish",
     "dairy",  
     "eggs&fats",

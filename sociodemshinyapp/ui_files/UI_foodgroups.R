@@ -10,7 +10,9 @@ tabItem(
                        selectInput("measure_4", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
                 ),
                 column(4,
-                       selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")), selected = "GHG (Mt CO2eq)"),
+                       selectInput("env_dimensions_4", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average environmental impact",
+                                                                                                                                   "average environmental impact (pb weighted)")), 
+                                   selected = "GHG (Mt CO\u2082eq)"),
                        selectInput("region_4", "Select Region:", choices = unique(df$region),multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC"))
                 ),
                 column(4,
@@ -18,7 +20,7 @@ tabItem(
                          "beef",
                          "lamb",
                          "pork",
-                         "other meats",
+                         "other meat",
                          "fish",
                          "dairy",  
                          "eggs&fats",

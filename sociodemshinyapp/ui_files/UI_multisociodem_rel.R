@@ -43,7 +43,7 @@ tabItem(
                          "beef",
                          "lamb",
                          "pork",
-                         "other meats",
+                         "other meat",
                          "fish",
                          "dairy",  
                          "eggs&fats",
