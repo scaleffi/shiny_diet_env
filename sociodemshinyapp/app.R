@@ -29,7 +29,7 @@ myserver <- function(input, output) {
   source("server_files/server_eduurb.R", local = TRUE)
   source("server_files/server_multisociodem.R", local = TRUE)
   source("server_files/server_multisociodemrel.R", local = TRUE)
-  source("server_files/server_all_sociodem.R", local = TRUE)
+  #source("server_files/server_all_sociodem.R", local = TRUE)
   source("server_files/server_region.R", local = TRUE)
   source("server_files/server_regiongeo.R", local = TRUE)
   source("server_files/server_category.R", local = TRUE)
