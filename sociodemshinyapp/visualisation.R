@@ -8,7 +8,7 @@ lshtm_theme_few <- function() {
     #%+replace%
     theme(
       axis.title.x = element_text(
-        vjust = -1,
+        vjust = -0.5,
         size = 14,
         #family = "serif",
         face = "plain"

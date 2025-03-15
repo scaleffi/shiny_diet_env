@@ -11,6 +11,25 @@ filtered_data_sociodem_rel <- reactive({
     )
 })
 
+observe({
+  if (input$measure_8 %in% c("ratio to global avg (absolute)", 
+                             "ratio to regional avg (absolute)",
+                             "ratio to regional mean (capita)",
+                             "ratio to global mean (capita)"))
+    updateSelectInput(session = getDefaultReactiveDomain(),
+                      "env_dimensions_8",
+                      choices = c(
+                        "GHG",  # Subscript 2
+                        "water use",
+                        "land use",
+                        "land use, crops",
+                        "land use, pasture",
+                        "eutrophication pot.",
+                        "average environmental impact",
+                        "average environmental impact (pb weighted)"
+                      ))
+})
+
 reactive_plot_sociodem_rel <- reactive({
   data <- filtered_data_sociodem_rel()
   

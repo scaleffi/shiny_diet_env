@@ -12,6 +12,42 @@ filtered_data_regiongeo <- reactive({
            )
 })
 
+observe({ # R observes an event based on conditions set below
+  if (input$measure_5 == "absolute")
+    
+    # this function is a smart way to impact the UI based on a user selection,
+    # without having to change any code in the UI part of the application.
+    updateSelectInput(session = getDefaultReactiveDomain(), "env_dimensions_5",
+                      choices = c(
+                        "GHG (Mt CO\u2082eq)",  # Subscript 2
+                        "water use (km\u00B3)",
+                        "land use (thousands of km\u00B2)",
+                        "land use, crops (thousands of km\u00B2)",
+                        "land use, pasture (thousands of km\u00B2)",
+                        "eutrophication pot. (kt PO\u2084eq)"
+                      ),
+                      selected = c("GHG (Mt CO\u2082eq)",
+                                   "water use (km\u00B3)",
+                                   "land use (thousands of km\u00B2)",
+                                   "eutrophication pot. (kt PO\u2084eq)")
+    ) else { if (input$measure_5 == "per capita")
+      updateSelectInput(session = getDefaultReactiveDomain(), "env_dimensions_5",
+                        choices = c(
+                          "GHG (kg CO\u2082eq)",  # Subscript 2
+                          "water use (m\u00B3)",
+                          "land use (m\u00B2)",
+                          "land use, crops (m\u00B2)",
+                          "land use, pasture (m\u00B2)",
+                          "eutrophication pot. (g PO\u2084eq)"
+                        ),
+                        selected = c("GHG (kg CO\u2082eq)",
+                                     "water use (m\u00B3)",
+                                     "land use (thousands of m\u00B2)",
+                                     "eutrophication pot. (g PO\u2084eq)")
+      ) 
+    }
+})
+
 reactive_plot_regiongeo <- reactive({
   data <- filtered_data_regiongeo()
   

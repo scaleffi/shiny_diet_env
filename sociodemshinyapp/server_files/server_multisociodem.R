@@ -8,20 +8,12 @@ filtered_data_sociodem <- reactive({
            region %in% input$region_7)
 })
 
-
-
-reactive_plot_sociodem <- reactive({
-  data <- filtered_data_sociodem()
-  
-  data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
-  data$category_custom <- factor(data$category, levels = custom_order_category)
-  
-  
-  
-  observe({
-    if (input$measure_7 == "absolute")
+# ensure the user sees the appropriate choice of env dimensions depending on the measure selected
+observe({ # R observes an event based on conditions set below
+  if (input$measure_7 == "absolute")
     
-    # Can also set the label and select items
+    # this function is a smart way to impact the UI based on a user selection,
+    # without having to change any code in the UI part of the application.
     updateSelectInput(session = getDefaultReactiveDomain(), "env_dimensions_7",
                       choices = c(
                         "GHG (Mt CO\u2082eq)",  # Subscript 2
@@ -32,20 +24,26 @@ reactive_plot_sociodem <- reactive({
                         "eutrophication pot. (kt PO\u2084eq)"
                       ),
                       selected = "GHG (Mt CO\u2082eq)"
-    ) else updateSelectInput(session = getDefaultReactiveDomain(), "env_dimensions_7",
-                        choices = c(
-                          "GHG (kg CO\u2082eq)",  # Subscript 2
-                          "water use (m\u00B3)",
-                          "land use (m\u00B2)",
-                          "land use, crops (m\u00B2)",
-                          "land use, pasture (m\u00B2)",
-                          "eutrophication pot. (g PO\u2084eq)",
-                          "average environmental impact",
-                          "average environmental impact (pb weighted)"
-                        )
-                        
-      )
-  })
+    ) else { if (input$measure_7 == "per capita")
+        updateSelectInput(session = getDefaultReactiveDomain(), "env_dimensions_7",
+                             choices = c(
+                               "GHG (kg CO\u2082eq)",  # Subscript 2
+                               "water use (m\u00B3)",
+                               "land use (m\u00B2)",
+                               "land use, crops (m\u00B2)",
+                               "land use, pasture (m\u00B2)",
+                               "eutrophication pot. (g PO\u2084eq)"
+                             ),
+                             selected = "GHG (kg CO\u2082eq)"
+                             )
+    }
+})
+
+reactive_plot_sociodem <- reactive({
+  data <- filtered_data_sociodem()
+  
+  data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
+  data$category_custom <- factor(data$category, levels = custom_order_category)
   
   selected_env_itm <- input$env_dimensions_7
   selected_dmd_scn <- input$dmd_scn_7

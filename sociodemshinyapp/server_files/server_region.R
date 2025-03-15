@@ -10,6 +10,54 @@ filtered_data_region <- reactive({
            region %in% input$region_1)
 })
 
+observe({ # R observes an event based on conditions set below
+  if (input$measure_1 == "absolute")
+    
+    # this function is a smart way to impact the UI based on a user selection,
+    # without having to change any code in the UI part of the application.
+    updateSelectInput(session = getDefaultReactiveDomain(), "env_dimensions_1",
+                      choices = c(
+                        "GHG (Mt CO\u2082eq)",  # Subscript 2
+                        "water use (km\u00B3)",
+                        "land use (thousands of km\u00B2)",
+                        "land use, crops (thousands of km\u00B2)",
+                        "land use, pasture (thousands of km\u00B2)",
+                        "eutrophication pot. (kt PO\u2084eq)"
+                      ),
+                      selected = "GHG (Mt CO\u2082eq)"
+    ) else { if (input$measure_1 == "per capita")
+      updateSelectInput(session = getDefaultReactiveDomain(), "env_dimensions_1",
+                        choices = c(
+                          "GHG (kg CO\u2082eq)",  # Subscript 2
+                          "water use (m\u00B3)",
+                          "land use (m\u00B2)",
+                          "land use, crops (m\u00B2)",
+                          "land use, pasture (m\u00B2)",
+                          "eutrophication pot. (g PO\u2084eq)"
+                        ),
+                        selected = "GHG (kg CO\u2082eq)"
+      ) else {if (input$measure_1 %in% c("ratio to global avg (absolute)", 
+                                         #"ratio to regional avg (absolute)",
+                                         #"ratio to regional mean (capita)",
+                                         "ratio to global mean (capita)"))
+        updateSelectInput(session = getDefaultReactiveDomain(),
+                          "env_dimensions_1",
+                          choices = c(
+                            "GHG",
+                            "water use",
+                            "land use",
+                            "land use, crops",
+                            "land use, pasture",
+                            "eutrophication pot.",
+                            "average environmental impact",
+                            "average environmental impact (pb weighted)"
+                          ), selected = "GHG")
+        
+      }
+    }
+})
+
+
 reactive_plot_region <- reactive({
   
   data <- filtered_data_region()
