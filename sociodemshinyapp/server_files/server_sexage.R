@@ -18,6 +18,24 @@ filtered_data_sexage <- reactive({
            region %in% input$region_2)
 })
 
+observe({
+  if (input$measure_2 %in% c("ratio to global mean (capita)","ratio to regional mean (capita)"))
+    
+    updateSelectInput(session = getDefaultReactiveDomain(),
+                      "env_dimensions_2",
+                      choices = c(
+                        "GHG",  # Subscript 2
+                        "water use",
+                        "land use",
+                        "land use, crops",
+                        "land use, pasture",
+                        "eutrophication pot.",
+                        "average environmental impact",
+                        "average environmental impact (pb weighted)"
+                      ),
+                      selected = "average environmental impact")
+})
+
 reactive_plot_sexage <- reactive({
   data <- filtered_data_sexage()
   
@@ -52,7 +70,9 @@ reactive_plot_sexage <- reactive({
                        name =
                          "(100 = global mean)"
                        ) +
-    scale_y_continuous(breaks = c(0, 50, 75, 100, 125, 150, 200)) +
+    scale_y_continuous(breaks = waiver()
+                      # c(0, 50, 75, 100, 125, 150, 200)
+                       ) +
     geom_text_repel(aes(label = value), show.legend = FALSE) +
     #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
     facet_wrap( ~ region_custom, ncol = 5,

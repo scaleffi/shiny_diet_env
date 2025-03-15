@@ -10,6 +10,32 @@ filtered_data_categorymacro <- reactive({
     )
 })
 
+observe({ # R observes an event based on conditions set below
+  if (input$measure_6 == "absolute")
+    
+    # this function is a smart way to impact the UI based on a user selection,
+    # without having to change any code in the UI part of the application.
+    updateSelectInput(session = getDefaultReactiveDomain(), "env_dimensions_6",
+                      choices = c(
+                        "GHG (Mt CO\u2082eq)",  # Subscript 2
+                        "water use (km\u00B3)",
+                        "land use (thousands of km\u00B2)",
+                        "eutrophication pot. (kt PO\u2084eq)"
+                      ),
+                      selected = "GHG (Mt CO\u2082eq)"
+    ) else { if (input$measure_6 == "per capita")
+      updateSelectInput(session = getDefaultReactiveDomain(), "env_dimensions_6",
+                        choices = c(
+                          "GHG (kg CO\u2082eq)",  # Subscript 2
+                          "water use (m\u00B3)",
+                          "land use (m\u00B2)",
+                          "eutrophication pot. (g PO\u2084eq)"
+                        ),
+                        selected = "GHG (kg CO\u2082eq)"
+      )
+    }
+})
+
 reactive_plot_categorymacro <- reactive({
   
   selected_env_itm <- input$env_dimensions_6

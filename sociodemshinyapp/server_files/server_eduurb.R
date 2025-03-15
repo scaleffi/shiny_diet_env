@@ -10,6 +10,25 @@ filtered_data_eduurb <- reactive({
            region %in% input$region_3)
 })
 
+observe({
+  if (input$measure_3 %in% c("ratio to global mean (capita)","ratio to regional mean (capita)"))
+    
+    updateSelectInput(session = getDefaultReactiveDomain(),
+                      "env_dimensions_3",
+                      choices = c(
+                        "GHG",  # Subscript 2
+                        "water use",
+                        "land use",
+                        "land use, crops",
+                        "land use, pasture",
+                        "eutrophication pot.",
+                        "average environmental impact",
+                        "average environmental impact (pb weighted)"
+                      ),
+                      selected = "average environmental impact")
+})
+
+
 reactive_plot_eduurb <- reactive({
   data <- filtered_data_eduurb()
   
@@ -37,7 +56,9 @@ reactive_plot_eduurb <- reactive({
                                   "all-u"
                        ),
                        name = "(100 = global mean)") +
-    scale_y_continuous(breaks = c(0, 50, 75, 100, 125, 150, 175, 200)) +
+    scale_y_continuous(breaks = waiver() 
+                         #c(0, 50, 75, 100, 125, 150, 175, 200)
+                       ) +
     geom_text_repel(aes(label = value), show.legend = FALSE) +
     #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
     facet_wrap( ~ region_custom, ncol = 5,

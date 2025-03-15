@@ -7,14 +7,14 @@ tabItem(
               fluidRow(
                 column(3,
                        selectInput("dmd_scn_7", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
-                       selectInput("measure_7", "Select Measure:", 
+                       selectInput("measure_7", "Select Measure:",
                                    choices = c("absolute","per capita"),
                                    selected = "per capita")
                 ),
                 column(3,
-                       selectInput("env_dimensions_7", "Select Environmental Dimensions:", 
-                                   choices = setdiff(unique(df_trs_category$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")),
-                                   selected = "GHG (Mt CO\u2082eq)"),
+                       selectInput("env_dimensions_7", "Select Environmental Dimensions:",
+                                   choices = setdiff(unique(df_trs_category$env_itm), c("average environmental impact", "average environmental impact (pb weighted)"))),
+                                   #,selected = "GHG (Mt CO\u2082eq)"),
                        selectInput("food_group_7", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = 
                                     c(
                                       "beef",

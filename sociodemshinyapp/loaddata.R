@@ -15,13 +15,35 @@ library(data.table)
 # possible options using ifelse. As it ends up adding a more computational heavy
 # process, I decided to stick with manual substitution in those cases.
 
-labels_env_itm <- c(
+labels_env_itm_abs <- c(
   "GHG" = "GHG (Mt CO\u2082eq)",  # Subscript 2
   "water" = "water use (km\u00B3)",
   "land" = "land use (thousands of km\u00B2)",
   "land_crop" = "land use, crops (thousands of km\u00B2)",
   "land_pstr" = "land use, pasture (thousands of km\u00B2)",
   "eutr" = "eutrophication pot. (kt PO\u2084eq)",
+  "avg" = "average environmental impact",
+  "avg_pb" = "average environmental impact (pb weighted)"
+)
+
+labels_env_itm_cap <- c(
+  "GHG" = "GHG (kg CO\u2082eq)",  # Subscript 2
+  "water" = "water use (m\u00B3)",
+  "land" = "land use (m\u00B2)",
+  "land_crop" = "land use, crops (m\u00B2)",
+  "land_pstr" = "land use, pasture (m\u00B2)",
+  "eutr" = "eutrophication pot. (g PO\u2084eq)",
+  "avg" = "average environmental impact",
+  "avg_pb" = "average environmental impact (pb weighted)"
+)
+
+labels_env_itm_ratio <- c(
+  "GHG" = "GHG",  # Subscript 2
+  "water" = "water use",
+  "land" = "land use",
+  "land_crop" = "land use, crops",
+  "land_pstr" = "land use, pasture",
+  "eutr" = "eutrophication pot.",
   "avg" = "average environmental impact",
   "avg_pb" = "average environmental impact (pb weighted)"
 )
@@ -44,12 +66,19 @@ labels_measure <- c(
 df <- fread("data/report_env_box_011824.csv")
 
 # Apply the replacements using a named vector and fcase
-df[, env_itm := fcase(
-  env_itm %in% names(labels_env_itm), labels_env_itm[env_itm])]
+df[, measure := fcase(measure %in% names(labels_measure), labels_measure[measure])]
 
 df[, dmd_scn := fcase(dmd_scn %in% names(labels_dmd_scn), labels_dmd_scn[dmd_scn])]
 
-df[, measure := fcase(measure %in% names(labels_measure), labels_measure[measure])]
+# assign label with appropriate unit of measurement
+df[, env_itm := fcase(
+  measure == "absolute", labels_env_itm_abs[env_itm],
+  measure == "per capita", labels_env_itm_cap[env_itm],
+  measure %in% c("ratio to global avg (absolute)",
+                 "ratio to regional avg (absolute)",
+                 "ratio to regional mean (capita)",
+                 "ratio to global mean (capita)"), labels_env_itm_ratio[env_itm]
+)]
 
 # Manual substitution instead of using a vector, because we are operating only on
 # some of the labels.
@@ -71,12 +100,18 @@ setnames(df, old = c("age-education", "sex-urbanisation"), new = c("age.educatio
 # Create dataframe 'Trs' (age-sex-edu-urb) --------------------------------
 df_trs <- fread("data/report_env_trs_011824.csv")
 
-df_trs[, env_itm := fcase(
-  env_itm %in% names(labels_env_itm), labels_env_itm[env_itm])]
-
 df_trs[, dmd_scn := fcase(dmd_scn %in% names(labels_dmd_scn), labels_dmd_scn[dmd_scn])]
 
 df_trs[, measure := fcase(measure %in% names(labels_measure), labels_measure[measure])]
+
+df_trs[, env_itm := fcase(
+  measure == "absolute", labels_env_itm_abs[env_itm],
+  measure == "per capita", labels_env_itm_cap[env_itm],
+  measure %in% c("ratio to global avg (absolute)",
+                 "ratio to regional avg (absolute)",
+                 "ratio to regional mean (capita)",
+                 "ratio to global mean (capita)"), labels_env_itm_ratio[env_itm]
+)]
 
 df_trs[food_group %in% c("othr_ani",
                      "othr_meat",
@@ -92,12 +127,19 @@ df_trs[,value := round(value,0)]
 # create new dataset with variable 'category' for grouping in plots
 df_trs_category <- fread("data/report_env_trs_011824.csv")
 
-df_trs_category[, env_itm := fcase(
-  env_itm %in% names(labels_env_itm), labels_env_itm[env_itm])]
 
 df_trs_category[, dmd_scn := fcase(dmd_scn %in% names(labels_dmd_scn), labels_dmd_scn[dmd_scn])]
 
 df_trs_category[, measure := fcase(measure %in% names(labels_measure), labels_measure[measure])]
+
+df_trs_category[, env_itm := fcase(
+  measure == "absolute", labels_env_itm_abs[env_itm],
+  measure == "per capita", labels_env_itm_cap[env_itm],
+  measure %in% c("ratio to global avg (absolute)",
+                 "ratio to regional avg (absolute)",
+                 "ratio to regional mean (capita)",
+                 "ratio to global mean (capita)"), labels_env_itm_ratio[env_itm]
+)]
 
 df_trs_category[food_group %in% c("othr_ani",
                          "othr_meat",
@@ -119,12 +161,18 @@ df_trs_category[, category := fcase(age %in% c("FML", "MLE", "BTH"), "Sex",
 # dataset with new variable 'macrofoods'
 df_trs_macrof <- fread("data/report_env_trs_011824.csv")
 
-df_trs_macrof[, env_itm := fcase(
-  env_itm %in% names(labels_env_itm), labels_env_itm[env_itm])]
-
 df_trs_macrof[, dmd_scn := fcase(dmd_scn %in% names(labels_dmd_scn), labels_dmd_scn[dmd_scn])]
 
 df_trs_macrof[, measure := fcase(measure %in% names(labels_measure), labels_measure[measure])]
+
+df_trs_macrof[, env_itm := fcase(
+  measure == "absolute", labels_env_itm_abs[env_itm],
+  measure == "per capita", labels_env_itm_cap[env_itm],
+  measure %in% c("ratio to global avg (absolute)",
+                 "ratio to regional avg (absolute)",
+                 "ratio to regional mean (capita)",
+                 "ratio to global mean (capita)"), labels_env_itm_ratio[env_itm]
+)]
 
 df_trs_macrof[food_group %in% c("othr_ani",
                                   "othr_meat",
@@ -157,12 +205,18 @@ df_trs_macrof[,value := round(value,0)]
 # new dataset with variables 'category' and 'macrofoods'
 df_trs_macrofoods <- fread("data/report_env_trs_011824.csv")
 
-df_trs_macrofoods[, env_itm := fcase(
-  env_itm %in% names(labels_env_itm), labels_env_itm[env_itm])]
-
 df_trs_macrofoods[, dmd_scn := fcase(dmd_scn %in% names(labels_dmd_scn), labels_dmd_scn[dmd_scn])]
 
 df_trs_macrofoods[, measure := fcase(measure %in% names(labels_measure), labels_measure[measure])]
+
+df_trs_macrofoods[, env_itm := fcase(
+  measure == "absolute", labels_env_itm_abs[env_itm],
+  measure == "per capita", labels_env_itm_cap[env_itm],
+  measure %in% c("ratio to global avg (absolute)",
+                 "ratio to regional avg (absolute)",
+                 "ratio to regional mean (capita)",
+                 "ratio to global mean (capita)"), labels_env_itm_ratio[env_itm]
+)]
 
 df_trs_macrofoods[food_group %in% c("othr_ani",
                                   "othr_meat",
@@ -200,12 +254,19 @@ df_trs_macrofoods[,value := round(value,0)]
 # Create dataframe 'Sel' (age,sex,edu,urb) --------------------------------
 df_sel <- fread("data/report_env_sel_011824.csv")
 
-df_sel[, env_itm := fcase(
-  env_itm %in% names(labels_env_itm), labels_env_itm[env_itm])]
 
 df_sel[, dmd_scn := fcase(dmd_scn %in% names(labels_dmd_scn), labels_dmd_scn[dmd_scn])]
 
 df_sel[, measure := fcase(measure %in% names(labels_measure), labels_measure[measure])]
+
+df_sel[, env_itm := fcase(
+  measure == "absolute", labels_env_itm_abs[env_itm],
+  measure == "per capita", labels_env_itm_cap[env_itm],
+  measure %in% c("ratio to global avg (absolute)",
+                 "ratio to regional avg (absolute)",
+                 "ratio to regional mean (capita)",
+                 "ratio to global mean (capita)"), labels_env_itm_ratio[env_itm]
+)]
 
 df_sel[food_group %in% c("othr_ani",
                          "othr_meat",
@@ -220,12 +281,18 @@ df_sel[,value := round(value,0)]
 # Create dataframe 'Trsage' (age-sex-edu-urb-region) ----------------------
 df_trs_rgsage <- fread("data/report_env_trs_norgs_011824.csv")
 
-df_trs_rgsage[, env_itm := fcase(
-  env_itm %in% names(labels_env_itm), labels_env_itm[env_itm])]
-
 df_trs_rgsage[, dmd_scn := fcase(dmd_scn %in% names(labels_dmd_scn), labels_dmd_scn[dmd_scn])]
 
 df_trs_rgsage[, measure := fcase(measure %in% names(labels_measure), labels_measure[measure])]
+
+df_trs_rgsage[, env_itm := fcase(
+  measure == "absolute", labels_env_itm_abs[env_itm],
+  measure == "per capita", labels_env_itm_cap[env_itm],
+  measure %in% c("ratio to global avg (absolute)",
+                 "ratio to regional avg (absolute)",
+                 "ratio to regional mean (capita)",
+                 "ratio to global mean (capita)"), labels_env_itm_ratio[env_itm]
+)]
 
 df_trs_rgsage[food_group %in% c("othr_ani",
                          "othr_meat",

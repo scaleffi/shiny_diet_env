@@ -8,6 +8,37 @@ filtered_data_sociodem <- reactive({
            region %in% input$region_7)
 })
 
+# ensure the user sees the appropriate choice of env dimensions depending on the measure selected
+observe({ # R observes an event based on conditions set below
+  if (input$measure_7 == "absolute")
+    
+    # this function is a smart way to impact the UI based on a user selection,
+    # without having to change any code in the UI part of the application.
+    updateSelectInput(session = getDefaultReactiveDomain(), "env_dimensions_7",
+                      choices = c(
+                        "GHG (Mt CO\u2082eq)",  # Subscript 2
+                        "water use (km\u00B3)",
+                        "land use (thousands of km\u00B2)",
+                        "land use, crops (thousands of km\u00B2)",
+                        "land use, pasture (thousands of km\u00B2)",
+                        "eutrophication pot. (kt PO\u2084eq)"
+                      ),
+                      selected = "GHG (Mt CO\u2082eq)"
+    ) else { if (input$measure_7 == "per capita")
+        updateSelectInput(session = getDefaultReactiveDomain(), "env_dimensions_7",
+                             choices = c(
+                               "GHG (kg CO\u2082eq)",  # Subscript 2
+                               "water use (m\u00B3)",
+                               "land use (m\u00B2)",
+                               "land use, crops (m\u00B2)",
+                               "land use, pasture (m\u00B2)",
+                               "eutrophication pot. (g PO\u2084eq)"
+                             ),
+                             selected = "GHG (kg CO\u2082eq)"
+                             )
+    }
+})
+
 reactive_plot_sociodem <- reactive({
   data <- filtered_data_sociodem()
   
