@@ -27,39 +27,39 @@ lshtm_theme_few <- function() {
       ),
       strip.text.x = element_text(size = 12
                                   ,face = "bold"),
-                                  panel.spacing = unit(0, "lines"),
-                                  strip.text.y = element_text(size = 12
-                                                              , face = "bold"),
-                                  axis.text.y = element_text(size = 10.5),
-                                  axis.text.x = element_text(
-                                    size = 10.5,
-                                    angle = 45,
-                                    #vjust = 0.5,
-                                    hjust = 1
+      panel.spacing = unit(0, "lines"),
+      strip.text.y = element_text(size = 12,
+                                  face = "bold"),
+      axis.text.y = element_text(size = 10.5),
+      axis.text.x = element_text(
+                                  size = 10.5,
+                                  angle = 45,
+                                  #vjust = 0.5,
+                                  hjust = 1
                                   ),
-                                  legend.position = "right",
-                                  legend.text = element_text(size = 12),
-                                  legend.title = element_text(size = 12),
-                                                              plot.title = element_text(
-                                                                #family = "serif",
-                                                                size = 22,
-                                                                face = "bold",
-                                                                hjust = 0.5,
-                                                                vjust = 0.2
-                                                              ),
-                                                              plot.subtitle = element_text(
-                                                                size = 10,
-                                                                face = "plain",
-                                                                vjust = 1,
-                                                              ),
-                                                              plot.caption = element_text(
-                                                                size = 12,
-                                                                face = "bold",
-                                                                hjust = 0
-                                                              ),
-                                                              panel.grid.major.x = element_line(colour = "gray", linetype = "dotted"),
-                                                              panel.grid.major.y = element_line(colour = "gray", linetype = "dotted"),
-                                                              strip.placement = "outside"
+      legend.position = "right",
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      plot.title = element_text(
+                                #family = "serif",
+                                size = 22,
+                                face = "bold",
+                                hjust = 0.5,
+                                vjust = 0.2
+                                           ),
+       plot.subtitle = element_text(
+                                    size = 10,
+                                    face = "plain",
+                                    vjust = 1,
+                                                  ),
+       plot.caption = element_text(
+                                   size = 12,
+                                   face = "bold",
+                                   hjust = 0
+                                                 ),
+       panel.grid.major.x = element_line(colour = "gray", linetype = "dotted"),
+       panel.grid.major.y = element_line(colour = "gray", linetype = "dotted"),
+       strip.placement = "outside"
                                   )
 }
 
