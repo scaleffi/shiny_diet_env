@@ -7,7 +7,7 @@ tabItem(
               fluidRow(
                 column(4,
                        selectInput("dmd_scn_5", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
-                       selectInput("measure_5", "Select Measure:", choices = c("absolute", "per capita"), selected = "per capita")
+                       selectInput("measure_5", "Select Measure:", choices = c("absolute", "per capita", "ratio to global avg (absolute)", "ratio to regional avg (absolute)"), selected = "per capita")
                 ),
                 column(4,
                        selectInput("env_dimensions_5", "Select Environmental Dimensions:", choices = setdiff(unique(df$env_itm), c("average environmental impact",

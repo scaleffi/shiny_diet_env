@@ -11,9 +11,9 @@ tabItem(
                          "absolute", 
                          "per capita",
                          "ratio to global avg (absolute)", 
-                         #"ratio to regional avg (absolute)",
+                         "ratio to regional avg (absolute)"),
                          #"ratio to regional mean (capita)",
-                         "ratio to global mean (capita)"), 
+                         #"ratio to global mean (capita)"), 
                          selected = "per capita")
                 ),
                 column(4,

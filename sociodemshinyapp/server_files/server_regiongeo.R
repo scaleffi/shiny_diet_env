@@ -44,7 +44,24 @@ observe({ # R observes an event based on conditions set below
                                      "water use (m\u00B3)",
                                      "land use (thousands of m\u00B2)",
                                      "eutrophication pot. (g PO\u2084eq)")
-      ) 
+      ) else {if (input$measure_5 %in% c("ratio to global avg (absolute)", 
+                                         "ratio to regional avg (absolute)",
+                                         #"ratio to regional mean (capita)",
+                                         "ratio to global mean (capita)"))
+        updateSelectInput(session = getDefaultReactiveDomain(),
+                          "env_dimensions_5",
+                          choices = c(
+                            "GHG emissions",
+                            "water use",
+                            "land use",
+                            "land use, crops",
+                            "land use, pasture",
+                            "eutrophication pot.",
+                            "average environmental impact",
+                            "average environmental impact (pb weighted)"
+                          ), selected = "GHG emissions")
+        
+      } 
     }
 })
 

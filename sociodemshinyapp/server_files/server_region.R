@@ -37,13 +37,14 @@ observe({ # R observes an event based on conditions set below
                         ),
                         selected = "GHG (kg CO\u2082eq)"
       ) else {if (input$measure_1 %in% c("ratio to global avg (absolute)", 
-                                         #"ratio to regional avg (absolute)",
+                                         "ratio to regional avg (absolute)"
                                          #"ratio to regional mean (capita)",
-                                         "ratio to global mean (capita)"))
+                                         #"ratio to global mean (capita)"
+                                         ))
         updateSelectInput(session = getDefaultReactiveDomain(),
                           "env_dimensions_1",
                           choices = c(
-                            "GHG",
+                            "GHG emissions",
                             "water use",
                             "land use",
                             "land use, crops",
@@ -51,7 +52,7 @@ observe({ # R observes an event based on conditions set below
                             "eutrophication pot.",
                             "average environmental impact",
                             "average environmental impact (pb weighted)"
-                          ), selected = "GHG")
+                          ), selected = "GHG emissions")
         
       }
     }
@@ -62,6 +63,7 @@ reactive_plot_region <- reactive({
   
   data <- filtered_data_region()
   
+  selected_env_itm <- input$env_dimensions_1
   selected_dmd_scn <- input$dmd_scn_1
   selected_measure <- input$measure_1
   
