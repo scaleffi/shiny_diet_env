@@ -7,7 +7,10 @@ tabItem(
                 fluidRow(
                   column(3,
                          selectInput("dmd_scn_2", "Select Demand Perspective:", choices = unique(df$dmd_scn), selected = "actual demand"),
-                         selectInput("measure_2", "Select Measure:", choices = c("ratio to global mean (capita)","ratio to regional mean (capita)"), selected = "ratio to global mean (capita)")
+                         selectInput("measure_2", "Select Measure:", 
+                                     #choices = c("ratio to global mean (capita)","ratio to regional mean (capita)"),
+                                     choices = c("deviation from global mean (capita)","deviation from regional mean (capita)"),
+                                     selected = "deviation from global mean (capita)")
                   ),
                   column(3,
                          selectInput("env_dimensions_2", "Select Environmental Dimensions:", choices = unique(df$env_itm), selected = "average environmental impact"),

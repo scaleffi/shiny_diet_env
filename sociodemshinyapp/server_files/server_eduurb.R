@@ -11,12 +11,12 @@ filtered_data_eduurb <- reactive({
 })
 
 observe({
-  if (input$measure_3 %in% c("ratio to global mean (capita)","ratio to regional mean (capita)"))
+  if (input$measure_3 %in% c("deviation from global mean (capita)","deviation from regional mean (capita)"))
     
     updateSelectInput(session = getDefaultReactiveDomain(),
                       "env_dimensions_3",
                       choices = c(
-                        "GHG",  # Subscript 2
+                        "GHG emissions",  # Subscript 2
                         "water use",
                         "land use",
                         "land use, crops",
@@ -41,10 +41,10 @@ reactive_plot_eduurb <- reactive({
   p_eduurb <- ggplot(data,
                      aes(
                        x = factor(age.education, level = c("all-e" ,"low", "medium", "high")),
-                       y = value,
+                       y = value - 100,
                        color = sex.urbanisation
                      )) +
-    geom_hline(yintercept = 100, alpha = 0.2, linewidth = 2) +
+    geom_hline(yintercept = 0, alpha = 0.2, linewidth = 2) +
     geom_point(size = 4) +
     scale_color_manual(values = colors_urban,
                        breaks = c("urban",
@@ -59,15 +59,16 @@ reactive_plot_eduurb <- reactive({
     scale_y_continuous(breaks = waiver() 
                          #c(0, 50, 75, 100, 125, 150, 175, 200)
                        ) +
-    geom_text_repel(aes(label = value), show.legend = FALSE) +
+    geom_text_repel(aes(label = value - 100), show.legend = FALSE) +
     #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
     facet_wrap( ~ region_custom, ncol = 5,
                 labeller = labeller(region_custom = label_wrap_gen(width = 15))
     ) +
     labs(
-      title = paste("Diet-related",
+      title = paste(selected_measure,
+                    "of",
                     selected_env_itm_u,
-                    "per person\nin 2020,",
+                    "\nin 2020,",
                     "based on",
                     selected_dmd_scn,
                     #"(100 = world or regional average)",
@@ -79,7 +80,7 @@ reactive_plot_eduurb <- reactive({
       #                  sep = "") ,
       #caption = "LSHTM - Centre for Climate Change and Planetary Health",
       x = "Education level",
-      y = paste("Impact as ",
+      y = paste("% ",
                     selected_measure,
                     #",\nset equal to 100.",
                     sep = "")
@@ -116,6 +117,9 @@ eduurb_table <- reactive({
   data_wide <- data_long %>%
     pivot_wider(names_from = variable, values_from = values,
                 values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
+  
+  data_wide <- data_wide %>%
+    mutate(value = as.numeric(value) - 100)
   
   data_wide <- data_wide %>%
     mutate(across(everything(), ~lapply(., as.character)))  # Convert to character

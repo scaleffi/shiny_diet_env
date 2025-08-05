@@ -14,7 +14,7 @@ tabItem(
                          selected = "ratio to regional mean (capita)")
                 ),
                 column(3,
-                       selectInput("env_dimensions_9", "Select Environmental Dimensions:", choices = setdiff(unique(df_trs_category$env_itm), c("average environmental impact", "average environmental impact (pb weighted)")), selected = "GHG (Mt CO\u2082eq)"),
+                       selectInput("env_dimensions_9", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), selected = "GHG emissions"),
                        selectInput("age_9", "Select age:", choices = unique(df_sel$age), multiple = TRUE, selected = c(
                          "0-9",
                          "10-19",

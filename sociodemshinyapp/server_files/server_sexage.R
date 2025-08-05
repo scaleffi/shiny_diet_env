@@ -19,12 +19,12 @@ filtered_data_sexage <- reactive({
 })
 
 observe({
-  if (input$measure_2 %in% c("ratio to global mean (capita)","ratio to regional mean (capita)"))
+  if (input$measure_2 %in% c("deviation from global mean (capita)","deviation from regional mean (capita)"))
     
     updateSelectInput(session = getDefaultReactiveDomain(),
                       "env_dimensions_2",
                       choices = c(
-                        "GHG",  # Subscript 2
+                        "GHG emissions",  # Subscript 2
                         "water use",
                         "land use",
                         "land use, crops",
@@ -53,11 +53,11 @@ reactive_plot_sexage <- reactive({
     data,
     aes(
       x = age.education,
-      y = value,
+      y = value - 100,
       color = sex.urbanisation
     )
   ) +
-    geom_hline(yintercept = 100, alpha = 0.2, linewidth = 2) +
+    geom_hline(yintercept = 0, alpha = 0.2, linewidth = 2) +
     geom_point(size = 4) +
     #coord_flip() +
     scale_color_manual(values = colors_sex,
@@ -68,12 +68,12 @@ reactive_plot_sexage <- reactive({
                                   "Female",
                                   "Both"),
                        name =
-                         "(100 = global mean)"
+                         "Sex:"
                        ) +
     scale_y_continuous(breaks = waiver()
                       # c(0, 50, 75, 100, 125, 150, 200)
                        ) +
-    geom_text_repel(aes(label = value), show.legend = FALSE) +
+    geom_text_repel(aes(label = value - 100), show.legend = FALSE) +
     #scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
     facet_wrap( ~ region_custom, ncol = 5,
                 labeller = labeller(region_custom = label_wrap_gen(width = 15))
@@ -81,45 +81,24 @@ reactive_plot_sexage <- reactive({
     #geom_texthline(mapping = NULL, data = NULL, yintercept = 100, label = "Global average") +
     labs(
       title = 
-      #   paste(
-      #   "Mean diet-related ",
-      #   selected_env_itm_s,
-      #   "\nper person, from ",
-      #   selected_dmd_scn,
-      #   ", in 2020",
-      #   sep = ""
-      # ),
-        paste("Diet-related",
-                    selected_env_itm_s,
-                    "per person\nin 2020,",
-                    "based on",
-                    selected_dmd_scn,
-                    #"(100 = world or regional average)",
-                    sep = " "),
-      # subtitle = paste("Values are expressed as",
-      #                   selected_measure,
-      #                  ", set equal to 100."),
-      # caption = paste("Values are expressed as ",
-      #                                selected_measure,
-      #                               ",\nwhich has been set equal to 100.",
-      #                 sep = ""),
+        paste(selected_measure,
+              "of",
+              selected_env_itm_s,
+              "\nin 2020,",
+              "based on",
+              selected_dmd_scn,
+              #"(100 = world or regional average)",
+              sep = " "),
       x = "Age",
-      y = paste("Impact as ",
+      y = paste(
+                "% ",
                 selected_measure,
-                #",\nset equal to 100.",
                 sep = "")
-        #"100 = global mean"
-        # paste(selected_env_itm_s,
-        #         " as\n",
-        #         selected_measure,
-        #         #", with average set to 100",
-        #         sep = "")
     ) +
     lshtm_theme_few() +
     theme(
         legend.position = "top"
     )
-    #theme(legend.position = "top")
 })
 
 output$plot_sexage <- renderPlot({
@@ -140,7 +119,7 @@ sexage_table <- reactive({
   #both HIC and LIC in the region column. Creating a unique identifier that is formed by the values taken by each variable in each occurrence ensures
   #that we can generate a table in which duplicate values are presented in distinct rows.
   data <- data %>%
-    mutate(unique_id = paste(measure, env_itm, dmd_scn, food_group, box, sex.urbanisation, age.education, region, sep = "_"))
+    mutate(unique_id = paste(measure, env_itm, dmd_scn, food_group, box, sex.urbanisation, age.education, region, sep = "_")) 
   
   #Pivot the data to long format including the facet variable 'region'. This basically means expanding the number of
   #rows in the data selection. The table is a reactive element that follows the inputs
@@ -159,6 +138,10 @@ sexage_table <- reactive({
     pivot_wider(names_from = variable, values_from = values,
                 values_fn = list)  # Use values_fn to create a list, this is needed because what we are displaying is a list of distinct entries
   
+  data_wide <- data_wide %>%
+    mutate(value = as.numeric(value) - 100)
+
+  
   #Convert the list column to character format, this is to avoid errors when creating the HTML table below.
   #Converting everything in the dataframe to characters ensures that R won't get confused by variables that are expressed in
   #different formats
@@ -176,6 +159,10 @@ sexage_table <- reactive({
   #Remove the 'unique_id' column from the data. We created this in the previous section to ensure that all occurrences of the value
   #on the y axis are assigned a distinct row, but we don't need to show that column to the user.
   sexage_data <- sexage_data[, !colnames(sexage_data) %in% c("unique_id", "box")]
+  
+  # Scale down the values to display deviation from global average set to 0
+  #sexage_data <- sexage_data[, value := value - 100]
+
 
   #Convert the list column 'age.education' to a character vector, ensuring there are no errors when R has to read it
   sexage_data$age.education <- sapply(sexage_data$age.education, paste, collapse = ", ")

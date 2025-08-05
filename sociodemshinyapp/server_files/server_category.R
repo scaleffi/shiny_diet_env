@@ -68,7 +68,7 @@ reactive_plot_category <- reactive({
                 labeller = labeller(region_custom = label_wrap_gen(width = 15))
     ) +
     scale_fill_manual(values = colors_macro, breaks = c("ASF", "Staples", "Other")) +
-    labs(title = paste("Diet-related ",
+    labs(title = paste("Food-related ",
                        selected_env_itm,
                        " from\n",
                        selected_dmd_scn,", in 2020 (", selected_measure, ")", sep = ""),

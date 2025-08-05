@@ -38,7 +38,7 @@ labels_env_itm_cap <- c(
 )
 
 labels_env_itm_ratio <- c(
-  "GHG" = "GHG",  # Subscript 2
+  "GHG" = "GHG emissions",  # Subscript 2
   "water" = "water use",
   "land" = "land use",
   "land_crop" = "land use, crops",
@@ -62,11 +62,21 @@ labels_measure <- c(
   "pct_cap_WLD" = "ratio to global mean (capita)"
 )
 
+labels_measure_2 <- c(
+  "abs" = "absolute",
+  "cap" = "per capita",
+  "pct_abs_WLD" = "ratio to global avg (absolute)",
+  "pct_abs_RGS" = "ratio to regional avg (absolute)",
+  "pct_cap_RGS" = "deviation from regional mean (capita)",
+  "pct_cap_WLD" = "deviation from global mean (capita)"
+)
+
+
 # Create dataframe 'Box' (age-sex and edu-urb) ----------------------------
 df <- fread("data/report_env_box_011824.csv")
 
 # Apply the replacements using a named vector and fcase
-df[, measure := fcase(measure %in% names(labels_measure), labels_measure[measure])]
+df[, measure := fcase(measure %in% names(labels_measure_2), labels_measure_2[measure])]
 
 df[, dmd_scn := fcase(dmd_scn %in% names(labels_dmd_scn), labels_dmd_scn[dmd_scn])]
 
@@ -74,10 +84,14 @@ df[, dmd_scn := fcase(dmd_scn %in% names(labels_dmd_scn), labels_dmd_scn[dmd_scn
 df[, env_itm := fcase(
   measure == "absolute", labels_env_itm_abs[env_itm],
   measure == "per capita", labels_env_itm_cap[env_itm],
+  # measure %in% c("ratio to global avg (absolute)",
+  #                "ratio to regional avg (absolute)",
+  #                "ratio to regional mean (capita)",
+  #                "ratio to global mean (capita)"), labels_env_itm_ratio[env_itm]
   measure %in% c("ratio to global avg (absolute)",
                  "ratio to regional avg (absolute)",
-                 "ratio to regional mean (capita)",
-                 "ratio to global mean (capita)"), labels_env_itm_ratio[env_itm]
+                 "deviation from regional mean (capita)",
+                 "deviation from global mean (capita)"), labels_env_itm_ratio[env_itm]
 )]
 
 # Manual substitution instead of using a vector, because we are operating only on

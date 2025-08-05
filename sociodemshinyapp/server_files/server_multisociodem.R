@@ -73,7 +73,7 @@ reactive_plot_sociodem <- reactive({
     ) +
     scale_fill_manual(values = colors_food) +
     labs(title = paste(selected_measure,
-                       " diet-related ",
+                       " food-related ",
                        selected_env_itm,
                        " in 2020,\n",
                        "based on ",

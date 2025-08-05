@@ -1,20 +1,28 @@
 tabItem(
-  tabName = "multisociodem_rel",
-  #Sociodem_rel ----
-  fluidPage(title = "Compare impacts relative to global/regional averages",
+  tabName = "contribution",
+  fluidPage(title = "Compare contribution to total impacts",
             box(
               width = 12, title = "Select input parameters" , collapsible = T, solidHeader = TRUE, status = "primary",
               fluidRow(
                 column(3,
-                       selectInput("dmd_scn_8", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
-                       selectInput("measure_8", "Select Measure:", choices = c(
-                         "ratio to regional mean (capita)",
-                         "ratio to global mean (capita)"),
-                         selected = "ratio to regional mean (capita)")
+                       selectInput("dmd_scn_14", "Select Demand Perspective:", choices = unique(df_trs_category$dmd_scn), selected = "actual demand"),
+                       selectInput("measure_14", "Select Measure:", choices = c(
+                         "ratio to global avg (absolute)", 
+                         "ratio to regional avg (absolute)"),
+                         selected = "ratio to global avg (absolute)")
                 ),
                 column(3,
-                       selectInput("env_dimensions_8", "Select Environmental Dimensions:", choices = unique(df_trs_category$env_itm), selected = "average environmental impact"),
-                       selectInput("age_8", "Select sociodemographic:", choices = unique(df_trs_category$age), multiple = TRUE, selected = c(
+                       selectInput("env_dimensions_14", "Select Environmental Dimensions:", choices = c(
+                         "GHG emissions",  # Subscript 2
+                         "water use",
+                         "land use",
+                         "land use, crops",
+                         "land use, pasture",
+                         "eutrophication pot.",
+                         "average environmental impact",
+                         "average environmental impact (pb weighted)"
+                       ), selected = "average environmental impact"),
+                       selectInput("age_14", "Select sociodemographic:", choices = unique(df_trs_category$age), multiple = TRUE, selected = c(
                          "low",
                          "medium",
                          "high",
@@ -36,8 +44,8 @@ tabItem(
                        
                 ),
                 column(3,
-                       selectInput("region_8", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC")),
-                       selectInput("food_group_8", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
+                       selectInput("region_14", "Select Region:", choices = unique(df_trs_category$region), multiple = TRUE, selected = c("WLD", "HIC", "UMC", "LMC", "LIC")),
+                       selectInput("food_group_14", "Select Food Group:", choices = unique(df_trs_category$food_group), multiple = TRUE, selected = c(
                          "beef",
                          "lamb",
                          "pork",
@@ -57,20 +65,20 @@ tabItem(
                        ))
                 ),
                 column(3,
-                       downloadButton("download_csv_sociodem_rel", "Download table"),
+                       downloadButton("download_csv_contribution", "Download table"),
                        br(),
                        br(),
-                       downloadButton("download_plot_sociodem_rel", "Download plot")
+                       downloadButton("download_plot_contribution", "Download plot")
                 )
               )
             ),  
             box(
               width = 12, title = "Output", collapsible = T, solidHeader = TRUE, status = "primary",
               tabsetPanel(
-                tabPanel("Plot", plotOutput("plot_sociodem_rel"
+                tabPanel("Plot", plotOutput("plot_contribution"
                                             #, height = 400
                 )),
-                tabPanel("Table",tableOutput("sociodem_rel_table"))
+                tabPanel("Table",tableOutput("contribution_table"))
                 
               )
             )

@@ -93,7 +93,7 @@ reactive_plot_region <- reactive({
       strip.position = "top"
     ) +
     labs(#caption = "LSHTM - Centre for Climate Change and Planetary Health",
-      title = paste("Diet-related environmental impact from\n",
+      title = paste("Food-related environmental impact from\n",
                     selected_dmd_scn,", in 2020 (", selected_measure, ")", sep = ""),
       x = NULL ,
       #y = "Diet-related environmental impact in 2020",

@@ -1,23 +1,23 @@
-filtered_data_sociodem_rel <- reactive({
+filtered_data_contribution <- reactive({
   df_trs_category %>%
-    filter(measure == input$measure_8,
-           env_itm %in% input$env_dimensions_8,
-           food_group %in% input$food_group_8,
+    filter(measure == input$measure_14,
+           env_itm %in% input$env_dimensions_14,
+           food_group %in% input$food_group_14,
            #food_group == "total",
            #category %in% input$category_8,
-           dmd_scn == input$dmd_scn_8,
-           region %in% input$region_8,
-           age %in% input$age_8
+           dmd_scn == input$dmd_scn_14,
+           region %in% input$region_14,
+           age %in% input$age_14
     )
 })
 
 observe({
-  if (input$measure_8 %in% c("ratio to global avg (absolute)", 
+  if (input$measure_14 %in% c("ratio to global avg (absolute)", 
                              "ratio to regional avg (absolute)",
                              "ratio to regional mean (capita)",
                              "ratio to global mean (capita)"))
     updateSelectInput(session = getDefaultReactiveDomain(),
-                      "env_dimensions_8",
+                      "env_dimensions_14",
                       choices = c(
                         "GHG emissions",  # Subscript 2
                         "water use",
@@ -30,17 +30,17 @@ observe({
                       ))
 })
 
-reactive_plot_sociodem_rel <- reactive({
-  data <- filtered_data_sociodem_rel()
+reactive_plot_contribution <- reactive({
+  data <- filtered_data_contribution()
   
   data$region_custom <- factor(data$region, levels = custom_order_region, labels = custom_labels_region)
   data$category_custom <- factor(data$category, levels = custom_order_category)
   
-  selected_env_itm <- input$env_dimensions_8
-  selected_dmd_scn <- input$dmd_scn_8
-  selected_measure <- input$measure_8
+  selected_env_itm <- input$env_dimensions_14
+  selected_dmd_scn <- input$dmd_scn_14
+  selected_measure <- input$measure_14
   
-  p_sociodem_rel <- ggplot(data,
+  p_contribution <- ggplot(data,
                            aes(
                              x = value,
                              y = factor(
@@ -51,7 +51,7 @@ reactive_plot_sociodem_rel <- reactive({
                              ,label = value
                            )
                            ) +
-    geom_vline(xintercept = 100, alpha = 0.4, linewidth = 0.8) +
+    #geom_vline(xintercept = 100, alpha = 0.4, linewidth = 0.8) +
     geom_col(aes(fill = factor(
       food_group,
       level = custom_order_foodgroup
@@ -67,7 +67,8 @@ reactive_plot_sociodem_rel <- reactive({
     #scale_x_continuous(position = "top") +
     labs(
       title = 
-        paste(      selected_env_itm,
+        paste(      "Contribution to ",
+                    selected_env_itm,
                     " in 2020,\n",
                     "based on ",
                     selected_dmd_scn,
@@ -93,15 +94,15 @@ reactive_plot_sociodem_rel <- reactive({
     )
 })
 
-output$plot_sociodem_rel <- renderPlot({
+output$plot_contribution <- renderPlot({
   validate(
     need(nrow(filtered_data_sociodem_rel()) >0, "The current input selection returns an empty plot.\nPlease change the input selection to display a valid plot.")
   )
-  print(reactive_plot_sociodem_rel())
+  print(reactive_plot_contribution())
 })
 
-sociodem_rel_table <- reactive({
-  data <- filtered_data_sociodem_rel()
+contribution_table <- reactive({
+  data <- filtered_data_contribution()
   data <- data %>%
     mutate(unique_id = paste(measure, env_itm, dmd_scn, food_group, region, age, category, sep = "_"))
   
@@ -121,13 +122,13 @@ sociodem_rel_table <- reactive({
 })
 
 #Now create the actual table based on the dataframe that results from the previous section
-output$sociodem_rel_table <- renderUI({
+output$contribution_table <- renderUI({
   
-  sociodem_rel_data <- sociodem_rel_table()
-  sociodem_rel_data <- sociodem_rel_data[, !colnames(sociodem_rel_data) %in% "unique_id"]
-  sociodem_rel_data$age <- sapply(sociodem_rel_data$age, paste, collapse = ", ")
-  table_html <- datatable(sociodem_rel_data,
-                          options = list(dom = 't', pageLength = nrow(sociodem_rel_data),
+  contribution_data <- contribution_table()
+  contribution_data <- contribution_data[, !colnames(contribution_data) %in% "unique_id"]
+  contribution_data$age <- sapply(contribution_data$age, paste, collapse = ", ")
+  table_html <- datatable(contribution_data,
+                          options = list(dom = 't', pageLength = nrow(contribution_data),
                                          scrollX = TRUE, scrollY = TRUE),
                           rownames = TRUE)  # Include the default row numbers
   
@@ -135,28 +136,28 @@ output$sociodem_rel_table <- renderUI({
 })
 
 #Generate code to download the table. This call must match a downloadButton setup in the UI section of the code
-output$download_csv_sociodem_rel <- downloadHandler(
+output$download_csv_contribution <- downloadHandler(
   filename = function() {
     # Specify the filename for the downloaded file; in this case it's a name provided by the code and the current date
-    paste("sociodem_rel_data_", Sys.Date(), ".csv", sep = "")
+    paste("contribution_data_", Sys.Date(), ".csv", sep = "")
   },
   content = function(file) {
     # Create a copy of the data to avoid modifying the original data
-    sociodem_rel_data_export <- sociodem_rel_table()
+    contribution_data_export <- contribution_table()
     
     # Remove the 'unique_id' column
-    sociodem_rel_data_export <- sociodem_rel_data_export[, !colnames(sociodem_rel_data_export) %in% "unique_id"]
+    contribution_data_export <- contribution_data_export[, !colnames(contribution_data_export) %in% "unique_id"]
     
     # Convert all columns to character
-    sociodem_rel_data_export[] <- lapply(sociodem_rel_data_export, as.character)
+    contribution_data_export[] <- lapply(contribution_data_export, as.character)
     
     # Write the data to a CSV file
-    write.csv(sociodem_rel_data_export, file, row.names = FALSE)
+    write.csv(contribution_data_export, file, row.names = FALSE)
   }
 )
 
-output$download_plot_sociodem_rel <- downloadHandler(
-  filename = function() { paste("plot_sociodem_rel", '.png', sep='') },
-  content = function(file) { ggsave(file, plot = reactive_plot_sociodem_rel(),
+output$download_plot_contribution <- downloadHandler(
+  filename = function() { paste("plot_contribution", '.png', sep='') },
+  content = function(file) { ggsave(file, plot = reactive_plot_contribution(),
                                     device = "png", width = 18) }
 )

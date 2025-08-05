@@ -13,10 +13,11 @@ myUI <- dashboardPage(
                                  tabName = NULL,
                                  icon = icon("person-half-dress"),
                                  menuSubItem("About this data", tabName = "about_sociodem", icon = icon("person-half-dress")),
-                                 menuSubItem("Sex and age", tabName = "sexage", icon = icon("person-half-dress")),
-                                 menuSubItem("Edu. and urb.", tabName = "eduurb", icon = icon("person-half-dress")),
-                                 menuSubItem("Absolute impacts, by sociodem", tabName = "multisociodem", icon = icon("person-half-dress")),
-                                 menuSubItem("Relative impacts, by sociodem", tabName = "multisociodem_rel", icon = icon("person-half-dress"))
+                                 #menuSubItem("Sex and age", tabName = "sexage", icon = icon("person-half-dress")),
+                                 #menuSubItem("Edu. and urb.", tabName = "eduurb", icon = icon("person-half-dress")),
+                                 menuSubItem("Absolute impacts", tabName = "multisociodem", icon = icon("person-half-dress")),
+                                 menuSubItem("Relative impacts", tabName = "multisociodem_rel", icon = icon("person-half-dress")),
+                                 menuSubItem("Contribution to total impacts", tabName = "contribution", icon = icon("person-half-dress"))
                                  #menuSubItem("All sociodem", tabName = "all_sociodem", icon = icon("person-half-dress"))
                         ),
                         menuItem("View by region", tabName = NULL, icon = icon("earth-africa"),
@@ -43,10 +44,11 @@ myUI <- dashboardPage(
                     dashboardBody(
                       tabItems(
                         source("ui_files/UI_aboutsociodem.R", local = TRUE)$value,
-                        source("ui_files/UI_sexage.R", local = TRUE)$value,
-                        source("ui_files/UI_eduurb.R", local = TRUE)$value,
+                        #source("ui_files/UI_sexage.R", local = TRUE)$value,
+                        #source("ui_files/UI_eduurb.R", local = TRUE)$value,
                         source("ui_files/UI_multisociodem.R", local = TRUE)$value,
                         source("ui_files/UI_multisociodem_rel.R", local = TRUE)$value,
+                        source("ui_files/UI_contribution.R", local = TRUE)$value,
                         #source("ui_files/UI_all_sociodem.R", local = TRUE)$value,
                         source("ui_files/UI_aboutregion.R", local = TRUE)$value,
                         source("ui_files/UI_region.R", local = TRUE)$value,

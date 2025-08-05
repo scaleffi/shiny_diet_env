@@ -63,7 +63,7 @@ reactive_plot_categorymacro <- reactive({
     ) +
     scale_fill_manual(values = colors_food) +
     #geom_text_repel(aes(label = value), show.legend = FALSE) +
-    labs(title = paste("Diet-related ",
+    labs(title = paste("Food-related ",
                        selected_env_itm,
                        " from\n",
                        selected_dmd_scn,", in 2020 (", selected_measure, ")", sep = ""),
