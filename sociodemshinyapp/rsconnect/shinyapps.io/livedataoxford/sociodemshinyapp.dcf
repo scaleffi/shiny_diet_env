@@ -5,8 +5,9 @@ account: livedataoxford
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 13455771
-bundleId: 9949004
+bundleId: 12046112
 url: https://livedataoxford.shinyapps.io/sociodemshinyapp/
 version: 1
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: dump.R

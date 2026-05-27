@@ -19,6 +19,7 @@ tabItem(
                     
             Within each section, you can build plots and data tables by choosing among several filters and inputs. 
             All data can be visualised and downloaded as both a plot (.png) or a table (.csv). Plots and tables are reproducible, as long as their source is clearly cited.<br><br>
+            Suggested citation: Caleffi, S., Micha, R., Mozaffarian, D., Springmann, M. The socio-demographic characteristics of food-related environmental impacts -- an interactive dashboard. https://livedataoxford.shinyapps.io/sociodemshinyapp/ (2026).<br><br>
             Estimates of food demand (food intake + food waste) are built from FAOSTAT's Food Balance Sheets, available at: https://www.fao.org/faostat/en/#data/FBS. Estimates of daily intakes by sociodemographic are taken from the GDD, available at: https://globaldietarydatabase.org/.
             Region- and food-specific environmental footprints are taken from Poore and Nemecek (2018), available at: https://doi.org/10.1126/science.aaq0216.<br> 
             
